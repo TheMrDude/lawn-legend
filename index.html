@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lawn Legend - Landscaping Tycoon</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;min-height:100vh;overflow-x:hidden;user-select:none}
+.header{background:linear-gradient(135deg,#1a5c38,#2d6a4f);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,0.4);position:relative;z-index:100}
+.header h1{font-size:1.2rem;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,0.3)}.header h1 span{color:#b7e4c7}
+.stats{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.stat{background:rgba(0,0,0,0.25);padding:4px 8px;border-radius:16px;font-size:0.72rem;display:flex;align-items:center;gap:3px}
+.stat .v{font-weight:700;color:#b7e4c7}
+.combo-display{position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:150;pointer-events:none;text-align:center}
+.combo-display .combo-mult{font-size:1.8rem;font-weight:900;text-shadow:0 0 20px rgba(255,200,50,0.5)}
+.combo-display .combo-label{font-size:0.65rem;opacity:0.7}
+.game-wrap{display:flex;height:calc(100vh - 42px);overflow:hidden}
+.sidebar{width:320px;min-width:320px;background:#0d1b2a;border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:thin}
+.panel{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.main-canvas{flex:1;position:relative;background:#111;overflow:hidden}
+#gc{display:block;width:100%;height:100%}
+.job-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px;margin-bottom:4px;cursor:pointer;transition:all 0.15s;font-size:0.75rem}
+.job-card:hover{background:rgba(64,145,108,0.15);border-color:#40916c}
+.job-card.locked{opacity:0.35;cursor:not-allowed}.job-card.locked:hover{background:rgba(255,255,255,0.04)}
+.job-card.active{border-color:#52b788;background:rgba(82,183,136,0.1)}
+.job-card.rush{border-color:#ff6b35;background:rgba(255,107,53,0.08);animation:rushPulse 1.5s infinite}
+.job-card.bid{border-color:#9b59b6;background:rgba(155,89,182,0.08)}
+.job-card.working{border-color:#42a5f5;background:rgba(33,150,243,0.08);animation:workPulse 2s infinite}
+@keyframes rushPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,53,0)}50%{box-shadow:0 0 10px 2px rgba(255,107,53,0.3)}}
+@keyframes workPulse{0%,100%{box-shadow:0 0 0 0 rgba(33,150,243,0)}50%{box-shadow:0 0 8px 2px rgba(33,150,243,0.2)}}
+.jh{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.jn{font-weight:600;font-size:0.76rem}.jp{color:#52b788;font-weight:700;font-size:0.76rem}
+.jd{font-size:0.66rem;color:#888;display:flex;gap:6px;flex-wrap:wrap}
+.rush-timer{color:#ff6b35;font-weight:700;font-size:0.68rem}
+.progress-wrap{width:100%;background:rgba(0,0,0,0.3);border-radius:6px;height:16px;margin:3px 0;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#2d6a4f,#52b788);border-radius:6px;transition:width 0.15s;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:#fff;min-width:25px}
+.dispatch-bar{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap}
+.dispatch-btn{padding:3px 7px;border-radius:5px;font-size:0.6rem;font-weight:700;border:1px solid;cursor:pointer;transition:all 0.15s}
+.dispatch-btn:hover{transform:scale(1.05);filter:brightness(1.2)}
+.dispatch-btn.busy{opacity:0.3;cursor:not-allowed;transform:none}
+.active-jobs-bar{margin-bottom:5px}
+.active-job-item{display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:5px;margin-bottom:2px;font-size:0.65rem;font-weight:600}
+.upgrade-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:6px 8px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+.ui{flex:1}.un{font-weight:600;font-size:0.72rem}.ud{font-size:0.62rem;color:#888;margin-top:1px}.ul{font-size:0.6rem;color:#52b788;margin-top:1px}
+.bb{background:linear-gradient(135deg,#2d6a4f,#40916c);color:#fff;border:none;padding:4px 9px;border-radius:5px;cursor:pointer;font-weight:600;font-size:0.68rem;transition:all 0.15s;white-space:nowrap}
+.bb:hover{transform:scale(1.05);box-shadow:0 3px 10px rgba(64,145,108,0.4)}.bb:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none}
+.bb.red{background:linear-gradient(135deg,#c0392b,#e74c3c)}
+.bb.purple{background:linear-gradient(135deg,#6c3483,#8e44ad)}
+.nb-bar{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px;padding:4px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(82,183,136,0.15)}
+.nb-bar-label{font-size:0.55rem;color:#888;text-align:center;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px}
+.nb-btn{padding:4px 8px;border-radius:10px;font-size:0.65rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#aaa;cursor:pointer;transition:all 0.15s}
+.nb-btn:hover:not(.locked){background:rgba(64,145,108,0.12);border-color:#52b788}
+.nb-btn.active{background:rgba(64,145,108,0.2);border-color:#52b788;color:#b7e4c7;font-weight:700}
+.nb-btn .nb-done{font-size:0.5rem;color:#52b788}
+.nb-btn.locked{opacity:0.3;cursor:not-allowed}
+.log-entries{max-height:75px;overflow-y:auto;font-size:0.65rem;color:#777}
+.log-entry{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.02)}.log-entry .hl{color:#52b788;font-weight:600}
+.toast{position:fixed;top:50px;right:14px;background:linear-gradient(135deg,#1a5c38,#2d6a4f);color:#fff;padding:8px 14px;border-radius:8px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,0.4);transform:translateX(120%);transition:transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275);z-index:200;font-size:0.75rem;max-width:280px}.toast.show{transform:translateX(0)}
+.toast.warn{background:linear-gradient(135deg,#c0392b,#e74c3c)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:300;align-items:center;justify-content:center}.modal-overlay.show{display:flex}
+.modal{background:#0d1b2a;border-radius:14px;padding:24px;text-align:center;max-width:420px;border:2px solid #40916c;box-shadow:0 20px 60px rgba(0,0,0,0.6);animation:pop 0.3s ease;width:92%;max-height:90vh;overflow-y:auto}
+@keyframes pop{0%{transform:scale(0.7);opacity:0}100%{transform:scale(1);opacity:1}}
+.modal h2{font-size:1rem;color:#52b788;margin-bottom:5px}.modal p{color:#bbb;margin-bottom:12px;font-size:0.8rem}.modal .be{font-size:2rem;margin-bottom:5px}
+.modal button{background:linear-gradient(135deg,#2d6a4f,#40916c);color:#fff;border:none;padding:7px 20px;border-radius:7px;cursor:pointer;font-weight:600;font-size:0.8rem;margin:3px}
+.modal button.red{background:linear-gradient(135deg,#c0392b,#e74c3c)}
+.weather-bar{display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:7px;font-size:0.68rem;margin-bottom:5px;font-weight:600}
+.weather-bar.sunny{background:rgba(255,235,59,0.08);border:1px solid rgba(255,235,59,0.15);color:#ffe066}
+.weather-bar.rainy{background:rgba(33,150,243,0.08);border:1px solid rgba(33,150,243,0.15);color:#64b5f6}
+.weather-bar.windy{background:rgba(189,189,189,0.08);border:1px solid rgba(189,189,189,0.15);color:#ccc}
+.weather-bar.stormy{background:rgba(244,67,54,0.08);border:1px solid rgba(244,67,54,0.15);color:#ef9a9a}
+.weather-bar.drought{background:rgba(255,152,0,0.08);border:1px solid rgba(255,152,0,0.15);color:#ffb74d}
+.contract-card{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.1);border-radius:7px;padding:6px 8px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;font-size:0.7rem}
+.cc-info{flex:1}.cc-name{font-weight:600;color:#ffd54f;font-size:0.72rem}.cc-det{color:#888;font-size:0.62rem;margin-top:1px}
+.cc-pay{color:#52b788;font-weight:700;font-size:0.76rem}
+.tab-row{display:flex;gap:2px;margin-bottom:5px;flex-wrap:wrap}
+.tab-btn{flex:1;padding:3px;text-align:center;font-size:0.6rem;font-weight:600;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);border-radius:5px;cursor:pointer;color:#888;min-width:40px}
+.tab-btn.active{background:rgba(64,145,108,0.15);border-color:#52b788;color:#b7e4c7}
+.perk-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:6px 8px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+.perk-card.owned{border-color:rgba(82,183,136,0.3);background:rgba(82,183,136,0.05)}
+.perk-info{flex:1}.perk-name{font-weight:600;font-size:0.72rem}.perk-desc{font-size:0.62rem;color:#888;margin-top:1px}.perk-cost{font-size:0.62rem;color:#ffd54f;margin-top:1px}
+.trophy-grid{display:flex;flex-wrap:wrap;gap:3px}
+.trophy{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:5px;font-size:0.95rem;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);position:relative}
+.trophy.earned{border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.08)}
+.trophy.locked{opacity:0.2;filter:grayscale(1)}
+.trophy .tt{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:#1a2a3a;padding:3px 7px;border-radius:4px;font-size:0.55rem;white-space:nowrap;color:#b7e4c7;z-index:10;border:1px solid rgba(82,183,136,0.3)}
+.trophy:hover .tt{display:block}
+.streak-bar{display:flex;align-items:center;gap:5px;padding:3px 7px;border-radius:5px;font-size:0.68rem;background:rgba(255,152,0,0.06);border:1px solid rgba(255,152,0,0.12);color:#ffb74d;font-weight:600;margin-bottom:5px}
+.val-display{text-align:center;padding:5px;background:linear-gradient(135deg,rgba(255,215,0,0.04),rgba(82,183,136,0.04));border-radius:7px;border:1px solid rgba(255,215,0,0.08);margin-bottom:5px}
+.val-display .val-num{font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,#ffd54f,#52b788);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.val-display .val-label{font-size:0.58rem;color:#888;text-transform:uppercase;letter-spacing:1px}
+.event-bar{padding:5px 8px;border-radius:7px;font-size:0.7rem;margin-bottom:5px;font-weight:600;display:none}
+.event-bar.active{display:flex;align-items:center;gap:5px}
+.event-bar.bad{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.2);color:#e74c3c}
+.event-bar.good{background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.2);color:#2ecc71}
+.crew-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:6px 8px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+.crew-card.training{border-color:rgba(241,196,15,0.3);background:rgba(241,196,15,0.05)}
+.crew-card.unavail{opacity:0.4}
+.crew-info{flex:1}.crew-name{font-weight:600;font-size:0.72rem}.crew-stats{font-size:0.62rem;color:#888;margin-top:1px}
+.crew-stats span{margin-right:6px}
+.season-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:0.6rem;font-weight:700;margin-left:4px}
+.season-badge.spring{background:rgba(46,204,113,0.15);color:#2ecc71}
+.season-badge.summer{background:rgba(241,196,15,0.15);color:#f1c40f}
+.season-badge.fall{background:rgba(230,126,34,0.15);color:#e67e22}
+.day-summary{background:rgba(0,0,0,0.3);border-radius:10px;padding:14px;margin:8px 0}
+.day-summary h3{color:#52b788;font-size:0.9rem;margin-bottom:8px;text-align:center}
+.day-stat-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.75rem}
+.day-stat-row .dsl{color:#aaa}.day-stat-row .dsv{color:#b7e4c7;font-weight:700}
+.day-stat-row.bonus .dsv{color:#ffd54f}.day-stat-row.total{border-top:2px solid rgba(82,183,136,0.3);border-bottom:none;margin-top:4px;padding-top:6px}
+.bid-controls{display:flex;gap:4px;margin-top:4px;align-items:center}
+.bid-controls input{width:70px;padding:3px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:0.7rem;font-weight:600}
+.goal-bar{background:rgba(155,89,182,0.06);border:1px solid rgba(155,89,182,0.12);border-radius:7px;padding:5px 8px;margin-bottom:5px;font-size:0.68rem}
+.goal-bar .goal-title{color:#bb86fc;font-weight:700;font-size:0.72rem;margin-bottom:2px}
+.goal-bar .goal-desc{color:#999;font-size:0.62rem}
+.goal-bar .goal-progress{height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:3px;overflow:hidden}
+.goal-bar .goal-fill{height:100%;background:linear-gradient(90deg,#9b59b6,#bb86fc);border-radius:2px;transition:width 0.3s}
+.rival-rank{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:0.66rem;border-bottom:1px solid rgba(255,255,255,0.03)}
+.rival-rank.player{color:#52b788;font-weight:700}
+.rival-rank .rank-pos{width:16px;text-align:center;font-weight:700;color:#888}
+.rival-rank .rank-name{flex:1}
+.rival-rank .rank-val{color:#aaa;font-weight:600}
+.nb-upgrade-panel{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.08);border-radius:7px;padding:6px 8px;margin-bottom:4px}
+.nb-upgrade-panel .nbu-title{font-weight:700;font-size:0.72rem;color:#ffd54f;margin-bottom:3px}
+.nb-upgrade-item{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.68rem}
+.nb-upgrade-item.owned{color:#52b788}.nb-upgrade-item .nbu-name{flex:1}
+.nb-upgrade-item .nbu-eff{font-size:0.58rem;color:#888;margin-left:4px}
+.company-tier{text-align:center;padding:4px 6px;border-radius:5px;font-size:0.62rem;font-weight:700;margin-bottom:4px;letter-spacing:0.5px}
+.company-tier.startup{background:rgba(189,189,189,0.08);border:1px solid rgba(189,189,189,0.15);color:#bbb}
+.company-tier.growing{background:rgba(82,183,136,0.08);border:1px solid rgba(82,183,136,0.15);color:#52b788}
+.company-tier.established{background:rgba(33,150,243,0.08);border:1px solid rgba(33,150,243,0.15);color:#42a5f5}
+.company-tier.premium{background:rgba(155,89,182,0.08);border:1px solid rgba(155,89,182,0.15);color:#bb86fc}
+.company-tier.elite{background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);color:#ffd54f}
+.help-section{font-size:0.68rem;color:#bbb;line-height:1.6}
+.help-section h3{color:#52b788;font-size:0.78rem;margin:8px 0 3px;font-weight:700}
+.help-section p{margin-bottom:5px;color:#999}
+.help-section .help-key{display:inline-block;background:rgba(82,183,136,0.15);border:1px solid rgba(82,183,136,0.3);color:#b7e4c7;padding:1px 5px;border-radius:3px;font-size:0.6rem;font-weight:700}
+.fleet-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:6px 8px;margin-bottom:3px}
+.fleet-card .fleet-name{font-weight:700;font-size:0.72rem;color:#42a5f5}.fleet-card .fleet-det{font-size:0.6rem;color:#888;margin-top:1px}
+.fleet-card.busy{border-color:rgba(33,150,243,0.3);background:rgba(33,150,243,0.05)}
+@media(max-width:800px){.sidebar{width:270px;min-width:270px}.stats{gap:3px}.stat{padding:3px 6px;font-size:0.65rem}.header h1{font-size:1rem}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🌿 Lawn <span>Legend</span></h1>
+  <div class="stats">
+    <div class="stat">💰 $<span class="v" id="money">200</span></div>
+    <div class="stat">⭐ <span class="v" id="rep">0</span></div>
+    <div class="stat">📅 D<span class="v" id="day">1</span></div>
+    <div class="stat" id="weather-stat">☀️ <span class="v">Sunny</span></div>
+    <div class="stat">🔥 <span class="v" id="streak-count">0</span></div>
+    <div class="stat" id="season-stat">🌱 <span class="v" id="season-label">Spring</span></div>
+  </div>
+</div>
+<div class="combo-display" id="combo-display" style="display:none">
+  <div class="combo-mult" id="combo-text">1.0x</div>
+  <div class="combo-label">COMBO</div>
+</div>
+<div class="game-wrap">
+  <div class="sidebar">
+    <div class="panel">
+      <div id="tier-badge" class="company-tier startup">🌱 STARTUP</div>
+      <div class="val-display"><div class="val-label">Company Valuation</div><div class="val-num" id="company-val">$1,000</div></div>
+      <div id="goal-display" class="goal-bar" style="display:none"></div>
+      <div class="streak-bar">🔥 Streak: <span id="streak-val">0</span>d · +<span id="streak-bonus">0</span>% pay</div>
+      <div id="event-bar" class="event-bar"></div>
+      <div id="active-jobs-display" class="active-jobs-bar"></div>
+      <div class="nb-bar-label">📍 SELECT NEIGHBORHOOD — Drive your crew anywhere!</div>
+      <div class="nb-bar" id="nb-sel"></div>
+      <div id="weather-display"></div>
+      <h2 style="margin-top:3px">📋 Jobs at <span id="nb-name-label">Starter Street</span> <span style="font-size:0.6rem;color:#888;font-weight:400" id="day-time"></span></h2>
+      <div id="job-list"></div>
+      <button class="bb" id="ndb" style="width:100%;margin-top:4px">🌅 End Day</button>
+    </div>
+    <div class="panel">
+      <div class="tab-row">
+        <div class="tab-btn active" onclick="switchTab('upgrades')">🛒 Shop</div>
+        <div class="tab-btn" onclick="switchTab('crew')">👷 Crew</div>
+        <div class="tab-btn" onclick="switchTab('perks')">🧠 Perks</div>
+        <div class="tab-btn" onclick="switchTab('contracts')">📝 Bids</div>
+        <div class="tab-btn" onclick="switchTab('rankings')">🏅 Rank</div>
+        <div class="tab-btn" onclick="switchTab('nbupgrades')">🏘️ Area</div>
+        <div class="tab-btn" onclick="switchTab('help')">❓ Help</div>
+      </div>
+      <div id="tab-upgrades"><div id="upgrade-list"></div></div>
+      <div id="tab-crew" style="display:none">
+        <div id="fleet-display"></div>
+        <div id="crew-list"></div>
+        <div id="hire-section"></div>
+      </div>
+      <div id="tab-perks" style="display:none">
+        <div style="font-size:0.68rem;color:#ffd54f;margin-bottom:4px;text-align:center">🧠 Points: <strong id="sp-count">0</strong> <span style="color:#666">(1 per 8 jobs)</span></div>
+        <div id="perk-list"></div>
+      </div>
+      <div id="tab-contracts" style="display:none">
+        <div style="font-size:0.68rem;color:#888;margin-bottom:4px">Bid against rival companies for premium contracts.</div>
+        <div id="bid-list"></div>
+        <div id="contract-list" style="margin-top:6px"></div>
+      </div>
+      <div id="tab-rankings" style="display:none">
+        <div style="font-size:0.72rem;color:#bb86fc;font-weight:700;margin-bottom:5px">🏅 Local Rankings</div>
+        <div id="rival-list"></div>
+      </div>
+      <div id="tab-nbupgrades" style="display:none">
+        <div id="company-tier-display"></div>
+        <div style="font-size:0.68rem;color:#888;margin-bottom:4px">Invest in neighborhoods to unlock bonuses.</div>
+        <div id="nb-upgrade-list"></div>
+      </div>
+      <div id="tab-help" style="display:none">
+        <div class="help-section">
+          <h3>🌿 Welcome to Lawn Legend!</h3>
+          <p>Build a landscaping empire from nothing. Start with a push mower, grow into a multi-truck fleet operation.</p>
+          <h3>🎮 How to Play</h3>
+          <p><span class="help-key">Click a job card</span> in the sidebar to start working. If you have multiple trucks, pick which truck to send!</p>
+          <p><span class="help-key">Switch neighborhoods</span> using the green buttons above the job list. Each area has different jobs — you can work multiple neighborhoods per day!</p>
+          <p><span class="help-key">Drag or scroll</span> the canvas to look around the neighborhood.</p>
+          <h3>🚛 Multi-Truck Dispatch</h3>
+          <p>This is the key to building an empire! Each truck you own is an <strong>independent crew</strong>. When you click a job:</p>
+          <p>• <strong>1 truck:</strong> It auto-dispatches to the job.</p>
+          <p>• <strong>2+ trucks:</strong> Pick which truck to send. Each truck works its job simultaneously!</p>
+          <p>• Truck 1 can mow on Maple St while Truck 2 trims hedges on Oak Ave — at the same time.</p>
+          <p>• Switch neighborhoods freely to dispatch trucks to different streets.</p>
+          <p>• The "Active Crews" bar shows all trucks currently working across all neighborhoods.</p>
+          <h3>⏰ Day Timer</h3>
+          <p>Each day has 8 work hours (upgradeable). Every job costs time — deducted when work completes. The clock is shared across all trucks and neighborhoods. When you're out of time, end the day.</p>
+          <h3>🚛 Building Your Fleet</h3>
+          <p>Buy trucks in the Crew tab. Each truck holds up to 5-8 crew. More trucks = more simultaneous jobs = more money per day!</p>
+          <p><strong>Truck 1</strong> (Used Pickup) = 5 crew cap. <strong>Truck 2</strong> (Work Truck) = +5. <strong>Truck 3</strong> (Box Truck) = +6. <strong>Truck 4</strong> (Fleet Van) = +8.</p>
+          <h3>📚 Training Crew</h3>
+          <p>Train crew to level up (1 day downtime). Higher levels = faster work (+5%/lvl), better pay (+8%/lvl), and happier customers.</p>
+          <h3>🏘️ Neighborhoods</h3>
+          <p>Unlock new areas by earning reputation stars. Higher-tier areas pay more but expect more. Invest in Area Upgrades for permanent bonuses.</p>
+          <h3>📝 Contracts & Bids</h3>
+          <p>Win bids against rival companies for recurring contract income. Better signage = more bid opportunities.</p>
+          <h3>🎯 Goals & Rankings</h3>
+          <p>Complete weekly goals for bonus rewards. Climb the local rankings by growing your company valuation above rival companies.</p>
+          <h3>💡 Tips</h3>
+          <p>• Chain jobs fast for combo multipliers<br>• Complete all jobs in a day for Perfect Day bonus<br>• Keep equipment maintained — worn tools slow you down<br>• Buy a second truck ASAP — it doubles your earning power<br>• Dispatch trucks to different neighborhoods for max coverage</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>🏆 Trophies <span style="font-size:0.6rem;color:#888;font-weight:400" id="trophy-count"></span></h2>
+      <div class="trophy-grid" id="trophy-grid"></div>
+    </div>
+    <div class="panel">
+      <h2>📜 Log</h2>
+      <div class="log-entries" id="log"></div>
+    </div>
+  </div>
+  <div class="main-canvas"><canvas id="gc"></canvas></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="mo"><div class="modal"><div class="be" id="me">🏆</div><h2 id="mt"></h2><p id="mx"></p><div id="modal-extra"></div><div id="modal-buttons"><button onclick="closeModal()">OK</button></div></div></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  LAWN LEGEND v7 — MULTI-TRUCK DISPATCH SYSTEM
+//  Each truck works independently. Dispatch crews to
+//  different jobs/neighborhoods simultaneously.
+// ═══════════════════════════════════════════════════════
+const $=id=>document.getElementById(id);
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const canvas=$('gc'),ctx=canvas.getContext('2d');
+let W,H;function resize(){W=canvas.width=canvas.parentElement.clientWidth;H=canvas.height=canvas.parentElement.clientHeight}
+resize();window.addEventListener('resize',resize);
+
+const TRUCK_COLORS=['#e74c3c','#1565C0','#f39c12','#9b59b6','#00897B','#FF5722','#5C6BC0','#43A047'];
+
+// ═══ SEASONS (3-season, 21-day cycle) ═══
+const SEASONS=[
+  {id:'spring',name:'Spring',emoji:'🌱',jobs:['mow','garden','trim','weed'],color:'#2ecc71',payMult:1},
+  {id:'summer',name:'Summer',emoji:'☀️',jobs:['mow','hedge','full','sod'],color:'#f1c40f',payMult:1.1},
+  {id:'fall',name:'Fall',emoji:'🍂',jobs:['leaf','hedge','weed','mow'],color:'#e67e22',payMult:1.05},
+];
+function getSeason(day){return SEASONS[Math.floor(((day-1)%21)/7)]}
+
+const CUST_TYPES=[
+  {id:'normal',name:'Homeowner',emoji:'🏠',tipMult:1,satMod:0,payMod:1,baseProb:0.40},
+  {id:'karen',name:'Karen',emoji:'😤',tipMult:0,satMod:-1,payMod:1.3,baseProb:0.12},
+  {id:'grandma',name:'Grandma',emoji:'👵',tipMult:2.5,satMod:1,payMod:0.8,baseProb:0.15},
+  {id:'absent',name:'Absent Owner',emoji:'🔑',tipMult:0,satMod:0,payMod:0.9,baseProb:0.13},
+  {id:'perfectionist',name:'Perfectionist',emoji:'🧐',tipMult:1.5,satMod:-1,payMod:1.4,baseProb:0.10},
+  {id:'friendly',name:'Friendly Neighbor',emoji:'😊',tipMult:1.2,satMod:1,payMod:1,baseProb:0.10},
+  {id:'wealthy',name:'Wealthy Client',emoji:'💎',tipMult:2,satMod:0,payMod:1.8,baseProb:0,minNB:2},
+  {id:'property_mgr',name:'Property Manager',emoji:'🏢',tipMult:0.5,satMod:0,payMod:1.6,baseProb:0,minNB:3},
+];
+function rollCustomer(nbIdx){
+  const pool=CUST_TYPES.filter(c=>!c.minNB||nbIdx>=c.minNB);
+  const probs=pool.map(c=>{let p=c.baseProb;
+    if(c.id==='wealthy')p=nbIdx>=3?0.15:0.08;if(c.id==='property_mgr')p=nbIdx>=4?0.12:0.06;
+    if(c.id==='normal')p=Math.max(0.15,0.40-nbIdx*0.06);if(c.id==='grandma')p=Math.max(0.05,0.15-nbIdx*0.02);return p});
+  const total=probs.reduce((s,p)=>s+p,0);const roll=Math.random()*total;let c=0;
+  for(let i=0;i<pool.length;i++){c+=probs[i];if(roll<c)return pool[i]}return pool[0];
+}
+
+const EVENTS=[
+  {id:'truck_broke',name:'🚛 Truck Breakdown!',desc:'Repair cost $150.',bad:true,cost:150},
+  {id:'equip_fail',name:'🔧 Equipment Jam!',desc:'$100. Jobs 20% slower.',bad:true,cost:100,speedPenalty:0.8},
+  {id:'crew_sick',name:'🤒 Crew Called Out!',desc:'Short-staffed. Work slower.',bad:true,cost:0,speedPenalty:0.85},
+  {id:'flat_tire',name:'🛞 Flat Tire!',desc:'$75 to fix.',bad:true,cost:75},
+  {id:'gas_spike',name:'⛽ Gas Price Spike!',desc:'Fuel costs $120.',bad:true,cost:120},
+  {id:'referral',name:'🌟 Referral Bonus!',desc:'+3 rep.',bad:false,repBonus:3},
+  {id:'tip_day',name:'💸 Generous Day!',desc:'+50% tips today.',bad:false,tipBoost:1.5},
+  {id:'fast_day',name:'⚡ Motivated Crew!',desc:'+20% speed today.',bad:false,speedBoost:1.2},
+  {id:'none',name:'',desc:'',bad:false},
+];
+
+const RIVAL_COMPANIES=[
+  {name:'GreenCut Pro',baseVal:800,growthRate:1.08},{name:'LawnMaster Inc',baseVal:600,growthRate:1.06},
+  {name:'TurfKing LLC',baseVal:1200,growthRate:1.05},{name:'YardPro Co',baseVal:400,growthRate:1.09},
+  {name:'FreshCut Bros',baseVal:500,growthRate:1.07},
+];
+function getRivalValuation(rival,day){const rate=getTierIndex()>=4?1+(rival.growthRate-1)*0.7:rival.growthRate;return Math.round(rival.baseVal*Math.pow(rate,day))}
+function getPlayerRank(){const pVal=calcValuation();const rivals=RIVAL_COMPANIES.map(r=>({name:r.name,val:getRivalValuation(r,S.day)}));
+  rivals.push({name:'🌿 Lawn Legend (You)',val:pVal,isPlayer:true});rivals.sort((a,b)=>b.val-a.val);return rivals}
+
+const NEIGHBORHOODS=[
+  {id:'starter',name:'Starter Street',minRep:0,houses:3,houseTypes:['bungalow','bungalow','ranch'],payMult:1,desc:'Humble beginnings'},
+  {id:'suburban',name:'Suburban Ave',minRep:10,houses:4,houseTypes:['ranch','colonial','ranch','colonial'],payMult:1.3,desc:'Middle-class families'},
+  {id:'uptown',name:'Uptown Heights',minRep:25,houses:4,houseTypes:['colonial','colonial','mansion','colonial'],payMult:1.8,desc:'Upscale homes'},
+  {id:'commercial',name:'Commerce Park',minRep:50,houses:3,houseTypes:['commercial','commercial','commercial'],payMult:2.5,desc:'Business properties'},
+  {id:'estate',name:'Estate Row',minRep:90,houses:3,houseTypes:['mansion','estate','mansion'],payMult:3.5,desc:'The elite call'},
+];
+const HOUSE_CONFIGS={
+  bungalow:{w:90,h:55,roofH:30,color:'#f5e6ca',roof:'#c0392b',stories:1,windows:2,yardCols:6,yardRows:5},
+  ranch:{w:120,h:60,roofH:32,color:'#e8d5b0',roof:'#8b6914',stories:1,windows:3,yardCols:8,yardRows:6},
+  colonial:{w:110,h:75,roofH:40,color:'#f0ece4',roof:'#5c4033',stories:2,windows:4,yardCols:8,yardRows:6},
+  mansion:{w:140,h:90,roofH:45,color:'#fff8e7',roof:'#4a3328',stories:2,windows:5,yardCols:10,yardRows:7},
+  commercial:{w:160,h:70,roofH:10,color:'#d5d5d5',roof:'#666',stories:1,windows:6,yardCols:12,yardRows:8,flat:true},
+  estate:{w:170,h:100,roofH:50,color:'#fff5e6',roof:'#6d3811',stories:2,windows:6,yardCols:12,yardRows:8},
+};
+const JOB_TYPES=[
+  {name:'Lawn Mow',emoji:'🌱',timeBase:5,type:'mow',diff:1},
+  {name:'Overgrown Yard',emoji:'🌿',timeBase:8,type:'mow',diff:2},
+  {name:'Hedge Trim',emoji:'🌳',timeBase:7,type:'hedge',diff:2,reqTrimmer:1},
+  {name:'Flower Beds',emoji:'🌷',timeBase:9,type:'garden',diff:2,reqTrimmer:1},
+  {name:'Leaf Cleanup',emoji:'🍂',timeBase:6,type:'leaf',diff:1,reqBlower:1},
+  {name:'Leaf Blowout',emoji:'🍁',timeBase:8,type:'leaf',diff:2,reqBlower:2},
+  {name:'Patio Weeding',emoji:'🧹',timeBase:4,type:'weed',diff:1},
+  {name:'Full Makeover',emoji:'🏡',timeBase:14,type:'full',diff:3,reqTrimmer:1,reqTruck:1},
+  {name:'Sod Install',emoji:'🟩',timeBase:10,type:'sod',diff:3,reqTruck:1},
+  {name:'Edging',emoji:'✂️',timeBase:4,type:'trim',diff:1,reqTrimmer:1},
+  {name:'Storm Cleanup',emoji:'⛈️',timeBase:10,type:'storm',diff:3,reqTruck:1,stormOnly:true},
+];
+const WEATHER_TYPES=[
+  {id:'sunny',name:'Sunny',emoji:'☀️',speedMult:1,payMult:1,prob:0.40},
+  {id:'cloudy',name:'Cloudy',emoji:'⛅',speedMult:1,payMult:1,prob:0.20},
+  {id:'windy',name:'Windy',emoji:'💨',speedMult:0.9,payMult:1.1,prob:0.12},
+  {id:'rainy',name:'Rainy',emoji:'🌧️',speedMult:0.7,payMult:1.25,prob:0.12},
+  {id:'drought',name:'Heat Wave',emoji:'🔥',speedMult:1.15,payMult:1.15,prob:0.08},
+  {id:'stormy',name:'Storm',emoji:'⛈️',speedMult:0.5,payMult:1.5,prob:0.08},
+];
+
+// ═══ GAME STATE ═══
+const S={
+  money:200,rep:0,jobsDone:0,day:1,
+  equipment:{mower:1,trimmer:0,blower:0,signage:0},
+  trucks:[], // [{type:'pickup',maxCrew:5,name:'Truck #1'}]
+  equipDurability:{mower:100,trimmer:100,blower:100},
+  equipRepairs:{mower:0,trimmer:0,blower:0},
+  curNB:0,
+  nbJobs:{}, // per-NB job storage
+  // ═══ DISPATCH SYSTEM ═══
+  // activeDispatches: array of active work sessions, one per busy truck
+  // Each: {truckIdx, nbIdx, propIdx, workPath, workStep, workTotal, workTimer, startTime}
+  activeDispatches:[],
+  scrollX:0,targetScrollX:0,dayPhase:0,
+  weather:WEATHER_TYPES[0],season:SEASONS[0],
+  crew:[{name:'You',level:1,xp:0,specialty:'general',training:false,available:true}],
+  contracts:[],bidOffers:[],
+  todayEvent:EVENTS[EVENTS.length-1],eventSpeedMod:1,eventTipMod:1,
+  combo:0,comboTimer:null,maxCombo:0,streak:0,
+  skillPoints:0,perks:new Set(),
+  dayJobsDone:0,dayEarnings:0,dayTips:0,dayBestStar:0,daySpeedBonuses:0,dayRepairs:0,
+  totalEarnings:0,perfectDays:0,contractIncome:0,
+  activeTab:'upgrades',
+  dayHoursLeft:8,dayHoursTotal:8,
+  weeklyGoal:null,weeklyProgress:0,
+  nbUpgrades:{},
+  rushJob:null,rushTimer:null,rushCountdown:0,
+  milestonesHit:new Set(),
+};
+
+function getProps(){return S.nbJobs[S.curNB]||[]}
+function setProps(p){S.nbJobs[S.curNB]=p}
+function getAllProps(nbIdx){return S.nbJobs[nbIdx]||[]}
+
+// ═══ DISPATCH HELPERS ═══
+function isAnyTruckBusy(){return S.activeDispatches.length>0}
+function isTruckBusy(truckIdx){return S.activeDispatches.some(d=>d.truckIdx===truckIdx)}
+function getFreeTrucks(){
+  if(S.trucks.length===0)return[{idx:-1,name:'You (no truck)'}]; // solo mode
+  return S.trucks.map((t,i)=>({idx:i,name:t.name,type:t.type})).filter(t=>!isTruckBusy(t.idx));
+}
+function isJobBeingWorked(nbIdx,propIdx){return S.activeDispatches.some(d=>d.nbIdx===nbIdx&&d.propIdx===propIdx)}
+function getDispatchForProp(nbIdx,propIdx){return S.activeDispatches.find(d=>d.nbIdx===nbIdx&&d.propIdx===propIdx)}
+
+// ═══ TRUCK / FLEET SYSTEM ═══
+const TRUCK_TYPES=[
+  {id:'pickup',name:'Used Pickup',cost:1000,maxCrew:5,desc:'Your first wheels'},
+  {id:'work',name:'Work Truck',cost:3000,maxCrew:5,desc:'Reliable workhorse'},
+  {id:'box',name:'Box Truck',cost:6000,maxCrew:6,desc:'Haul anything'},
+  {id:'fleet',name:'Fleet Van',cost:10000,maxCrew:8,desc:'Empire builder'},
+];
+function getTotalCrewCap(){if(S.trucks.length===0)return 1;return S.trucks.reduce((s,t)=>s+t.maxCrew,0)}
+function hasTruck(){return S.trucks.length>0}
+function buyTruck(typeIdx){
+  const tt=TRUCK_TYPES[typeIdx];if(!tt)return;
+  if(S.money<tt.cost){showToast('Not enough money!');return}
+  S.money-=tt.cost;
+  S.trucks.push({type:tt.id,maxCrew:tt.maxCrew,name:`${tt.name} #${S.trucks.length+1}`});
+  showToast(`🚛 Bought ${tt.name}! Crew cap now ${getTotalCrewCap()}`);
+  addLog(`🚛 New truck: <span class="hl">${tt.name}</span>`);updateUI();checkMilestones();
+}
+
+const UPGRADES=[
+  {key:'mower',icon:'🔧',levels:[{n:'Push Mower',c:0},{n:'Self-Propelled',c:600,d:'+25% mow speed'},{n:'Riding Mower',c:1800,d:'+50% mow speed'},{n:'Zero-Turn',c:5000,d:'+75% mow speed'}]},
+  {key:'trimmer',icon:'✂️',levels:[{n:'None',c:0},{n:'Basic Trimmer',c:400,d:'Unlock trim/hedge'},{n:'Pro Trimmer',c:1400,d:'+30% trim speed'},{n:'Commercial',c:3500,d:'+60% trim speed'}]},
+  {key:'blower',icon:'🍃',levels:[{n:'None',c:0},{n:'Handheld',c:500,d:'Unlock leaf jobs'},{n:'Backpack',c:1600,d:'+40% leaf speed'},{n:'Commercial',c:4000,d:'+70% leaf speed'}]},
+  {key:'signage',icon:'🪧',levels:[{n:'No Brand',c:0},{n:'Yard Signs',c:700,d:'+25% rep gain'},{n:'Vehicle Wrap',c:2000,d:'+50% rep gain'},{n:'Full Brand',c:5000,d:'+100% rep + bids'}]},
+];
+
+const PERKS=[
+  {id:'green_thumb',name:'Green Thumb',emoji:'🌱',desc:'+1 satisfaction on all jobs',cost:2},
+  {id:'haggler',name:'Haggler',emoji:'💬',desc:'+12% base pay',cost:2},
+  {id:'early_bird',name:'Early Bird',emoji:'🐦',desc:'First job 30% faster',cost:2},
+  {id:'rain_or_shine',name:'Rain or Shine',emoji:'☔',desc:'No weather speed penalty',cost:3},
+  {id:'tipper',name:'Tip Magnet',emoji:'💸',desc:'Tips +50%',cost:3},
+  {id:'combo_master',name:'Combo Master',emoji:'🔗',desc:'Combo grows 50% faster',cost:3},
+  {id:'negotiator',name:'Negotiator',emoji:'🤝',desc:'+30% contract pay',cost:4},
+  {id:'perfectionist',name:'Perfectionist',emoji:'💎',desc:'Perfect Day bonus 2x',cost:4},
+  {id:'mechanic',name:'Mechanic',emoji:'🔩',desc:'Equipment degrades 50% slower',cost:3},
+  {id:'lucky_star',name:'Lucky Star',emoji:'🌟',desc:'5-star 2x more likely',cost:4},
+  {id:'mentor',name:'Mentor',emoji:'📚',desc:'Crew levels up with +1 bonus',cost:5},
+  {id:'insurance',name:'Insurance',emoji:'🛡️',desc:'Event repair costs halved',cost:4},
+  {id:'endurance',name:'Endurance',emoji:'💪',desc:'+2 work hours per day',cost:5},
+];
+
+const GOAL_TEMPLATES=[
+  {desc:'Complete {n} jobs this week',key:'jobs',targets:[10,15,20,30],reward:'money',rewardAmt:300},
+  {desc:'Earn ${n} this week',key:'earnings',targets:[500,1000,2000,4000],reward:'money',rewardAmt:200},
+  {desc:'Get {n} five-star ratings',key:'fivestar',targets:[3,5,8,12],reward:'rep',rewardAmt:5},
+  {desc:'Win {n} bids this week',key:'bids',targets:[1,2,3,4],reward:'money',rewardAmt:500},
+  {desc:'Maintain a {n}-day streak',key:'streak',targets:[3,5,7,10],reward:'skillPoints',rewardAmt:1},
+];
+function generateWeeklyGoal(){
+  const tier=Math.min(3,Math.floor(S.day/14));const tmpl=GOAL_TEMPLATES[R(0,GOAL_TEMPLATES.length-1)];
+  const target=tmpl.targets[tier];
+  S.weeklyGoal={desc:tmpl.desc.replace('{n}',target),key:tmpl.key,target,reward:tmpl.reward,rewardAmt:Math.round(tmpl.rewardAmt*(1+tier*0.5)),daysLeft:7};S.weeklyProgress=0;
+}
+function updateGoalProgress(key,amount){
+  if(!S.weeklyGoal||S.weeklyGoal.key!==key)return;
+  if(key==='streak')S.weeklyProgress=Math.max(S.weeklyProgress,amount);else S.weeklyProgress+=amount;
+  if(S.weeklyProgress>=S.weeklyGoal.target&&!S.weeklyGoal.claimed){
+    S.weeklyGoal.claimed=true;const g=S.weeklyGoal;
+    if(g.reward==='money'){S.money+=g.rewardAmt;showToast(`🎯 Goal complete! +$${g.rewardAmt}`)}
+    else if(g.reward==='rep'){S.rep+=g.rewardAmt;showToast(`🎯 Goal complete! +${g.rewardAmt}⭐`)}
+    else if(g.reward==='skillPoints'){S.skillPoints+=g.rewardAmt;showToast(`🎯 Goal complete! +${g.rewardAmt}🧠`)}
+    addLog(`🎯 Weekly goal complete! <span class="hl">${g.desc}</span>`)}
+  renderGoal();
+}
+function renderGoal(){
+  const gd=$('goal-display');if(!S.weeklyGoal){gd.style.display='none';return}
+  gd.style.display='block';const g=S.weeklyGoal;const pct=Math.min(100,Math.round((S.weeklyProgress/g.target)*100));
+  const reward=g.reward==='money'?`$${g.rewardAmt}`:g.reward==='rep'?`${g.rewardAmt}⭐`:`${g.rewardAmt}🧠`;
+  gd.innerHTML=`<div class="goal-title">🎯 Weekly Goal ${g.claimed?'✅':''}</div><div class="goal-desc">${g.desc} · Reward: ${reward} · ${g.daysLeft}d left</div>
+    <div class="goal-progress"><div class="goal-fill" style="width:${pct}%"></div></div><div style="font-size:0.55rem;color:#888;margin-top:1px;text-align:right">${S.weeklyProgress}/${g.target}</div>`;
+}
+
+const COMPANY_TIERS=[
+  {id:'startup',name:'Startup',emoji:'🌱',minVal:0,color:'startup'},
+  {id:'growing',name:'Growing Business',emoji:'🌿',minVal:5000,color:'growing'},
+  {id:'established',name:'Established Co.',emoji:'🏢',minVal:25000,color:'established'},
+  {id:'premium',name:'Premium Service',emoji:'💎',minVal:100000,color:'premium'},
+  {id:'elite',name:'Elite Empire',emoji:'👑',minVal:500000,color:'elite'},
+];
+function getCompanyTier(){const val=calcValuation();let tier=COMPANY_TIERS[0];for(const t of COMPANY_TIERS){if(val>=t.minVal)tier=t}return tier}
+function getTierIndex(){return COMPANY_TIERS.indexOf(getCompanyTier())}
+function renderCompanyTier(){
+  const tier=getCompanyTier();const tb=$('tier-badge');
+  tb.className=`company-tier ${tier.color}`;tb.textContent=`${tier.emoji} ${tier.name.toUpperCase()}`;
+  const ctd=$('company-tier-display');if(ctd){const nextTier=COMPANY_TIERS[getTierIndex()+1];const val=calcValuation();
+    ctd.innerHTML=`<div class="company-tier ${tier.color}" style="margin-bottom:6px">${tier.emoji} ${tier.name} — $${val.toLocaleString()}</div>
+      ${nextTier?`<div style="font-size:0.6rem;color:#888;text-align:center;margin-bottom:5px">Next: ${nextTier.emoji} ${nextTier.name} at $${nextTier.minVal.toLocaleString()}</div>`:'<div style="font-size:0.6rem;color:#ffd54f;text-align:center;margin-bottom:5px">👑 MAX TIER</div>'}`}
+}
+
+const NB_UPGRADES=[
+  {id:'billboard',name:'Billboard',emoji:'🪧',desc:'+15% rep here',cost:800,effect:'rep',value:0.15},
+  {id:'preferred',name:'Preferred Vendor',emoji:'⭐',desc:'+1 extra job/day',cost:1500,effect:'jobs',value:1},
+  {id:'referral_net',name:'Referral Network',emoji:'🤝',desc:'+20% tip chance',cost:1200,effect:'tips',value:0.2},
+  {id:'premium_clients',name:'Premium Clientele',emoji:'💎',desc:'+25% base pay',cost:2500,effect:'pay',value:0.25},
+  {id:'exclusive',name:'Exclusive Contract',emoji:'📝',desc:'Auto contract/week',cost:3500,effect:'contract',value:1},
+  {id:'fleet_depot',name:'Fleet Depot',emoji:'🚛',desc:'-15% equip wear',cost:2000,effect:'durability',value:0.15},
+];
+function getNBUpgrade(nbId,upgId){return(S.nbUpgrades[nbId]||[]).includes(upgId)}
+function buyNBUpgrade(nbIdx,upgId){
+  const nb=NEIGHBORHOODS[nbIdx];const upg=NB_UPGRADES.find(u=>u.id===upgId);
+  if(!upg||getNBUpgrade(nb.id,upgId))return;
+  if(getTierIndex()<1){showToast('🌿 Reach Growing Business tier first!');return}
+  const cost=Math.round(upg.cost*(1+nbIdx*0.5));
+  if(S.money<cost){showToast('Not enough money!');return}
+  S.money-=cost;if(!S.nbUpgrades[nb.id])S.nbUpgrades[nb.id]=[];
+  S.nbUpgrades[nb.id].push(upgId);showToast(`${upg.emoji} ${upg.name} in ${nb.name}!`);updateUI();
+}
+function getNBPayBonus(nbIdx){const nb=NEIGHBORHOODS[nbIdx];const ups=S.nbUpgrades[nb.id]||[];let b=1;if(ups.includes('premium_clients'))b+=0.25;if(getTierIndex()>=4)b+=0.20;return b}
+function getNBRepBonus(nbIdx){const nb=NEIGHBORHOODS[nbIdx];return(S.nbUpgrades[nb.id]||[]).includes('billboard')?0.15:0}
+function getNBTipBonus(nbIdx){const nb=NEIGHBORHOODS[nbIdx];return(S.nbUpgrades[nb.id]||[]).includes('referral_net')?0.2:0}
+function getNBExtraJobs(nbIdx){const nb=NEIGHBORHOODS[nbIdx];return(S.nbUpgrades[nb.id]||[]).includes('preferred')?1:0}
+function getNBDurabilityMod(nbIdx){const nb=NEIGHBORHOODS[nbIdx];return(S.nbUpgrades[nb.id]||[]).includes('fleet_depot')?0.85:1}
+function renderNBUpgrades(){
+  const l=$('nb-upgrade-list');if(!l)return;l.innerHTML='';
+  if(getTierIndex()<1){l.innerHTML='<div style="font-size:0.68rem;color:#bb86fc;text-align:center;padding:10px;border:1px dashed rgba(155,89,182,0.3);border-radius:7px">🌿 Reach <strong>Growing Business</strong> tier ($5K value) to unlock area upgrades!</div>';return}
+  NEIGHBORHOODS.forEach((nb,nbIdx)=>{
+    if(S.rep<nb.minRep)return;const ups=S.nbUpgrades[nb.id]||[];
+    const panel=document.createElement('div');panel.className='nb-upgrade-panel';
+    let html=`<div class="nbu-title">📍 ${nb.name} (${ups.length}/${NB_UPGRADES.length})</div>`;
+    NB_UPGRADES.forEach(upg=>{const owned=ups.includes(upg.id);const cost=Math.round(upg.cost*(1+nbIdx*0.5));
+      html+=`<div class="nb-upgrade-item ${owned?'owned':''}"><span class="nbu-name">${upg.emoji} ${upg.name}</span><span class="nbu-eff">${upg.desc}</span>
+        ${owned?'<span style="color:#52b788;margin-left:4px">✅</span>':`<button class="bb" style="font-size:0.55rem;padding:2px 5px;margin-left:4px" ${S.money<cost||isAnyTruckBusy()?'disabled':''} onclick="buyNBUpgrade(${nbIdx},'${upg.id}')">$${cost.toLocaleString()}</button>`}</div>`});
+    panel.innerHTML=html;l.appendChild(panel)});
+}
+
+const MILESTONES=[
+  {id:'j1',ck:()=>S.jobsDone>=1,e:'🎉',t:'First Job!',x:'The empire begins!'},
+  {id:'j10',ck:()=>S.jobsDone>=10,e:'🔟',t:'Double Digits!',x:'10 jobs done!'},
+  {id:'j25',ck:()=>S.jobsDone>=25,e:'💪',t:'Quarter Century!',x:'25 jobs!'},
+  {id:'j50',ck:()=>S.jobsDone>=50,e:'🏆',t:'Lawn Legend!',x:'50 jobs!'},
+  {id:'j100',ck:()=>S.jobsDone>=100,e:'👑',t:'Centurion!',x:'100 jobs done!'},
+  {id:'j200',ck:()=>S.jobsDone>=200,e:'🔥',t:'200 Club!',x:'200 jobs done!'},
+  {id:'m1k',ck:()=>S.money>=1000,e:'💰',t:'$1K Club',x:'First grand!'},
+  {id:'m5k',ck:()=>S.money>=5000,e:'🤑',t:'$5K!',x:'Big money!'},
+  {id:'m10k',ck:()=>S.money>=10000,e:'💎',t:'$10K Mogul!',x:'Empire grows!'},
+  {id:'r10',ck:()=>S.rep>=10,e:'⭐',t:'Rising Star',x:'Getting known!'},
+  {id:'r25',ck:()=>S.rep>=25,e:'🌟',t:'Top Rated!',x:'Uptown wants you!'},
+  {id:'r50',ck:()=>S.rep>=50,e:'🏢',t:'Going Commercial!',x:'Big leagues!'},
+  {id:'r90',ck:()=>S.rep>=90,e:'🏰',t:'Estate Access!',x:'The elite call!'},
+  {id:'truck1',ck:()=>S.trucks.length>=1,e:'🚛',t:'Got Wheels!',x:'Now hire a crew!'},
+  {id:'truck2',ck:()=>S.trucks.length>=2,e:'🚚',t:'Second Truck!',x:'Dispatch 2 crews!'},
+  {id:'truck3',ck:()=>S.trucks.length>=3,e:'🏗️',t:'Fleet Owner!',x:'3 trucks!'},
+  {id:'crew3',ck:()=>S.crew.length>=3,e:'👷',t:'Growing Team!',x:'3 crew members!'},
+  {id:'crew5',ck:()=>S.crew.length>=5,e:'🏗️',t:'Full Crew!',x:'5-person crew!'},
+  {id:'crew10',ck:()=>S.crew.length>=10,e:'🏢',t:'Big Operation!',x:'10 crew!'},
+  {id:'combo3',ck:()=>S.maxCombo>=3,e:'🔗',t:'Combo x3!',x:'Chain those jobs!'},
+  {id:'streak5',ck:()=>S.streak>=5,e:'🔥',t:'On Fire!',x:'5-day streak!'},
+  {id:'streak10',ck:()=>S.streak>=10,e:'🌋',t:'Unstoppable!',x:'10-day streak!'},
+  {id:'streak20',ck:()=>S.streak>=20,e:'💥',t:'Iron Streak!',x:'20 days!'},
+  {id:'perk1',ck:()=>S.perks.size>=1,e:'🧠',t:'First Perk!',x:'Skill tree!'},
+  {id:'perfect1',ck:()=>S.perfectDays>=1,e:'💯',t:'Perfect Day!',x:'All jobs done!'},
+  {id:'bid1',ck:()=>S.milestonesHit.has('bid_won'),e:'📝',t:'Bid Winner!',x:'Won a bid!'},
+  {id:'val50k',ck:()=>calcValuation()>=50000,e:'🏦',t:'$50K Company!',x:'Growing fast!'},
+  {id:'val100k',ck:()=>calcValuation()>=100000,e:'👑',t:'$100K Empire!',x:'Major business!'},
+  {id:'val500k',ck:()=>calcValuation()>=500000,e:'🏛️',t:'Half Mill!',x:'Landscape mogul!'},
+  {id:'val1m',ck:()=>calcValuation()>=1000000,e:'🏛️',t:'Millionaire!',x:'$1M company!'},
+  {id:'train1',ck:()=>S.crew.some(c=>c.level>=2),e:'📚',t:'Level Up!',x:'Crew trained!'},
+  {id:'train5',ck:()=>S.crew.some(c=>c.level>=5),e:'🎓',t:'Master Crew!',x:'Max level crew!'},
+  {id:'tier_growing',ck:()=>getTierIndex()>=1,e:'🌿',t:'Growing Business!',x:'Area upgrades unlocked!'},
+  {id:'tier_established',ck:()=>getTierIndex()>=2,e:'🏢',t:'Established!',x:'Contract bonuses!'},
+  {id:'tier_premium',ck:()=>getTierIndex()>=3,e:'💎',t:'Premium Service!',x:'Double rush pay!'},
+  {id:'tier_elite',ck:()=>getTierIndex()>=4,e:'👑',t:'Elite Empire!',x:'The ultimate legend!'},
+  {id:'nb_upgrade1',ck:()=>Object.values(S.nbUpgrades).some(a=>a&&a.length>0),e:'🪧',t:'Area Investor!',x:'First area upgrade!'},
+  {id:'rank1',ck:()=>{const r=getPlayerRank();return r[0]&&r[0].isPlayer},e:'🥇',t:'#1 in Town!',x:'Top ranked!'},
+  {id:'allnb',ck:()=>S.rep>=90,e:'🗺️',t:'All Access!',x:'Every area unlocked!'},
+  {id:'dispatch2',ck:()=>S.activeDispatches.length>=2,e:'🚀',t:'Dual Dispatch!',x:'2 crews working at once!'},
+];
+
+let animFrame=0,birds=[],clouds=[];
+for(let i=0;i<4;i++)birds.push({x:R(0,1200),y:R(15,60),vx:0.3+Math.random()*0.6,wp:Math.random()*6});
+for(let i=0;i<5;i++)clouds.push({x:R(-200,1200),y:R(10,70),s:R(25,50),vx:0.08+Math.random()*0.12});
+
+function calcValuation(){
+  const equipVal=UPGRADES.reduce((s,u)=>{const k=u.key;return s+u.levels.slice(0,S.equipment[k]+1).reduce((a,l)=>a+l.c,0)},0);
+  const truckVal=S.trucks.reduce((s,t)=>{const tt=TRUCK_TYPES.find(x=>x.id===t.type);return s+(tt?tt.cost:0)},0);
+  const crewVal=S.crew.length*800+S.crew.reduce((s,c)=>s+c.level*400,0);
+  const contractVal=S.contracts.reduce((s,c)=>s+c.payPerDay*c.daysLeft*2,0);
+  const repVal=S.rep*100;const cashVal=S.money;const revenueVal=S.totalEarnings*0.3;
+  return Math.round(cashVal+equipVal+truckVal+crewVal+contractVal+repVal+revenueVal);
+}
+
+// ═══ CREW MANAGEMENT ═══
+const CREW_NAMES=['Alex','Jordan','Sam','Casey','Morgan','Riley','Quinn','Dakota','Avery','Jamie','Taylor','Drew','Robin','Sky','Blake','Parker','Reese','Finley','Rowan','Charlie'];
+const CREW_SPECIALTIES=[
+  {id:'general',name:'General',emoji:'🔧',speedBonus:0,payBonus:0},
+  {id:'mowing',name:'Mowing Pro',emoji:'🌱',speedBonus:0.15,payBonus:0.05,jobTypes:['mow','full','sod']},
+  {id:'trimming',name:'Trim Specialist',emoji:'✂️',speedBonus:0.15,payBonus:0.05,jobTypes:['trim','hedge','garden']},
+  {id:'landscaping',name:'Landscaper',emoji:'🏡',speedBonus:0.10,payBonus:0.10,jobTypes:['full','garden','sod']},
+  {id:'cleanup',name:'Cleanup Crew',emoji:'🍂',speedBonus:0.15,payBonus:0.05,jobTypes:['leaf','storm','weed']},
+];
+function getAvailableCrew(){return S.crew.filter(c=>c.available&&!c.training)}
+function hireCrew(){
+  const maxC=getTotalCrewCap();
+  if(!hasTruck()){showToast('🚛 Buy a truck first!');return}
+  if(S.crew.length>=maxC){showToast(`🚛 Buy another truck! Max ${maxC} crew.`);return}
+  const cost=600+S.crew.length*400;if(S.money<cost){showToast('Not enough money!');return}
+  S.money-=cost;const name=CREW_NAMES[S.crew.length%CREW_NAMES.length];
+  const spec=CREW_SPECIALTIES[R(1,CREW_SPECIALTIES.length-1)];
+  S.crew.push({name,level:1,xp:0,specialty:spec.id,training:false,available:true});
+  showToast(`👷 Hired ${name}! (${spec.emoji} ${spec.name})`);addLog(`👷 Hired <span class="hl">${name}</span>`);updateUI();checkMilestones();
+}
+function trainCrew(idx){const c=S.crew[idx];if(!c||c.training||c.level>=5)return;
+  const cost=c.level*400;if(S.money<cost){showToast('Not enough!');return}
+  S.money-=cost;c.training=true;c.available=false;showToast(`📚 ${c.name} training — back tomorrow`);updateUI();
+}
+function processTraining(){S.crew.forEach(c=>{if(c.training){c.training=false;c.available=true;
+  const bonus=S.perks.has('mentor')?1:0;c.level=Math.min(5,c.level+1+bonus);c.xp=0;
+  showToast(`📚 ${c.name} → Level ${c.level}!`);addLog(`📚 <span class="hl">${c.name}</span> → Lv${c.level}!`)}})}
+function getCrewSpeedBonus(){const avail=getAvailableCrew();if(avail.length<=1)return 1;
+  let bonus=1+((avail.length-1)*0.08);avail.forEach(c=>bonus+=(c.level-1)*0.05);return bonus}
+function getCrewPayBonus(){const avail=getAvailableCrew();const avgLevel=avail.reduce((s,c)=>s+c.level,0)/Math.max(1,avail.length);return 1+(avgLevel-1)*0.08}
+function getCrewSpecialtyBonus(jobType){
+  const avail=getAvailableCrew();const spec=CREW_SPECIALTIES.find(s=>s.jobTypes&&s.jobTypes.includes(jobType));
+  if(!spec)return{speed:0,pay:0};const specialist=avail.find(c=>c.specialty===spec.id);
+  if(!specialist)return{speed:0,pay:0};const lvlMult=specialist.level/3;return{speed:spec.speedBonus*lvlMult,pay:spec.payBonus*lvlMult};
+}
+function renderCrew(){
+  const l=$('crew-list');l.innerHTML='';
+  const fd=$('fleet-display');
+  let fleetHtml=`<div style="font-size:0.68rem;color:#42a5f5;font-weight:700;margin-bottom:4px">🚛 Fleet (${S.trucks.length} truck${S.trucks.length!==1?'s':''}) — Crew ${S.crew.length}/${getTotalCrewCap()}</div>`;
+  if(S.trucks.length===0)fleetHtml+=`<div style="font-size:0.62rem;color:#e74c3c;margin-bottom:4px">No trucks yet! Buy one below to start hiring.</div>`;
+  S.trucks.forEach((t,ti)=>{
+    const busy=isTruckBusy(ti);const disp=busy?S.activeDispatches.find(d=>d.truckIdx===ti):null;
+    const statusText=busy?`🔧 Working: ${disp?NEIGHBORHOODS[disp.nbIdx].name:''}`:'✅ Available';
+    fleetHtml+=`<div class="fleet-card ${busy?'busy':''}"><div class="fleet-name">🚛 ${t.name}</div><div class="fleet-det">Cap: ${t.maxCrew} crew · <span style="color:${busy?'#42a5f5':'#52b788'}">${statusText}</span></div></div>`});
+  fleetHtml+=`<div style="font-size:0.6rem;color:#888;margin:4px 0">Buy trucks to expand crew capacity & dispatch slots:</div>`;
+  TRUCK_TYPES.forEach((tt,i)=>{
+    fleetHtml+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:0.65rem"><span>🚛 ${tt.name} (+${tt.maxCrew} crew)</span><button class="bb" style="font-size:0.55rem;padding:2px 6px" ${S.money<tt.cost||isAnyTruckBusy()?'disabled':''} onclick="buyTruck(${i})">$${tt.cost.toLocaleString()}</button></div>`});
+  fd.innerHTML=fleetHtml;
+  S.crew.forEach((c,i)=>{const d=document.createElement('div');
+    d.className=`crew-card ${c.training?'training':''}${!c.available?' unavail':''}`;
+    const spec=CREW_SPECIALTIES.find(s=>s.id===c.specialty)||CREW_SPECIALTIES[0];
+    const benefitText=c.level<5?`→ Lv${c.level+1}: +${c.level*5}% speed, +${c.level*8}% pay`:'MAX';
+    d.innerHTML=`<div class="crew-info"><div class="crew-name">${i===0?'👤':'👷'} ${c.name} <span style="color:#52b788;font-size:0.62rem">Lv${c.level}</span></div>
+      <div class="crew-stats"><span>${spec.emoji} ${spec.name}</span><span>${c.training?'📚 Training...':c.available?'✅':'❌'}</span></div>
+      <div style="font-size:0.55rem;color:#666;margin-top:1px">${benefitText}</div></div>
+      ${c.training||c.level>=5?'':`<button class="bb" ${S.money<c.level*400||isAnyTruckBusy()?'disabled':''} onclick="trainCrew(${i})">📚 $${c.level*400}</button>`}`;
+    l.appendChild(d)});
+  const hs=$('hire-section');
+  if(!hasTruck()){hs.innerHTML='<div style="font-size:0.65rem;color:#e74c3c;text-align:center;padding:6px;border:1px dashed rgba(231,76,60,0.3);border-radius:5px;margin-top:4px">🚛 Buy a truck above to start hiring crew!</div>'}
+  else{const cost=600+S.crew.length*400;const canHire=S.crew.length<getTotalCrewCap();
+    hs.innerHTML=`<button class="bb" style="width:100%;margin-top:4px" ${!canHire||S.money<cost||isAnyTruckBusy()?'disabled':''} onclick="hireCrew()">
+      ${canHire?`👷 Hire Crew Member ($${cost.toLocaleString()})`:'🚛 Buy another truck for more crew!'}</button>`}
+}
+
+// ═══ EQUIPMENT DURABILITY ═══
+function degradeEquipment(jobType){
+  const baseRate=S.perks.has('mechanic')?2:4;const rate=Math.max(1,Math.round(baseRate));
+  if(['mow','full','sod'].includes(jobType))S.equipDurability.mower=Math.max(0,S.equipDurability.mower-rate);
+  if(['trim','hedge','full','garden'].includes(jobType)&&S.equipment.trimmer>0)S.equipDurability.trimmer=Math.max(0,S.equipDurability.trimmer-rate);
+  if(['leaf','storm'].includes(jobType)&&S.equipment.blower>0)S.equipDurability.blower=Math.max(0,S.equipDurability.blower-rate);
+}
+function getDurabilityPenalty(){let p=1;Object.keys(S.equipDurability).forEach(k=>{const d=S.equipDurability[k];if(d<30&&S.equipment[k]>0)p*=0.7+d/100});return p}
+function getRepairCost(key){return Math.round((100-S.equipDurability[key])*2*(1+S.equipRepairs[key]*0.5))}
+function getReplaceCost(key){const u=UPGRADES.find(x=>x.key===key);if(!u)return 999;return Math.max(150,Math.round(u.levels[S.equipment[key]].c*0.6))}
+function canRepair(key){return S.equipRepairs[key]<4}
+function repairEquipment(key){if(!canRepair(key)){showToast('⚠️ Must replace!');return}
+  const cost=getRepairCost(key);if(S.money<cost){showToast('Not enough!');return}
+  S.money-=cost;S.equipDurability[key]=100;S.equipRepairs[key]++;S.dayRepairs+=cost;showToast(`🔧 Repaired ${key}! -$${cost}`);updateUI();
+}
+function replaceEquipment(key){const cost=getReplaceCost(key);if(S.money<cost){showToast('Not enough!');return}
+  S.money-=cost;S.equipDurability[key]=100;S.equipRepairs[key]=0;S.dayRepairs+=cost;showToast(`🆕 Replaced ${key}! -$${cost}`);updateUI();
+}
+
+// ═══ BIDDING ═══
+function generateBids(){
+  S.bidOffers=[];if(S.equipment.signage<1&&S.rep<15)return;
+  const numBids=R(1,Math.min(3,1+Math.floor(S.rep/20)));
+  for(let i=0;i<numBids;i++){
+    const nb=NEIGHBORHOODS[Math.min(S.curNB+R(0,1),NEIGHBORHOODS.length-1)];
+    const avJobs=JOB_TYPES.filter(j=>!j.stormOnly);const job=avJobs[R(0,avJobs.length-1)];
+    const basePay=Math.round((50+job.diff*60+R(20,80))*nb.payMult);const rivalBid=Math.round(basePay*(0.6+Math.random()*0.5));
+    const dur=R(5,14);const rival=RIVAL_COMPANIES[R(0,RIVAL_COMPANIES.length-1)];
+    S.bidOffers.push({id:Date.now()+i,neighborhood:nb.name,jobName:job.name,jobEmoji:job.emoji,basePay,rivalBid,rivalName:rival.name,duration:dur,playerBid:0})}
+  renderBids();
+}
+function submitBid(bidId,amount){
+  const bid=S.bidOffers.find(b=>b.id===bidId);if(!bid)return;
+  const minBid=Math.round(bid.basePay*0.4);if(amount<minBid){showToast('Bid too low!');return}
+  if(amount<=bid.rivalBid){
+    let dp=Math.round(amount/bid.duration);if(S.perks.has('negotiator'))dp=Math.round(dp*1.3);
+    S.contracts.push({neighborhood:bid.neighborhood,jobName:bid.jobName,jobEmoji:bid.jobEmoji,payPerDay:dp,daysLeft:bid.duration,totalDays:bid.duration});
+    S.bidOffers=S.bidOffers.filter(b=>b.id!==bidId);S.milestonesHit.add('bid_won');updateGoalProgress('bids',1);
+    showToast(`🏆 Won! $${dp}/day × ${bid.duration}d`);checkMilestones();
+  } else {S.bidOffers=S.bidOffers.filter(b=>b.id!==bidId);showToast(`❌ Lost to ${bid.rivalName}`)}
+  renderBids();renderContracts();updateUI();
+}
+function renderBids(){
+  const l=$('bid-list');l.innerHTML='';
+  if(S.bidOffers.length===0){l.innerHTML='<div style="font-size:0.65rem;color:#666;text-align:center;padding:6px">No bids. New ones each day.</div>';return}
+  S.bidOffers.forEach(b=>{const d=document.createElement('div');d.className='job-card bid';const minBid=Math.round(b.basePay*0.4);
+    d.innerHTML=`<div class="jh"><span class="jn">${b.jobEmoji} ${b.jobName}</span><span style="color:#9b59b6;font-size:0.7rem;font-weight:700">${b.duration}d</span></div>
+      <div class="jd"><span>📍 ${b.neighborhood}</span><span>vs ${b.rivalName}</span></div>
+      <div style="font-size:0.65rem;color:#aaa;margin-top:3px">Value: ~$${b.basePay} · Min: $${minBid}</div>
+      <div class="bid-controls"><input type="number" id="bid-${b.id}" placeholder="Bid" min="${minBid}" value="${Math.round(b.basePay*0.7)}">
+      <button class="bb purple" onclick="submitBid(${b.id},parseInt($('bid-${b.id}').value))">Bid</button></div>`;
+    l.appendChild(d)});
+}
+function collectContractIncome(){
+  let total=0;S.contracts=S.contracts.filter(c=>{c.daysLeft--;total+=c.payPerDay;
+    if(c.daysLeft<=0){addLog(`📝 Contract ended: <span class="hl">${c.jobName}</span>`);return false}return true});
+  if(total>0){S.money+=total;S.contractIncome=total;S.totalEarnings+=total;updateGoalProgress('earnings',total);showToast(`📝 Contracts: +$${total}`)}renderContracts();
+}
+function renderContracts(){
+  const l=$('contract-list');l.innerHTML='';if(S.contracts.length===0)return;
+  l.innerHTML='<div style="font-size:0.65rem;color:#ffd54f;margin-bottom:3px;font-weight:600">Active Contracts:</div>';
+  S.contracts.forEach(c=>{const d=document.createElement('div');d.className='contract-card';
+    d.innerHTML=`<div class="cc-info"><div class="cc-name">${c.jobEmoji} ${c.jobName}</div><div class="cc-det">${c.neighborhood} · ${c.daysLeft}d left</div></div><div class="cc-pay">$${c.payPerDay}/d</div>`;l.appendChild(d)});
+}
+
+function renderRankings(){const l=$('rival-list');l.innerHTML='';const ranks=getPlayerRank();
+  ranks.forEach((r,i)=>{const d=document.createElement('div');d.className=`rival-rank ${r.isPlayer?'player':''}`;
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    d.innerHTML=`<div class="rank-pos">${medal||'#'+(i+1)}</div><div class="rank-name">${r.isPlayer?'🌿 Lawn Legend (You)':r.name}</div><div class="rank-val">$${r.val.toLocaleString()}</div>`;
+    l.appendChild(d)})}
+
+function rollEvent(){
+  if(S.day<=2){S.todayEvent=EVENTS[EVENTS.length-1];return}
+  if(Math.random()<0.35){S.todayEvent=EVENTS[EVENTS.length-1];return}
+  const pool=EVENTS.filter(e=>e.id!=='none');S.todayEvent=pool[R(0,pool.length-1)];
+  S.eventSpeedMod=1;S.eventTipMod=1;const e=S.todayEvent;
+  if(e.bad){let cost=e.cost||0;if(S.perks.has('insurance'))cost=Math.round(cost*0.5);
+    if(cost>0){S.money=Math.max(0,S.money-cost);S.dayRepairs+=cost}
+    if(e.speedPenalty)S.eventSpeedMod=e.speedPenalty;S.milestonesHit.add('survived_event');showWarnToast(`${e.name} ${e.desc}`);
+  } else {if(e.repBonus)S.rep+=e.repBonus;if(e.tipBoost)S.eventTipMod=e.tipBoost;if(e.speedBoost)S.eventSpeedMod=e.speedBoost;showToast(`${e.name} ${e.desc}`)}
+  addLog(`${e.bad?'⚠️':'✨'} <span class="hl">${e.name}</span>`);renderEvent();
+}
+function renderEvent(){const eb=$('event-bar');const e=S.todayEvent;if(!e.name){eb.classList.remove('active');return}
+  eb.className=`event-bar active ${e.bad?'bad':'good'}`;eb.textContent=`${e.name} — ${e.desc}`}
+function showWarnToast(m){const t=$('toast');t.textContent=m;t.className='toast warn show';setTimeout(()=>{t.classList.remove('show');t.classList.remove('warn')},3000)}
+
+function switchTab(tab){S.activeTab=tab;
+  ['upgrades','crew','perks','contracts','rankings','nbupgrades','help'].forEach((t,i)=>{
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);
+    $('tab-'+t).style.display=t===tab?'block':'none'});
+  if(tab==='rankings')renderRankings();if(tab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}}
+
+function addCombo(){S.combo++;if(S.combo>S.maxCombo)S.maxCombo=S.combo;clearTimeout(S.comboTimer);
+  S.comboTimer=setTimeout(()=>{S.combo=0;updateComboDisplay()},15000);updateComboDisplay()}
+function getComboMult(){if(S.combo<=1)return 1;const rate=S.perks.has('combo_master')?0.18:0.12;return Math.min(3,1+((S.combo-1)*rate))}
+function updateComboDisplay(){const cd=$('combo-display');if(S.combo<=1){cd.style.display='none';return}
+  cd.style.display='block';const m=getComboMult();$('combo-text').textContent=m.toFixed(1)+'x';
+  $('combo-text').style.color=m>=2?'#ff6b35':m>=1.5?'#ffd54f':'#b7e4c7'}
+function getStreakBonus(){return Math.min(0.5,S.streak*0.04)}
+
+function rollWeather(){const roll=Math.random();let c=0;for(const w of WEATHER_TYPES){c+=w.prob;if(roll<c){S.weather=w;break}}
+  const ws=$('weather-stat');ws.innerHTML=`${S.weather.emoji} <span class="v">${S.weather.name}</span>`;
+  const wd=$('weather-display');const cs=S.weather.id==='sunny'||S.weather.id==='cloudy'?'sunny':S.weather.id==='rainy'?'rainy':S.weather.id==='windy'?'windy':S.weather.id==='stormy'?'stormy':'drought';
+  wd.innerHTML=`<div class="weather-bar ${cs}">${S.weather.emoji} ${S.weather.name}</div>`}
+function updateSeason(){S.season=getSeason(S.day);$('season-label').textContent=S.season.name}
+
+function getDayHours(){return S.perks.has('endurance')?10:8}
+function getJobHours(job){const base=job.diff*0.8+0.5;let speed=getSpeed(job);return Math.max(0.3,base/speed)}
+function updateDayTimer(){
+  const h=S.dayHoursLeft;const t=S.dayHoursTotal;
+  const timeLabel=h<=1?'🌅 Sunset!':h<=3?'🌤️ Afternoon':h<=5?'☀️ Midday':'🌅 Morning';
+  $('day-time').textContent=`${timeLabel} · ${h.toFixed(1)}h left`;
+  $('day-time').style.color=h<=2?'#e74c3c':h<=4?'#f39c12':'#888';
+}
+
+// ═══ GENERATE JOBS ═══
+function generateNBJobs(nbIdx){
+  const nb=NEIGHBORHOODS[nbIdx];const props=[];const seasonJobs=S.season.jobs;
+  const totalHouses=nb.houses+getNBExtraJobs(nbIdx);
+  for(let i=0;i<totalHouses;i++){
+    const ht=nb.houseTypes[i%nb.houseTypes.length];const hc=HOUSE_CONFIGS[ht];
+    const available=JOB_TYPES.filter(j=>{
+      if(j.reqTrimmer&&S.equipment.trimmer<(j.reqTrimmer||0))return false;
+      if(j.reqTruck&&!hasTruck())return false;
+      if(j.reqBlower&&S.equipment.blower<(j.reqBlower||0))return false;
+      if(j.stormOnly&&S.weather.id!=='stormy')return false;
+      if(!j.stormOnly&&!seasonJobs.includes(j.type))return false;return true});
+    if(available.length===0)continue;
+    const job=available[R(0,available.length-1)];const cust=rollCustomer(nbIdx);
+    let basePay=Math.round((20+job.diff*30+R(0,20))*nb.payMult*(S.weather.payMult||1)*S.season.payMult*cust.payMod);
+    if(S.perks.has('haggler'))basePay=Math.round(basePay*1.12);
+    basePay=Math.round(basePay*(1+getStreakBonus())*getCrewPayBonus()*getNBPayBonus(nbIdx));
+    props.push({houseType:ht,houseConfig:hc,job:{...job},pay:basePay,customer:cust,
+      tiles:initTiles(hc.yardCols,hc.yardRows,job.type),done:false,satisfaction:0,tipped:false,customerOut:false,idx:i,nbIdx});}
+  if(S.weather.id==='stormy'&&hasTruck()){
+    const ht=nb.houseTypes[0];const hc=HOUSE_CONFIGS[ht];const sj=JOB_TYPES.find(j=>j.type==='storm');
+    if(sj){const bp=Math.round((20+sj.diff*30+R(15,40))*nb.payMult*1.5);
+      props.push({houseType:ht,houseConfig:hc,job:{...sj},pay:bp,customer:rollCustomer(nbIdx),
+        tiles:initTiles(hc.yardCols,hc.yardRows,'leaf'),done:false,satisfaction:0,tipped:false,customerOut:false,idx:props.length,nbIdx})}}
+  return props;
+}
+
+function generateAllDayJobs(){
+  S.nbJobs={};S.activeDispatches.forEach(d=>{clearInterval(d.workTimer)});S.activeDispatches=[];
+  S.rushJob=null;clearInterval(S.rushTimer);
+  S.dayHoursTotal=getDayHours();S.dayHoursLeft=S.dayHoursTotal;
+  NEIGHBORHOODS.forEach((nb,i)=>{if(S.rep>=nb.minRep)S.nbJobs[i]=generateNBJobs(i)});
+  renderJobs();renderActiveJobs();updateDayTimer();
+}
+
+function switchNB(idx){
+  if(S.rep<NEIGHBORHOODS[idx].minRep)return;
+  S.curNB=idx;S.targetScrollX=0;
+  $('nb-name-label').textContent=NEIGHBORHOODS[idx].name;
+  renderJobs();renderNBSel();updateUI();
+}
+
+function initTiles(cols,rows,jt){
+  const tiles=[];for(let r=0;r<rows;r++){tiles[r]=[];for(let c=0;c<cols;c++){
+    const t={col:c,row:r,done:false};const isE=(r===0||r===rows-1||c===0||c===cols-1);
+    if(jt==='mow'){t.type='tall_grass';t.gH=R(8,15)}
+    else if(jt==='trim'){t.type=isE?'edge':'short_grass';if(!isE)t.done=true;else t.gH=R(5,10)}
+    else if(jt==='garden'){if(isE){t.type='short_grass';t.done=true}else if((c+r)%3===0){t.type='garden_bed';t.ft=R(0,4);t.fg=0}else{t.type='short_grass';t.done=true}}
+    else if(jt==='leaf'||jt==='storm'){t.type='leafy';t.lc=jt==='storm'?R(5,10):R(3,7);t.lcs=[];for(let i=0;i<t.lc;i++)t.lcs.push(R(0,3))}
+    else if(jt==='weed'){t.type='patio';t.hw=Math.random()>0.35;t.wH=R(4,9);t.ss=R(0,3)}
+    else if(jt==='hedge'){t.type=isE?'hedge':'short_grass';if(!isE)t.done=true;else t.hH=R(14,22)}
+    else if(jt==='full'){if(isE){t.type='hedge';t.hH=R(14,22)}else if((c+r)%4===0){t.type='garden_bed';t.ft=R(0,4);t.fg=0}else{t.type='tall_grass';t.gH=R(8,15)}}
+    else if(jt==='sod'){t.type='bare_dirt'}
+    else{t.type='short_grass'}
+    tiles[r][c]=t}}return tiles}
+function getWorkPath(tiles,jt){
+  const rows=tiles.length,cols=tiles[0].length,p=[];
+  if(['mow','leaf','sod','storm','weed'].includes(jt)){for(let r=0;r<rows;r++){if(r%2===0){for(let c=0;c<cols;c++)p.push({c,r})}else{for(let c=cols-1;c>=0;c--)p.push({c,r})}}}
+  else if(jt==='trim'||jt==='hedge'){for(let c=0;c<cols;c++)p.push({c,r:0});for(let r=1;r<rows;r++)p.push({c:cols-1,r});for(let c=cols-2;c>=0;c--)p.push({c,r:rows-1});for(let r=rows-2;r>=1;r--)p.push({c:0,r})}
+  else if(jt==='garden'||jt==='full'){for(let c=0;c<cols;c++)if(!tiles[0][c].done)p.push({c,r:0});for(let r=1;r<rows;r++)if(!tiles[r][cols-1].done)p.push({c:cols-1,r});for(let c=cols-2;c>=0;c--)if(!tiles[rows-1][c].done)p.push({c,r:rows-1});for(let r=rows-2;r>=1;r--)if(!tiles[r][0].done)p.push({c:0,r});for(let r=1;r<rows-1;r++){if(r%2===0){for(let c=1;c<cols-1;c++)if(!tiles[r][c].done)p.push({c,r})}else{for(let c=cols-2;c>=1;c--)if(!tiles[r][c].done)p.push({c,r})}}}
+  return p.filter(wp=>!tiles[wp.r][wp.c].done)}
+
+const PROP_SPACING=320,PROP_Y=200,YARD_TILE=20;
+function propX(i){return 100+i*PROP_SPACING}
+
+// ═══ DRAWING ═══
+function drawSky(){
+  const m=[0.35,0.65,0.88];const ev=[0.95,0.45,0.25];let r,g,b;
+  if(S.dayPhase<0.7){const t=S.dayPhase/0.7;r=lerp(m[0],0.53,t);g=lerp(m[1],0.74,t);b=lerp(m[2],0.91,t)}
+  else{const t=(S.dayPhase-0.7)/0.3;r=lerp(0.53,ev[0],t);g=lerp(0.74,ev[1],t);b=lerp(0.91,ev[2],t)}
+  if(S.weather.id==='stormy'){r*=0.5;g*=0.5;b*=0.55}else if(S.weather.id==='rainy'){r*=0.7;g*=0.7;b*=0.75}else if(S.weather.id==='cloudy'){r*=0.85;g*=0.85;b*=0.88}
+  const gr=ctx.createLinearGradient(0,0,0,160);gr.addColorStop(0,`rgb(${r*255|0},${g*255|0},${b*255|0})`);gr.addColorStop(1,`rgb(${Math.min(255,r*255+40)|0},${Math.min(255,g*255+30)|0},${Math.min(255,b*255+10)|0})`);
+  ctx.fillStyle=gr;ctx.fillRect(0,0,W,160);
+  const dayProgress=1-(S.dayHoursLeft/S.dayHoursTotal);
+  if(S.weather.id!=='stormy'&&S.weather.id!=='rainy'){
+    const sx=W*0.15+W*0.7*dayProgress;const sy=30+80*Math.sin(Math.PI*(0.15+dayProgress*0.7));
+    const sa=dayProgress>0.85?1-(dayProgress-0.85)/0.15:1;
+    if(sa>0){ctx.fillStyle=`rgba(255,235,59,${0.1*sa})`;ctx.beginPath();ctx.arc(sx,sy,45,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=`rgba(255,235,59,${0.9*sa})`;ctx.beginPath();ctx.arc(sx,sy,14,0,Math.PI*2);ctx.fill()}}
+  clouds.forEach(cl=>{cl.x+=cl.vx*(S.weather.id==='windy'?3:1);if(cl.x>W+200)cl.x=-200;const cx=cl.x-S.scrollX*0.1;
+    ctx.fillStyle=`rgba(${S.weather.id==='stormy'?'80,80,100':'255,255,255'},${S.weather.id==='stormy'?0.7:0.35})`;
+    ctx.beginPath();ctx.arc(cx,cl.y,cl.s*0.5,0,Math.PI*2);ctx.arc(cx+cl.s*0.35,cl.y-cl.s*0.12,cl.s*0.38,0,Math.PI*2);ctx.fill()});
+  if(S.weather.id!=='stormy'&&S.weather.id!=='rainy')birds.forEach(bd=>{bd.x+=bd.vx;if(bd.x>W+50)bd.x=-50;bd.wp+=0.07;const bx=bd.x-S.scrollX*0.05,wy=Math.sin(bd.wp)*3;
+    ctx.strokeStyle='rgba(40,40,40,0.5)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(bx-5,bd.y);ctx.quadraticCurveTo(bx-2,bd.y+wy,bx,bd.y);ctx.quadraticCurveTo(bx+2,bd.y+wy,bx+5,bd.y);ctx.stroke()});
+  if(S.weather.id==='rainy'||S.weather.id==='stormy'){const n=S.weather.id==='stormy'?80:35;ctx.strokeStyle='rgba(150,180,220,0.35)';ctx.lineWidth=1;
+    for(let i=0;i<n;i++){const rx=(animFrame*3+i*37)%W,ry=(animFrame*8+i*53)%H;ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx+3,ry+12);ctx.stroke()}}
+  const barW=W*0.4,barX=(W-barW)/2,barY=4,barH=5;
+  ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(barX,barY,barW,barH);
+  const pct=S.dayHoursLeft/S.dayHoursTotal;ctx.fillStyle=pct<0.2?'#e74c3c':pct<0.4?'#f39c12':'#52b788';
+  ctx.fillRect(barX,barY,barW*pct,barH);ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.strokeRect(barX,barY,barW,barH);
+  ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='bold 8px Segoe UI,sans-serif';ctx.textAlign='center';
+  ctx.fillText(`${S.dayHoursLeft.toFixed(1)}h / ${S.dayHoursTotal}h`,W/2,barY+barH+10);
+}
+function drawGround(){const dry=S.weather.id==='drought',wet=S.weather.id==='rainy'||S.weather.id==='stormy';
+  const c1=dry?'#c4b87a':wet?'#6aaf82':'#a8d8b9';const c2=dry?'#a8a060':'#5fb87e';
+  const gr=ctx.createLinearGradient(0,130,0,H);gr.addColorStop(0,c1);gr.addColorStop(1,c2);ctx.fillStyle=gr;ctx.fillRect(0,130,W,H-130);
+  ctx.fillStyle=wet?'#555':'#6b6b6b';ctx.fillRect(0,H-55,W,55);ctx.strokeStyle='#e0c84a';ctx.lineWidth=2;ctx.setLineDash([20,15]);ctx.beginPath();ctx.moveTo(0,H-30);ctx.lineTo(W,H-30);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#c4bfb0';ctx.fillRect(0,H-60,W,8)}
+function drawStreetLight(x){const sx=x-S.scrollX;ctx.fillStyle='#555';ctx.fillRect(sx-2,H-130,4,75);ctx.fillStyle='#777';ctx.fillRect(sx-8,H-133,16,5);
+  const dayProgress=1-(S.dayHoursLeft/S.dayHoursTotal);
+  if(dayProgress>0.6||S.weather.id==='stormy'){const a=S.weather.id==='stormy'?0.6:Math.min(1,(dayProgress-0.6)/0.4);ctx.fillStyle=`rgba(255,230,150,${a*0.5})`;ctx.beginPath();ctx.arc(sx,H-133,5,0,Math.PI*2);ctx.fill()}}
+function drawHouse(px,ht){const hc=HOUSE_CONFIGS[ht],hx=px-S.scrollX,bY=PROP_Y,{w,h,roofH,color,roof}=hc;
+  ctx.fillStyle=color;ctx.fillRect(hx,bY,w,h);
+  if(hc.flat){ctx.fillStyle=roof;ctx.fillRect(hx-4,bY-4,w+8,8)}
+  else{ctx.fillStyle=roof;ctx.beginPath();ctx.moveTo(hx-8,bY);ctx.lineTo(hx+w/2,bY-roofH);ctx.lineTo(hx+w+8,bY);ctx.closePath();ctx.fill()}
+  if(!hc.flat){ctx.fillStyle='#8B4513';ctx.fillRect(hx+w*0.7,bY-roofH-8,12,20)}
+  const dx=hx+w/2-10;ctx.fillStyle='#5c4033';ctx.fillRect(dx,bY+h-35,20,35);
+  const nw=hc.windows;const dayProgress=1-(S.dayHoursLeft/S.dayHoursTotal);
+  for(let i=0;i<nw;i++){const wx=hx+12+i*(w-24)/nw,wy=bY+h*0.35;ctx.fillStyle='#87CEEB';ctx.fillRect(wx,wy,14,16);
+    if(dayProgress>0.5){ctx.fillStyle=`rgba(255,220,100,${(dayProgress-0.5)})`;ctx.fillRect(wx+1,wy+1,12,14)}}
+  ctx.fillStyle='#9e9484';ctx.fillRect(hx+w/2-15,bY+h,30,H-bY-h-60)}
+function drawYard(prop,px){
+  const hc=prop.houseConfig,cols=hc.yardCols,rows=hc.yardRows,yardX=px+hc.w+15-S.scrollX,yardY=PROP_Y+20,tw=YARD_TILE,th=YARD_TILE,sway=animFrame*0.06;
+  ctx.strokeStyle='#c4a35a';ctx.lineWidth=1.5;ctx.strokeRect(yardX-2,yardY-2,cols*tw+4,rows*th+4);
+  for(let r=0;r<rows;r++){for(let c=0;c<cols;c++){const t=prop.tiles[r][c],tx=yardX+c*tw,ty=yardY+r*th;
+    if(t.type==='short_grass'){ctx.fillStyle=((c+r)%2===0)?'#74c69d':'#7fce9e';ctx.fillRect(tx,ty,tw,th)}
+    else if(t.type==='tall_grass'){if(t.done){ctx.fillStyle=(r%2===0)?'#95d5b2':'#a8e0c0';ctx.fillRect(tx,ty,tw,th)}
+      else{ctx.fillStyle='#2d6a4f';ctx.fillRect(tx,ty,tw,th);for(let i=0;i<3;i++){const bx=tx+3+i*6,s=Math.sin(sway+c+r+i)*1.5;ctx.strokeStyle='#40916c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(bx,ty+th);ctx.quadraticCurveTo(bx+s,ty+th-t.gH*0.6,bx+s,ty+th-t.gH);ctx.stroke()}}}
+    else if(t.type==='edge'){if(t.done){ctx.fillStyle='#74c69d';ctx.fillRect(tx,ty,tw,th)}else{ctx.fillStyle='#74c69d';ctx.fillRect(tx,ty,tw,th);ctx.strokeStyle='#40916c';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(tx+5,ty+th);ctx.quadraticCurveTo(tx+5,ty+th-t.gH*0.6,tx+5,ty+th-t.gH);ctx.stroke()}}
+    else if(t.type==='leafy'){ctx.fillStyle=((c+r)%2===0)?'#74c69d':'#7fce9e';ctx.fillRect(tx,ty,tw,th);
+      if(!t.done){for(let i=0;i<t.lc;i++){ctx.fillStyle=['#c0601c','#d4880e','#b84c18','#9e6b1a'][t.lcs[i]];ctx.save();ctx.translate(tx+((i*7+3)%16)+2,ty+((i*5+2)%14)+3);ctx.rotate(i*1.1);ctx.beginPath();ctx.ellipse(0,0,3.5,2,0,0,Math.PI*2);ctx.fill();ctx.restore()}}}
+    else if(t.type==='patio'){ctx.fillStyle=['#b0a999','#a89e8e','#c4b9a8','#9e9484'][t.ss];ctx.fillRect(tx,ty,tw,th);
+      if(!t.done&&t.hw){ctx.strokeStyle='#5a8a3c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(tx+tw/2,ty+th);ctx.lineTo(tx+tw/2,ty+th-t.wH);ctx.stroke()}}
+    else if(t.type==='hedge'){ctx.fillStyle='#74c69d';ctx.fillRect(tx,ty,tw,th);const hh=t.done?5:t.hH;ctx.fillStyle=t.done?'#40916c':'#1b4332';ctx.beginPath();ctx.ellipse(tx+tw/2,ty+th/2,tw/2,hh/2,0,0,Math.PI*2);ctx.fill()}
+    else if(t.type==='garden_bed'){if(t.done){ctx.fillStyle='#6b4f12';ctx.fillRect(tx,ty,tw,th);if(t.fg>0.5){ctx.fillStyle=['#e76f51','#f4a261','#e9c46a','#e56b9d','#9b5de5'][t.ft%5];ctx.beginPath();ctx.arc(tx+tw/2,ty+th/2,3*t.fg,0,Math.PI*2);ctx.fill()}}
+      else{ctx.fillStyle='#8B6914';ctx.fillRect(tx,ty,tw,th)}}
+    else if(t.type==='bare_dirt'){ctx.fillStyle=t.done?'#52b788':'#8B6914';ctx.fillRect(tx,ty,tw,th)}}}
+  // Draw workers for ANY dispatch on this prop (across all NBs — only visible on current NB)
+  const disp=getDispatchForProp(S.curNB,prop.idx);
+  if(disp){
+    const crewSize=Math.min(4,getAvailableCrew().length);
+    const wp=disp.workPath[disp.workStep]||disp.workPath[disp.workPath.length-1];
+    const truckColor=TRUCK_COLORS[disp.truckIdx%TRUCK_COLORS.length];
+    if(wp){for(let ci=0;ci<crewSize;ci++){
+      const wIdx=Math.max(0,disp.workStep-ci*2);const cwp=disp.workPath[Math.min(wIdx,disp.workPath.length-1)];
+      const wx=yardX+cwp.c*tw+tw/2,wy=yardY+cwp.r*th,bounce=Math.sin(animFrame*0.15+ci)*1.5;
+      ctx.fillStyle=truckColor;ctx.fillRect(wx-3,wy+bounce-6,6,8);
+      ctx.fillStyle='#ffcc99';ctx.beginPath();ctx.arc(wx,wy+bounce-10,4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=truckColor;ctx.beginPath();ctx.arc(wx,wy+bounce-12,5,Math.PI,Math.PI*2);ctx.fill()}}
+    // Truck label above yard
+    ctx.fillStyle=truckColor;ctx.font='bold 8px Segoe UI,sans-serif';ctx.textAlign='center';
+    const labelX=yardX+cols*tw/2,labelY=yardY-8;
+    ctx.fillText(`🚛 #${disp.truckIdx+1}`,labelX,labelY);
+  }
+  if(prop.done&&prop.customerOut){const cx=px+hc.w/2-S.scrollX,cy=PROP_Y+hc.h-5;
+    ctx.fillStyle='#e74c3c';ctx.fillRect(cx-3,cy-10,6,8);ctx.fillStyle='#ffcc99';ctx.beginPath();ctx.arc(cx,cy-14,4,0,Math.PI*2);ctx.fill();
+    ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText(prop.customer.emoji,cx,cy-22);
+    ctx.font='7px sans-serif';ctx.fillText('⭐'.repeat(Math.min(prop.satisfaction,5)),cx,cy-28)}
+  if(S.equipment.signage>=1&&!prop.done&&!disp){const sx=yardX+cols*tw+6,sy=yardY+rows*th-10;ctx.fillStyle='#4CAF50';ctx.fillRect(sx,sy,16,10);
+    ctx.fillStyle='#fff';ctx.font='bold 4px sans-serif';ctx.textAlign='center';ctx.fillText('LAWN',sx+8,sy+4);ctx.fillText('LEGEND',sx+8,sy+9)}
+  if(prop.isRush&&!prop.done){const rx=yardX+cols*tw/2,ry=yardY-12;ctx.fillStyle=`rgba(255,107,53,${0.6+Math.sin(animFrame*0.1)*0.4})`;ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText(`🚨 RUSH ${S.rushCountdown}s`,rx,ry)}
+}
+function drawTruck(){if(!hasTruck())return;const tx=50-S.scrollX,ty=H-50;
+  S.trucks.forEach((truck,ti)=>{
+    const ox=tx+ti*55;const tw=35;const th=14;const busy=isTruckBusy(ti);
+    ctx.fillStyle=TRUCK_COLORS[ti%TRUCK_COLORS.length];ctx.fillRect(ox,ty-th,tw,th);
+    if(busy){ctx.globalAlpha=0.5+Math.sin(animFrame*0.08+ti)*0.3}
+    ctx.fillStyle='rgba(0,0,0,0.15)';ctx.fillRect(ox+tw-12,ty-th-6,15,th+4);ctx.fillStyle='#87CEEB';ctx.fillRect(ox+tw-10,ty-th-4,11,8);
+    ctx.fillStyle='#333';ctx.beginPath();ctx.arc(ox+8,ty+4,4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(ox+tw-5,ty+4,4,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='bold 5px sans-serif';ctx.textAlign='center';
+    ctx.fillText(busy?'BUSY':`#${ti+1}`,ox+tw/2,ty-2);
+  })}
+function drawScenery(){const props=getProps();props.forEach((p,i)=>{const px=propX(i),treeX=px-30-S.scrollX;
+  if(treeX>-60&&treeX<W+60){drawTree(treeX,PROP_Y+30,22);drawTree(treeX+PROP_SPACING-40,PROP_Y+50,18)}})}
+function drawTree(x,y,sz){ctx.fillStyle='#5c4033';ctx.fillRect(x-2,y,4,sz*0.4);
+  const wb=S.weather.id==='windy'?Math.sin(animFrame*0.04)*3:0;
+  ctx.fillStyle=S.season.id==='fall'?'#c0601c':'#2d6a4f';ctx.beginPath();ctx.arc(x+wb,y-sz*0.1,sz*0.5,0,Math.PI*2);ctx.fill()}
+function drawNBLabel(){const nb=NEIGHBORHOODS[S.curNB];ctx.fillStyle='rgba(0,0,0,0.35)';ctx.fillRect(0,135,W,22);
+  ctx.fillStyle='#fff';ctx.font='bold 11px Segoe UI,sans-serif';ctx.textAlign='center';
+  const props=getProps();const doneCnt=props.filter(p=>p.done).length;
+  const cm=getComboMult();const ct=cm>1?` 🔗${cm.toFixed(1)}x`:'';
+  let totalJobs=0,totalDone=0;Object.values(S.nbJobs).forEach(ps=>{totalJobs+=ps.length;totalDone+=ps.filter(p=>p.done).length});
+  const busyCount=S.activeDispatches.length;const busyTag=busyCount>0?` · 🚛${busyCount} working`:'';
+  ctx.fillText(`📍 ${nb.name} · ${doneCnt}/${props.length} here · ${totalDone}/${totalJobs} total${busyTag}${ct}`,W/2,150)}
+
+let particles=[],cashFloats=[];
+function spawnP(x,y,t,n){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-0.5)*3,vy:-Math.random()*2.5-0.5,life:1,decay:0.03+Math.random()*0.02,sz:2,color:t==='grass'?'#52b788':t==='leaf'?'#d4880e':t==='dirt'?'#8B6914':'#fff'})}
+function spawnCash(x,y,a){cashFloats.push({x,y,text:`+$${a}`,life:1.2,vy:-1.2})}
+function updateDrawParticles(){
+  particles=particles.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.06;p.life-=p.decay;return p.life>0});
+  particles.forEach(p=>{ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.fillRect(p.x-S.scrollX-1,p.y-1,p.sz,p.sz);ctx.globalAlpha=1});
+  cashFloats=cashFloats.filter(p=>{p.y+=p.vy;p.life-=0.018;return p.life>0});
+  cashFloats.forEach(p=>{ctx.globalAlpha=Math.min(1,p.life);ctx.fillStyle='#52b788';ctx.font='bold 14px Segoe UI,sans-serif';ctx.textAlign='center';ctx.fillText(p.text,p.x-S.scrollX,p.y);ctx.globalAlpha=1})}
+
+function draw(){ctx.clearRect(0,0,W,H);S.scrollX=lerp(S.scrollX,S.targetScrollX,0.08);
+  drawSky();drawGround();drawTruck();
+  const props=getProps();
+  for(let i=0;i<props.length+1;i++)drawStreetLight(propX(i)-60);drawScenery();
+  props.forEach((p,i)=>{const px=propX(i),sx=px-S.scrollX;if(sx>-400&&sx<W+200){drawHouse(px,p.houseType);drawYard(p,px);
+    if(p.done){ctx.font='bold 24px sans-serif';ctx.textAlign='center';ctx.fillStyle='rgba(82,183,136,0.7)';ctx.fillText('✅',sx+HOUSE_CONFIGS[p.houseType].w+15+p.houseConfig.yardCols*YARD_TILE/2,PROP_Y+20+p.houseConfig.yardRows*YARD_TILE/2+8)}
+    const disp=getDispatchForProp(S.curNB,i);
+    if(disp){ctx.strokeStyle=TRUCK_COLORS[disp.truckIdx%TRUCK_COLORS.length];ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.strokeRect(sx+HOUSE_CONFIGS[p.houseType].w+11,PROP_Y+16,p.houseConfig.yardCols*YARD_TILE+8,p.houseConfig.yardRows*YARD_TILE+8);ctx.setLineDash([])}}});
+  drawNBLabel();updateDrawParticles()}
+
+// ═══ GAME LOGIC ═══
+function showToast(m){const t=$('toast');t.textContent=m;t.className='toast show';setTimeout(()=>t.classList.remove('show'),2500)}
+function addLog(m){const l=$('log'),d=document.createElement('div');d.className='log-entry';d.innerHTML=m;l.prepend(d);if(l.children.length>40)l.removeChild(l.lastChild)}
+
+function updateUI(){
+  $('money').textContent=S.money.toLocaleString();$('rep').textContent=S.rep;$('day').textContent=S.day;
+  $('streak-count').textContent=S.streak;$('streak-val').textContent=S.streak;$('streak-bonus').textContent=Math.round(getStreakBonus()*100);
+  $('company-val').textContent='$'+calcValuation().toLocaleString();$('sp-count').textContent=S.skillPoints;
+  updateDayTimer();renderGoal();renderCompanyTier();
+  renderUpgrades();renderNBSel();renderContracts();renderPerks();renderCrew();renderTrophies();renderBids();renderActiveJobs();
+  if(S.activeTab==='rankings')renderRankings();if(S.activeTab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}
+}
+function getSpeed(j){
+  let m=1;if(['mow','full','sod'].includes(j.type))m*=(1+S.equipment.mower*0.25);
+  if(['trim','hedge','full','garden'].includes(j.type))m*=(1+Math.max(0,S.equipment.trimmer)*0.3);
+  if(['leaf','storm'].includes(j.type))m*=(1+Math.max(0,S.equipment.blower)*0.35);
+  m*=getCrewSpeedBonus();const specBonus=getCrewSpecialtyBonus(j.type);m*=(1+specBonus.speed);
+  let wm=S.weather.speedMult||1;if(S.perks.has('rain_or_shine')&&wm<1)wm=1;m*=wm;
+  m*=S.eventSpeedMod;m*=getDurabilityPenalty();return m}
+
+function renderNBSel(){const el=$('nb-sel');el.innerHTML='';
+  NEIGHBORHOODS.forEach((nb,i)=>{const u=S.rep>=nb.minRep;const btn=document.createElement('div');
+    const jobs=S.nbJobs[i]||[];const done=jobs.filter(p=>p.done).length;const total=jobs.length;
+    const busyHere=S.activeDispatches.filter(d=>d.nbIdx===i).length;
+    const busyTag=busyHere>0?` 🚛${busyHere}`:'';
+    const doneTag=u&&total>0?` <span class="nb-done">${done}/${total}${busyTag}</span>`:'';
+    btn.className=`nb-btn ${i===S.curNB?'active':''} ${u?'':'locked'}`;
+    btn.innerHTML=u?`${nb.name}${doneTag}`:`🔒 ${nb.minRep}⭐`;
+    if(u)btn.onclick=()=>switchNB(i);el.appendChild(btn)})}
+
+// ═══ ACTIVE JOBS DISPLAY (shows all dispatched trucks) ═══
+function renderActiveJobs(){
+  const el=$('active-jobs-display');
+  if(S.activeDispatches.length===0){el.innerHTML='';return}
+  let html='<div style="font-size:0.58rem;color:#42a5f5;font-weight:700;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.5px">🚛 Active Crews</div>';
+  S.activeDispatches.forEach(d=>{
+    const nb=NEIGHBORHOODS[d.nbIdx];const props=getAllProps(d.nbIdx);const prop=props[d.propIdx];
+    if(!prop)return;
+    const pct=Math.round((d.workStep/d.workTotal)*100);
+    const color=TRUCK_COLORS[d.truckIdx%TRUCK_COLORS.length];
+    html+=`<div class="active-job-item" style="background:${color}15;border:1px solid ${color}30;color:${color}">
+      <span>🚛#${d.truckIdx+1}</span><span>${prop.job.emoji} ${prop.job.name}</span><span style="color:#888;font-size:0.58rem">@ ${nb.name}</span>
+      <div style="flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-left:4px"><div style="height:100%;width:${pct}%;background:${color};border-radius:2px"></div></div>
+      <span style="font-size:0.58rem">${pct}%</span></div>`;
+  });
+  el.innerHTML=html;
+}
+
+function renderJobs(){const l=$('job-list');l.innerHTML='';const props=getProps();
+  if(props.length===0){l.innerHTML='<div style="font-size:0.65rem;color:#666;text-align:center;padding:8px">No jobs available here. Try another neighborhood!</div>';return}
+  const freeTrucks=getFreeTrucks();const hasFreeTruck=freeTrucks.length>0;
+  props.forEach((p,i)=>{const d=document.createElement('div');
+    const jobHrs=getJobHours(p.job);const cantAffordTime=jobHrs>S.dayHoursLeft&&!p.done;
+    const beingWorked=isJobBeingWorked(S.curNB,i);const disp=beingWorked?getDispatchForProp(S.curNB,i):null;
+    const isClickable=!p.done&&!beingWorked&&!cantAffordTime&&hasFreeTruck;
+    d.className=`job-card ${p.done?'locked':''}${beingWorked?' working':''}${cantAffordTime&&!beingWorked?' locked':''}${p.isRush&&!p.done&&!beingWorked?' rush':''}`;
+    const cm=getComboMult();const ct=cm>1?` <span style="color:#ffd54f;font-size:0.58rem">×${cm.toFixed(1)}</span>`:'';
+    const custTag=p.customer.id!=='normal'?` <span style="font-size:0.6rem">${p.customer.emoji}</span>`:'';
+    const rushTag=p.isRush&&!p.done&&!beingWorked?`<div class="rush-timer">🚨 ${S.rushCountdown}s!</div>`:'';
+    const durWarn=getDurabilityPenalty()<0.85?'<span style="color:#e74c3c;font-size:0.6rem"> 🔧!</span>':'';
+    const timeWarn=cantAffordTime&&!beingWorked?'<span style="color:#e74c3c;font-size:0.6rem"> ⏰ No time!</span>':'';
+    let workingTag='';
+    if(beingWorked&&disp){
+      const pct=Math.round((disp.workStep/disp.workTotal)*100);
+      const color=TRUCK_COLORS[disp.truckIdx%TRUCK_COLORS.length];
+      workingTag=`<div style="margin-top:3px"><div style="font-size:0.62rem;color:${color};font-weight:700">🚛 Truck #${disp.truckIdx+1} working...</div>
+        <div class="progress-wrap" style="display:block"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,${color},${color}dd)">${pct}%</div></div></div>`;
+    }
+    // Dispatch buttons for free trucks
+    let dispatchBtns='';
+    if(isClickable&&S.trucks.length>1){
+      dispatchBtns='<div class="dispatch-bar">';
+      freeTrucks.forEach(ft=>{
+        const color=TRUCK_COLORS[ft.idx%TRUCK_COLORS.length];
+        dispatchBtns+=`<div class="dispatch-btn" style="background:${color}20;border-color:${color};color:${color}" onclick="event.stopPropagation();dispatchJob(${i},${ft.idx})">🚛#${ft.idx+1}</div>`;
+      });
+      dispatchBtns+='</div>';
+    }
+    d.innerHTML=`<div class="jh"><span class="jn">${p.job.emoji} ${p.job.name}${custTag}</span><span class="jp">$${p.pay}${ct}</span></div>
+      <div class="jd"><span>⏱${jobHrs.toFixed(1)}h</span><span>⭐+${p.job.diff}</span><span>🏠 ${p.houseType}</span>${durWarn}${timeWarn}</div>
+      ${rushTag}${workingTag}${p.done?'<div style="color:#52b788;font-size:0.66rem">✅ Done</div>':''}${dispatchBtns}`;
+    // Click to dispatch (auto-assign if 1 truck or no trucks)
+    if(isClickable&&S.trucks.length<=1)d.onclick=()=>dispatchJob(i,freeTrucks[0]?freeTrucks[0].idx:-1);
+    l.appendChild(d)})}
+
+// ═══ DISPATCH A JOB TO A TRUCK ═══
+function dispatchJob(propIdx,truckIdx){
+  const props=getProps();const prop=props[propIdx];if(!prop||prop.done)return;
+  if(isJobBeingWorked(S.curNB,propIdx)){showToast('Already being worked!');return}
+  if(truckIdx>=0&&isTruckBusy(truckIdx)){showToast('That truck is busy!');return}
+  if(truckIdx===-1&&isAnyTruckBusy()){showToast('You\'re already working!');return}
+  const jobHrs=getJobHours(prop.job);
+  if(jobHrs>S.dayHoursLeft){showToast('⏰ Not enough hours!');return}
+
+  const workPath=getWorkPath(prop.tiles,prop.job.type);const workTotal=workPath.length;
+  if(workTotal===0){completeDispatch(S.curNB,propIdx,truckIdx);return}
+
+  let totalTime=Math.max(1,Math.round(prop.job.timeBase/getSpeed(prop.job)));
+  if(S.perks.has('early_bird')&&S.dayJobsDone===0)totalTime=Math.round(totalTime*0.7);
+  const stepInt=(totalTime*1000)/workTotal;
+
+  const dispatch={truckIdx,nbIdx:S.curNB,propIdx,workPath,workStep:0,workTotal,workTimer:null,startTime:Date.now()};
+
+  dispatch.workTimer=setInterval(()=>{
+    if(dispatch.workStep>=dispatch.workTotal){clearInterval(dispatch.workTimer);completeDispatch(dispatch.nbIdx,dispatch.propIdx,dispatch.truckIdx);return}
+    const wp=dispatch.workPath[dispatch.workStep];const nb_props=getAllProps(dispatch.nbIdx);const dprop=nb_props[dispatch.propIdx];
+    if(!dprop){clearInterval(dispatch.workTimer);return}
+    const t=dprop.tiles[wp.r][wp.c];
+    if(!t.done){t.done=true;
+      // Only spawn particles if we're viewing this neighborhood
+      if(dispatch.nbIdx===S.curNB){
+        const hc=dprop.houseConfig;const px=propX(dispatch.propIdx)+hc.w+15+wp.c*YARD_TILE+YARD_TILE/2;const py=PROP_Y+20+wp.r*YARD_TILE+YARD_TILE/2;
+        if(t.type==='tall_grass')spawnP(px,py,'grass',3);else if(t.type==='leafy')spawnP(px,py,'leaf',t.lc);
+        else if(t.type==='garden_bed'){t.fg=0.05;spawnP(px,py,'dirt',2)}else if(t.type==='bare_dirt')spawnP(px,py,'dirt',2);else spawnP(px,py,'grass',2)}}
+    dispatch.workStep++;
+    S.dayPhase=Math.min(0.95,1-(S.dayHoursLeft/S.dayHoursTotal));
+    renderActiveJobs();if(dispatch.nbIdx===S.curNB)renderJobs();
+  },stepInt);
+
+  S.activeDispatches.push(dispatch);
+  S.targetScrollX=propX(propIdx)-W*0.3;
+  const truckLabel=truckIdx>=0?`Truck #${truckIdx+1}`:'You';
+  showToast(`🚛 ${truckLabel} → ${prop.job.name} at ${NEIGHBORHOODS[S.curNB].name}`);
+  addLog(`🚛 <span class="hl">${truckLabel}</span> dispatched: ${prop.job.name} at ${NEIGHBORHOODS[S.curNB].name}`);
+  renderJobs();renderNBSel();renderActiveJobs();checkMilestones();
+}
+
+function completeDispatch(nbIdx,propIdx,truckIdx){
+  // Remove from active dispatches
+  S.activeDispatches=S.activeDispatches.filter(d=>!(d.nbIdx===nbIdx&&d.propIdx===propIdx&&d.truckIdx===truckIdx));
+
+  const props=getAllProps(nbIdx);const prop=props[propIdx];if(!prop)return;
+  prop.done=true;
+  const hrs=getJobHours(prop.job);S.dayHoursLeft=Math.max(0,S.dayHoursLeft-hrs);
+  S.dayPhase=Math.min(0.95,1-(S.dayHoursLeft/S.dayHoursTotal));
+
+  addCombo();const comboMult=getComboMult();const specBonus=getCrewSpecialtyBonus(prop.job.type);
+  const payMult=comboMult*(1+specBonus.pay);const comboPay=Math.round(prop.pay*payMult);
+  S.money+=comboPay;S.totalEarnings+=comboPay;S.dayEarnings+=comboPay;S.dayJobsDone++;
+  updateGoalProgress('jobs',1);updateGoalProgress('earnings',comboPay);degradeEquipment(prop.job.type);
+
+  const cust=prop.customer;let sat=R(3,5)+cust.satMod;if(S.perks.has('green_thumb'))sat++;if(S.perks.has('lucky_star')&&Math.random()<0.3)sat=5;
+  const avgLvl=getAvailableCrew().reduce((s,c)=>s+c.level,0)/Math.max(1,getAvailableCrew().length);
+  if(avgLvl>=3)sat++;sat=Math.max(1,Math.min(5,sat));prop.satisfaction=sat;prop.customerOut=true;
+  if(sat>=5)updateGoalProgress('fivestar',1);
+
+  let tipRate=S.perks.has('tipper')?0.3:0.2;tipRate*=cust.tipMult*S.eventTipMod;tipRate+=getNBTipBonus(nbIdx);
+  if(sat>=5&&cust.tipMult>0){const tip=Math.round(comboPay*tipRate);S.money+=tip;S.totalEarnings+=tip;S.dayTips+=tip;prop.tipped=true;
+    setTimeout(()=>showToast(`${cust.emoji} 5-star! +$${tip} tip!`),600)}
+
+  const repMult=1+(S.equipment.signage*0.25)+getNBRepBonus(nbIdx);S.rep+=Math.round(prop.job.diff*repMult);
+  if(prop.isRush){clearInterval(S.rushTimer);S.rushJob=null}
+
+  S.jobsDone++;
+  if(S.jobsDone%8===0){S.skillPoints++;showToast('🧠 +1 Skill Point!')}
+  getAvailableCrew().forEach(c=>{c.xp+=prop.job.diff});
+
+  // Spawn cash float if we're on that NB
+  if(nbIdx===S.curNB){const hc=prop.houseConfig;spawnCash(propX(propIdx)+hc.w+15+hc.yardCols*YARD_TILE/2,PROP_Y+20+hc.yardRows*YARD_TILE/2,comboPay)}
+
+  const cl=comboMult>1?` 🔗${comboMult.toFixed(1)}x`:'';
+  const truckLabel=truckIdx>=0?`Truck #${truckIdx+1}`:'You';
+  showToast(`${truckLabel}: +$${comboPay}${cl} ${prop.job.name}`);
+  addLog(`✅ ${truckLabel}: <span class="hl">${prop.job.name}</span> — $${comboPay}${cl}${prop.tipped?' +tip':''}`);
+
+  // Random contract
+  if(Math.random()<0.12+S.equipment.signage*0.08){
+    const nb=NEIGHBORHOODS[nbIdx];let dp=Math.round(prop.pay*0.5);if(S.perks.has('negotiator'))dp=Math.round(dp*1.3);
+    const dur=R(3,7);S.contracts.push({neighborhood:nb.name,jobName:prop.job.name,jobEmoji:prop.job.emoji,payPerDay:dp,daysLeft:dur,totalDays:dur});
+    showToast(`📝 Contract! $${dp}/d × ${dur}d`)}
+
+  // Maybe spawn rush
+  setTimeout(()=>{if(!S.rushJob&&S.activeDispatches.length===0&&Math.random()<0.2&&S.dayHoursLeft>1)maybeSpawnRush()},2000);
+  updateDayTimer();updateUI();renderJobs();renderNBSel();renderActiveJobs();checkMilestones();
+}
+
+function maybeSpawnRush(){if(S.rushJob)return;
+  const avail=JOB_TYPES.filter(j=>!j.stormOnly&&!(j.reqTrimmer&&S.equipment.trimmer<(j.reqTrimmer||0))&&!(j.reqTruck&&!hasTruck())&&!(j.reqBlower&&S.equipment.blower<(j.reqBlower||0)));
+  const job=avail[R(0,avail.length-1)];const nb=NEIGHBORHOODS[S.curNB];
+  const rushMult=getTierIndex()>=3?3.6:1.8;
+  const pay=Math.round((20+job.diff*40+R(15,40))*nb.payMult*rushMult);const ht=nb.houseTypes[R(0,nb.houseTypes.length-1)];const hc=HOUSE_CONFIGS[ht];
+  S.rushJob={houseType:ht,houseConfig:hc,job:{...job},pay,customer:rollCustomer(S.curNB),tiles:initTiles(hc.yardCols,hc.yardRows,job.type),done:false,satisfaction:0,tipped:false,customerOut:false,idx:getProps().length,isRush:true,nbIdx:S.curNB};
+  S.rushCountdown=40;getProps().push(S.rushJob);
+  showToast(`🚨 RUSH! ${job.name} $${pay} — 40s!`);
+  S.rushTimer=setInterval(()=>{S.rushCountdown--;
+    if(S.rushCountdown<=0||S.rushJob?.done){clearInterval(S.rushTimer);
+      if(!S.rushJob?.done&&S.rushJob){const ps=getProps();const ri=ps.indexOf(S.rushJob);if(ri>=0)ps.splice(ri,1);S.rushJob=null;showToast('❌ Rush expired');renderJobs()}}
+    renderJobs()},1000);renderJobs()}
+
+// ═══ UPGRADES ═══
+function renderUpgrades(){const l=$('upgrade-list');l.innerHTML='';
+  UPGRADES.forEach(u=>{const cur=S.equipment[u.key],nxt=cur+1,mx=nxt>=u.levels.length;const next=mx?null:u.levels[nxt];
+    const dur=S.equipDurability[u.key];const reps=S.equipRepairs[u.key];const canRep=canRepair(u.key);
+    const durBar=S.equipment[u.key]>0?`<div style="height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:2px"><div style="height:100%;width:${dur}%;background:${dur<30?'#e74c3c':dur<60?'#f39c12':'#52b788'};border-radius:2px"></div></div><div style="font-size:0.55rem;color:#888;margin-top:1px">${canRep?`🔧 ${4-reps}/4 left`:'⚠️ Must replace!'}</div>`:'';
+    let maintBtns='';
+    if(S.equipment[u.key]>0&&dur<80){
+      if(canRep)maintBtns+=`<button class="bb red" style="font-size:0.55rem;padding:2px 5px;margin:1px" onclick="repairEquipment('${u.key}')">🔧 $${getRepairCost(u.key)}</button>`;
+      maintBtns+=`<button class="bb" style="font-size:0.55rem;padding:2px 5px;margin:1px;background:#2980b9" onclick="replaceEquipment('${u.key}')">🆕 $${getReplaceCost(u.key)}</button>`}
+    const d=document.createElement('div');d.className='upgrade-card';
+    d.innerHTML=`<div class="ui"><div class="un">${u.icon} ${u.key[0].toUpperCase()+u.key.slice(1)}</div><div class="ud">${mx?'MAX':`${next.n} — ${next.d}`}</div><div class="ul">${u.levels[cur].n}</div>${durBar}</div><div style="display:flex;flex-direction:column;align-items:end;gap:2px">${maintBtns}${mx?'<span style="color:#52b788;font-size:0.65rem">✅</span>':`<button class="bb" ${S.money<next.c||isAnyTruckBusy()?'disabled':''} onclick="buyUpgrade('${u.key}')">⬆️ $${next.c.toLocaleString()}</button>`}</div>`;
+    l.appendChild(d)})}
+function buyUpgrade(k){const u=UPGRADES.find(x=>x.key===k),n=S.equipment[k]+1;if(n>=u.levels.length)return;const nx=u.levels[n];if(S.money<nx.c)return;
+  S.money-=nx.c;S.equipment[k]=n;S.equipDurability[k]=100;S.equipRepairs[k]=0;showToast(`${u.icon} ${nx.n}!`);updateUI();renderJobs();checkMilestones()}
+function renderPerks(){const l=$('perk-list');l.innerHTML='';
+  PERKS.forEach(p=>{const owned=S.perks.has(p.id);const d=document.createElement('div');d.className=`perk-card ${owned?'owned':''}`;
+    d.innerHTML=`<div class="perk-info"><div class="perk-name">${p.emoji} ${p.name}</div><div class="perk-desc">${p.desc}</div>${owned?'<div style="color:#52b788;font-size:0.6rem">✅</div>':`<div class="perk-cost">🧠 ${p.cost}pt</div>`}</div>${owned?'':`<button class="bb" ${S.skillPoints<p.cost?'disabled':''} onclick="buyPerk('${p.id}')">Get</button>`}`;
+    l.appendChild(d)})}
+function buyPerk(id){const p=PERKS.find(x=>x.id===id);if(!p||S.perks.has(id)||S.skillPoints<p.cost)return;
+  S.skillPoints-=p.cost;S.perks.add(id);
+  if(id==='endurance'){S.dayHoursLeft+=2;S.dayHoursTotal=getDayHours()}
+  showToast(`${p.emoji} ${p.name}!`);updateUI();checkMilestones()}
+function renderTrophies(){const g=$('trophy-grid');g.innerHTML='';let e=0;
+  MILESTONES.forEach(m=>{const has=S.milestonesHit.has(m.id);if(has)e++;const d=document.createElement('div');d.className=`trophy ${has?'earned':'locked'}`;
+    d.innerHTML=`${m.e}<div class="tt">${has?m.t:'???'}</div>`;g.appendChild(d)});$('trophy-count').textContent=`${e}/${MILESTONES.length}`}
+
+// ═══ DAY SUMMARY ═══
+function showDaySummary(){
+  let totalJobs=0,totalDone=0;Object.values(S.nbJobs).forEach(ps=>{totalJobs+=ps.length;totalDone+=ps.filter(p=>p.done).length});
+  const allDone=totalDone===totalJobs&&totalJobs>0;let perfectBonus=0;
+  if(allDone){S.perfectDays++;perfectBonus=Math.round(S.dayEarnings*(S.perks.has('perfectionist')?0.3:0.15));S.money+=perfectBonus;S.totalEarnings+=perfectBonus}
+  const ranks=getPlayerRank();const playerIdx=ranks.findIndex(r=>r.isPlayer);
+  $('me').textContent=allDone?'💯':'📊';$('mt').textContent=`Day ${S.day} Report`;$('mx').textContent='';
+  $('modal-extra').innerHTML=`<div class="day-summary"><div class="day-stat-row"><span class="dsl">Jobs</span><span class="dsv">${S.dayJobsDone} done (${totalDone}/${totalJobs} total)</span></div>
+    <div class="day-stat-row"><span class="dsl">Earned</span><span class="dsv">$${S.dayEarnings.toLocaleString()}</span></div>
+    <div class="day-stat-row"><span class="dsl">Tips</span><span class="dsv">$${S.dayTips.toLocaleString()}</span></div>
+    <div class="day-stat-row"><span class="dsl">Repairs</span><span class="dsv">-$${S.dayRepairs}</span></div>
+    <div class="day-stat-row"><span class="dsl">Contracts</span><span class="dsv">$${(S.contractIncome||0).toLocaleString()}</span></div>
+    <div class="day-stat-row"><span class="dsl">Hours</span><span class="dsv">${(S.dayHoursTotal-S.dayHoursLeft).toFixed(1)}h / ${S.dayHoursTotal}h</span></div>
+    <div class="day-stat-row"><span class="dsl">Fleet</span><span class="dsv">${S.trucks.length} truck${S.trucks.length!==1?'s':''} · ${S.crew.length} crew</span></div>
+    <div class="day-stat-row"><span class="dsl">Ranking</span><span class="dsv">#${playerIdx+1} of ${ranks.length}</span></div>
+    ${allDone?`<div class="day-stat-row bonus"><span class="dsl">💯 PERFECT DAY</span><span class="dsv">+$${perfectBonus}</span></div>`:''}
+    <div class="day-stat-row total"><span class="dsl">Company Value</span><span class="dsv">$${calcValuation().toLocaleString()}</span></div></div>`;
+  $('modal-buttons').innerHTML='<button onclick="closeModal()">Next Day →</button>';$('mo').classList.add('show');checkMilestones();updateUI()}
+
+$('ndb').onclick=()=>{
+  if(S.activeDispatches.length>0){showToast("Wait for crews to finish!");return}
+  if(S.dayJobsDone>0){showDaySummary();return}advanceDay()};
+function advanceDay(){
+  if(S.dayJobsDone>0){S.streak++;updateGoalProgress('streak',S.streak)}else{S.streak=0}
+  S.day++;S.dayPhase=0;S.dayJobsDone=0;S.dayEarnings=0;S.dayTips=0;S.dayBestStar=0;S.daySpeedBonuses=0;S.dayRepairs=0;S.contractIncome=0;
+  S.combo=0;updateComboDisplay();
+  if(S.weeklyGoal){S.weeklyGoal.daysLeft--;if(S.weeklyGoal.daysLeft<=0)generateWeeklyGoal()}
+  if(!S.weeklyGoal||(S.day-1)%7===0)generateWeeklyGoal();
+  updateSeason();rollWeather();rollEvent();processTraining();collectContractIncome();generateBids();
+  if(S.day%7===1){NEIGHBORHOODS.forEach((nb,i)=>{
+    if(getNBUpgrade(nb.id,'exclusive')&&S.rep>=nb.minRep){
+      const avJobs=JOB_TYPES.filter(j=>!j.stormOnly);const job=avJobs[R(0,avJobs.length-1)];
+      const dp=Math.round((30+job.diff*40)*nb.payMult*getNBPayBonus(i));const dur=R(5,10);
+      S.contracts.push({neighborhood:nb.name,jobName:job.name,jobEmoji:job.emoji,payPerDay:dp,daysLeft:dur,totalDays:dur});
+      showToast(`📝 Exclusive: ${job.name} in ${nb.name}`)}})}
+  if(getTierIndex()>=2){S.contracts.forEach(c=>{if(!c.tierBoosted){c.payPerDay=Math.round(c.payPerDay*1.25);c.tierBoosted=true}})}
+  generateAllDayJobs();S.targetScrollX=0;
+  $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;
+  addLog(`🌅 <span class="hl">Day ${S.day}</span> — ${S.season.emoji} ${S.season.name} · ${S.weather.emoji}`);updateUI()}
+function closeModal(){$('mo').classList.remove('show');$('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button onclick="closeModal()">OK</button>';
+  if(S.dayJobsDone>0&&$('mt').textContent.includes('Report')){advanceDay()}}
+
+function checkMilestones(){MILESTONES.forEach(m=>{if(!S.milestonesHit.has(m.id)&&m.ck()){S.milestonesHit.add(m.id);
+  if(!$('mo').classList.contains('show')){$('me').textContent=m.e;$('mt').textContent=m.t;$('mx').textContent=m.x;$('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button onclick="closeModal()">OK</button>';$('mo').classList.add('show')}
+  addLog(`🏆 <span class="hl">${m.t}</span>`);renderTrophies()}})}
+
+function loop(){animFrame++;
+  // Animate garden growth across all visible props
+  const props=getProps();props.forEach(p=>{p.tiles.forEach(row=>row.forEach(t=>{if(t.type==='garden_bed'&&t.done&&t.fg<1)t.fg=Math.min(1,t.fg+0.01)}))});
+  draw();requestAnimationFrame(loop)}
+
+let isDragging=false,dragStartX=0,scrollStartX=0;
+canvas.addEventListener('mousedown',e=>{isDragging=true;dragStartX=e.clientX;scrollStartX=S.targetScrollX});
+canvas.addEventListener('mousemove',e=>{if(isDragging)S.targetScrollX=scrollStartX-(e.clientX-dragStartX)});
+canvas.addEventListener('mouseup',()=>isDragging=false);canvas.addEventListener('mouseleave',()=>isDragging=false);
+canvas.addEventListener('wheel',e=>{S.targetScrollX+=e.deltaY*0.8;e.preventDefault()},{passive:false});
+canvas.addEventListener('touchstart',e=>{isDragging=true;dragStartX=e.touches[0].clientX;scrollStartX=S.targetScrollX});
+canvas.addEventListener('touchmove',e=>{if(isDragging){S.targetScrollX=scrollStartX-(e.touches[0].clientX-dragStartX);e.preventDefault()}},{passive:false});
+canvas.addEventListener('touchend',()=>isDragging=false);
+
+// ═══ INIT ═══
+generateWeeklyGoal();updateSeason();rollWeather();generateAllDayJobs();updateUI();renderTrophies();renderBids();renderRankings();renderCompanyTier();
+$('nb-name-label').textContent=NEIGHBORHOODS[0].name;
+addLog('🌿 Welcome to <span class="hl">Lawn Legend</span>!');
+addLog('💡 Buy a truck, hire crew, then <span class="hl">dispatch trucks to jobs simultaneously</span>!');
+addLog('💡 Click the <span class="hl">❓ Help</span> tab for full instructions.');
+loop();
+</script>
+</body>
+</html>

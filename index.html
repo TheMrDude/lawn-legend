@@ -322,6 +322,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 const $=id=>document.getElementById(id);
 const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const lerp=(a,b,t)=>a+(b-a)*t;
+// HTML-escape for any user-controllable string interpolated into innerHTML
+const esc=s=>String(s==null?'':s).replace(/[&<>"'`]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c]));
+// Strip HTML-dangerous chars from name-like inputs + trim + cap length
+const cleanName=(s,max=20)=>String(s==null?'':s).replace(/[<>"'`\\\x00-\x1f\x7f]/g,'').trim().slice(0,max);
 const canvas=$('gc'),ctx=canvas.getContext('2d');
 let W,H;function resize(){W=canvas.width=canvas.parentElement.clientWidth;H=canvas.height=canvas.parentElement.clientHeight}
 resize();window.addEventListener('resize',resize);
@@ -423,7 +427,8 @@ function shareCard(type){
   const c=generateShareCard(w,h);
   c.toBlob(async blob=>{
     if(!blob){showToast('❌ Card failed');return}
-    const fname=`lawn-legend-${(S.playerName||'player').replace(/\s+/g,'_')}-day${S.day}-${isVert?'pin':'square'}.png`;
+    const safeName=String(S.playerName||'player').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,20)||'player';
+    const fname=`lawn-legend-${safeName}-day${S.day}-${isVert?'pin':'square'}.png`;
     const file=new File([blob],fname,{type:'image/png'});
     try{
       if(navigator.canShare&&navigator.canShare({files:[file]})){
@@ -803,7 +808,7 @@ function renderCrew(){
     d.className=`crew-card ${c.training?'training':''}${!c.available?' unavail':''}`;
     const spec=CREW_SPECIALTIES.find(s=>s.id===c.specialty)||CREW_SPECIALTIES[0];
     const benefitText=c.level<5?`→ Lv${c.level+1}: +${c.level*5}% speed, +${c.level*8}% pay`:'MAX';
-    d.innerHTML=`<div class="crew-info"><div class="crew-name">${i===0?'👤':'👷'} ${c.name} <span style="color:#52b788;font-size:0.62rem">Lv${c.level}</span></div>
+    d.innerHTML=`<div class="crew-info"><div class="crew-name">${i===0?'👤':'👷'} ${esc(c.name)} <span style="color:#52b788;font-size:0.62rem">Lv${c.level}</span></div>
       <div class="crew-stats"><span>${spec.emoji} ${spec.name}</span><span>${c.training?'📚 Training...':c.available?'✅':'❌'}</span></div>
       <div style="font-size:0.55rem;color:#666;margin-top:1px">${benefitText}</div></div>
       ${c.training||c.level>=5?'':`<button class="bb" ${S.money<c.level*400||isAnyTruckBusy()?'disabled':''} onclick="trainCrew(${i})">📚 $${c.level*400}</button>`}`;
@@ -861,8 +866,8 @@ function renderBids(){
   const l=$('bid-list');l.innerHTML='';
   if(S.bidOffers.length===0){l.innerHTML='<div style="font-size:0.65rem;color:#666;text-align:center;padding:6px">No bids. New ones each day.</div>';return}
   S.bidOffers.forEach(b=>{const d=document.createElement('div');d.className='job-card bid';const minBid=Math.round(b.basePay*0.4);
-    d.innerHTML=`<div class="jh"><span class="jn">${b.jobEmoji} ${b.jobName}</span><span style="color:#9b59b6;font-size:0.7rem;font-weight:700">${b.duration}d</span></div>
-      <div class="jd"><span>📍 ${b.neighborhood}</span><span>vs ${b.rivalName}</span></div>
+    d.innerHTML=`<div class="jh"><span class="jn">${esc(b.jobEmoji)} ${esc(b.jobName)}</span><span style="color:#9b59b6;font-size:0.7rem;font-weight:700">${b.duration}d</span></div>
+      <div class="jd"><span>📍 ${esc(b.neighborhood)}</span><span>vs ${esc(b.rivalName)}</span></div>
       <div style="font-size:0.65rem;color:#aaa;margin-top:3px">Value: ~$${b.basePay} · Min: $${minBid}</div>
       <div class="bid-controls"><input type="number" id="bid-${b.id}" placeholder="Bid" min="${minBid}" value="${Math.round(b.basePay*0.7)}">
       <button class="bb purple" onclick="submitBid(${b.id},parseInt($('bid-${b.id}').value))">Bid</button></div>`;
@@ -877,13 +882,13 @@ function renderContracts(){
   const l=$('contract-list');l.innerHTML='';if(S.contracts.length===0)return;
   l.innerHTML='<div style="font-size:0.65rem;color:#ffd54f;margin-bottom:3px;font-weight:600">Active Contracts:</div>';
   S.contracts.forEach(c=>{const d=document.createElement('div');d.className='contract-card';
-    d.innerHTML=`<div class="cc-info"><div class="cc-name">${c.jobEmoji} ${c.jobName}</div><div class="cc-det">${c.neighborhood} · ${c.daysLeft}d left</div></div><div class="cc-pay">$${c.payPerDay}/d</div>`;l.appendChild(d)});
+    d.innerHTML=`<div class="cc-info"><div class="cc-name">${esc(c.jobEmoji)} ${esc(c.jobName)}</div><div class="cc-det">${esc(c.neighborhood)} · ${c.daysLeft}d left</div></div><div class="cc-pay">$${c.payPerDay}/d</div>`;l.appendChild(d)});
 }
 
 function renderRankings(){const l=$('rival-list');l.innerHTML='';const ranks=getPlayerRank();
   ranks.forEach((r,i)=>{const d=document.createElement('div');d.className=`rival-rank ${r.isPlayer?'player':''}`;
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-    d.innerHTML=`<div class="rank-pos">${medal||'#'+(i+1)}</div><div class="rank-name">${r.isPlayer?'🌿 '+(S.playerName||'Lawn Legend'):r.name}</div><div class="rank-val">$${r.val.toLocaleString()}</div>`;
+    d.innerHTML=`<div class="rank-pos">${medal||'#'+(i+1)}</div><div class="rank-name">${r.isPlayer?'🌿 '+esc(S.playerName||'Lawn Legend'):esc(r.name)}</div><div class="rank-val">$${r.val.toLocaleString()}</div>`;
     l.appendChild(d)})}
 
 function rollEvent(){
@@ -1418,9 +1423,15 @@ function loadSaveData(){
   try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;return JSON.parse(raw)}catch(e){return null}
 }
 function applySaveData(data){
-  if(!data)return;
+  if(!data||typeof data!=='object')return;
   SAVE_FIELDS.forEach(k=>{if(data[k]!==undefined)S[k]=data[k]});
-  S.perks=new Set(data.perks||[]);S.milestonesHit=new Set(data.milestonesHit||[]);
+  // Sanitize any user-controllable strings that flow into innerHTML sinks
+  S.playerName=cleanName(S.playerName);
+  if(Array.isArray(S.crew))S.crew.forEach(c=>{if(c&&typeof c==='object')c.name=cleanName(c.name)});
+  if(Array.isArray(S.contracts))S.contracts.forEach(c=>{if(c&&typeof c==='object'){c.jobName=cleanName(c.jobName,40);c.jobEmoji=cleanName(c.jobEmoji,6);c.neighborhood=cleanName(c.neighborhood,40)}});
+  if(Array.isArray(S.bidOffers))S.bidOffers.forEach(b=>{if(b&&typeof b==='object'){b.jobName=cleanName(b.jobName,40);b.jobEmoji=cleanName(b.jobEmoji,6);b.neighborhood=cleanName(b.neighborhood,40);b.rivalName=cleanName(b.rivalName,40)}});
+  S.perks=new Set(Array.isArray(data.perks)?data.perks.filter(p=>typeof p==='string'):[]);
+  S.milestonesHit=new Set(Array.isArray(data.milestonesHit)?data.milestonesHit.filter(m=>typeof m==='string'):[]);
   // Reset runtime state
   S.activeDispatches=[];S.nbJobs={};S.bidOffers=data.bidOffers||[];
   S.weather=WEATHER_TYPES[0];S.season=SEASONS[0];
@@ -1433,7 +1444,8 @@ function manualSave(){if(saveGame()){showToast('💾 Game saved!')}else{showToas
 function exportSave(){
   const data=JSON.stringify(getSaveData(),null,2);
   const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`lawn-legend-${S.playerName}-day${S.day}.json`;a.click();
+  const safeName=String(S.playerName||'player').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,20)||'player';
+  const a=document.createElement('a');a.href=url;a.download=`lawn-legend-${safeName}-day${S.day}.json`;a.click();
   URL.revokeObjectURL(url);showToast('📤 Save exported!');
 }
 function importSave(){
@@ -1461,7 +1473,7 @@ nameInput.addEventListener('input',()=>{startBtn.disabled=nameInput.value.trim()
 nameInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&nameInput.value.trim())startNewGame()});
 
 function startNewGame(){
-  const name=nameInput.value.trim();if(!name)return;
+  const name=cleanName(nameInput.value);if(!name)return;
   S.playerName=name;
   S.crew[0].name=name;
   $('name-screen').style.display='none';

@@ -130,6 +130,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .company-tier.established{background:rgba(33,150,243,0.08);border:1px solid rgba(33,150,243,0.15);color:#42a5f5}
 .company-tier.premium{background:rgba(155,89,182,0.08);border:1px solid rgba(155,89,182,0.15);color:#bb86fc}
 .company-tier.elite{background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);color:#ffd54f}
+.company-tier.tycoon{background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.25);color:#ffd54f}
+.company-tier.mogul{background:rgba(255,152,0,0.12);border:1px solid rgba(255,152,0,0.25);color:#ffb74d}
+.company-tier.legend{background:rgba(233,30,99,0.12);border:1px solid rgba(233,30,99,0.25);color:#f48fb1}
+.company-tier.titan{background:rgba(156,39,176,0.12);border:1px solid rgba(156,39,176,0.25);color:#ce93d8;animation:titanGlow 3s ease-in-out infinite}
+@keyframes titanGlow{0%,100%{box-shadow:0 0 0 0 rgba(206,147,216,0)}50%{box-shadow:0 0 12px 2px rgba(206,147,216,0.3)}}
+.prestige-badge{display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#b8860b,#ffd700);color:#1a1a1a;font-weight:800;font-size:0.6rem;padding:2px 7px;border-radius:10px;margin-left:6px;box-shadow:0 1px 4px rgba(255,215,0,0.3);letter-spacing:0.5px}
+.best-run-bar{display:flex;gap:6px;align-items:center;padding:4px 8px;border-radius:7px;font-size:0.66rem;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.14);color:#ffd54f;font-weight:600;margin-bottom:5px;flex-wrap:wrap}
+.best-run-bar .brb-lbl{color:#888;font-weight:500}
+.go-prestige-btn{display:block;width:100%;margin-top:5px;padding:8px 12px;background:linear-gradient(135deg,#b8860b,#ffd700,#b8860b);background-size:200% 100%;color:#1a1a1a;border:none;border-radius:7px;font-weight:800;font-size:0.74rem;cursor:pointer;letter-spacing:0.5px;box-shadow:0 3px 10px rgba(255,215,0,0.25);animation:prestigePulse 2.2s ease-in-out infinite;transition:transform 0.15s}
+.go-prestige-btn:hover{transform:scale(1.03)}
+@keyframes prestigePulse{0%,100%{background-position:0% 50%;box-shadow:0 3px 10px rgba(255,215,0,0.25)}50%{background-position:100% 50%;box-shadow:0 4px 16px rgba(255,215,0,0.5)}}
+.expense-row .dsv{color:#e74c3c!important}
+.prestige-bonus-list{text-align:left;font-size:0.72rem;color:#b7e4c7;margin:8px 0;padding:8px 10px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:7px}
+.prestige-bonus-list .pbl-item{padding:2px 0;color:#ffd54f}
+.prestige-bonus-list .pbl-title{color:#ffd54f;font-weight:700;margin-bottom:4px;font-size:0.74rem}
 .help-section{font-size:0.68rem;color:#bbb;line-height:1.6}
 .help-section h3{color:#52b788;font-size:0.78rem;margin:8px 0 3px;font-weight:700}
 .help-section p{margin-bottom:5px;color:#999}
@@ -256,7 +271,7 @@ body.cb-active .toast{top:106px}
   </div>
 </div>
 <div class="header">
-  <h1>🌿 Lawn <span>Legend</span> <span style="font-size:0.65rem;color:#b7e4c7;font-weight:400;margin-left:6px" id="player-name-display"></span></h1>
+  <h1>🌿 Lawn <span>Legend</span> <span style="font-size:0.65rem;color:#b7e4c7;font-weight:400;margin-left:6px" id="player-name-display"></span><span id="prestige-badge" class="prestige-badge" style="display:none"></span></h1>
   <div class="stats">
     <div class="stat">💰 $<span class="v" id="money">200</span></div>
     <div class="stat">⭐ <span class="v" id="rep">0</span></div>
@@ -275,7 +290,9 @@ body.cb-active .toast{top:106px}
   <div class="sidebar">
     <div class="panel">
       <div id="tier-badge" class="company-tier startup">🌱 STARTUP</div>
+      <div id="go-prestige-wrap" style="display:none"><button class="go-prestige-btn" id="go-prestige-btn" onclick="showPrestigeModal()">⭐ GO PRESTIGE</button></div>
       <div class="val-display"><div class="val-label">Company Valuation</div><div class="val-num" id="company-val">$1,000</div></div>
+      <div id="best-run-display" class="best-run-bar" style="display:none"></div>
       <div id="goal-display" class="goal-bar" style="display:none"></div>
       <div class="streak-bar">🔥 Streak: <span id="streak-val">0</span>d · +<span id="streak-bonus">0</span>% pay</div>
       <div id="event-bar" class="event-bar"></div>
@@ -800,6 +817,12 @@ const S={
   nbUpgrades:{},
   rushJob:null,rushTimer:null,rushCountdown:0,
   milestonesHit:new Set(),
+  // ═══ PRESTIGE (v8) ═══
+  prestigeLevel:0,
+  prestigeBonuses:[],           // [{level, type, value, desc}]
+  lifetimePrestigeEarnings:0,   // cumulative totalEarnings across all prestige runs
+  fastestMillionaire:null,      // lowest S.day at prestige time when valuation >= $1M
+  dayExpenses:0,                // last day's operating expenses (for summary rendering)
 };
 
 function getProps(){return S.nbJobs[S.curNB]||[]}
@@ -895,6 +918,10 @@ const COMPANY_TIERS=[
   {id:'established',name:'Established Co.',emoji:'🏢',minVal:25000,color:'established'},
   {id:'premium',name:'Premium Service',emoji:'💎',minVal:100000,color:'premium'},
   {id:'elite',name:'Elite Empire',emoji:'👑',minVal:500000,color:'elite'},
+  {id:'tycoon',name:'Tycoon',emoji:'🏛️',minVal:1000000,color:'tycoon'},
+  {id:'mogul',name:'Mogul',emoji:'💰',minVal:2500000,color:'mogul'},
+  {id:'legend',name:'Legend',emoji:'🌟',minVal:5000000,color:'legend'},
+  {id:'titan',name:'Industry Titan',emoji:'⚡',minVal:10000000,color:'titan'},
 ];
 function getCompanyTier(){const val=calcValuation();let tier=COMPANY_TIERS[0];for(const t of COMPANY_TIERS){if(val>=t.minVal)tier=t}return tier}
 function getTierIndex(){return COMPANY_TIERS.indexOf(getCompanyTier())}
@@ -973,6 +1000,14 @@ const MILESTONES=[
   {id:'val100k',ck:()=>calcValuation()>=100000,e:'👑',t:'$100K Empire!',x:'Major business!'},
   {id:'val500k',ck:()=>calcValuation()>=500000,e:'🏛️',t:'Half Mill!',x:'Landscape mogul!'},
   {id:'val1m',ck:()=>calcValuation()>=1000000,e:'🏛️',t:'Millionaire!',x:'$1M company!'},
+  {id:'val2m',ck:()=>calcValuation()>=2000000,e:'🏛️',t:'$2M Mogul!',x:'Unstoppable!'},
+  {id:'val5m',ck:()=>calcValuation()>=5000000,e:'🌟',t:'$5M Legend!',x:'Legendary status!'},
+  {id:'val10m',ck:()=>calcValuation()>=10000000,e:'⚡',t:'$10M Titan!',x:'Industry titan!'},
+  {id:'prestige1',ck:()=>S.prestigeLevel>=1,e:'⭐',t:'First Prestige!',x:'New franchise!'},
+  {id:'prestige3',ck:()=>S.prestigeLevel>=3,e:'🌟',t:'Triple Prestige!',x:'Serial entrepreneur!'},
+  {id:'prestige5',ck:()=>S.prestigeLevel>=5,e:'💫',t:'Prestige Master!',x:'Business legend!'},
+  {id:'speed30',ck:()=>S.fastestMillionaire&&S.fastestMillionaire<=30,e:'⚡',t:'Speed Demon!',x:'$1M in 30 days!'},
+  {id:'speed20',ck:()=>S.fastestMillionaire&&S.fastestMillionaire<=20,e:'🚀',t:'Rocket Run!',x:'$1M in 20 days!'},
   {id:'train1',ck:()=>S.crew.some(c=>c.level>=2),e:'📚',t:'Level Up!',x:'Crew trained!'},
   {id:'train5',ck:()=>S.crew.some(c=>c.level>=5),e:'🎓',t:'Master Crew!',x:'Max level crew!'},
   {id:'tier_growing',ck:()=>getTierIndex()>=1,e:'🌿',t:'Growing Business!',x:'Area upgrades unlocked!'},
@@ -1379,7 +1414,7 @@ function updateUI(){
   $('money').textContent=S.money.toLocaleString();$('rep').textContent=S.rep;$('day').textContent=S.day;
   $('streak-count').textContent=S.streak;$('streak-val').textContent=S.streak;$('streak-bonus').textContent=Math.round(getStreakBonus()*100);
   $('company-val').textContent='$'+calcValuation().toLocaleString();$('sp-count').textContent=S.skillPoints;
-  updateDayTimer();renderGoal();renderCompanyTier();
+  updateDayTimer();renderGoal();renderCompanyTier();updatePrestigeUI();
   renderUpgrades();renderNBSel();renderContracts();renderPerks();renderCrew();renderTrophies();renderBids();renderActiveJobs();
   if(S.activeTab==='rankings')renderRankings();if(S.activeTab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}
 }
@@ -1507,8 +1542,12 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   const hrs=getJobHours(prop.job);S.dayHoursLeft=Math.max(0,S.dayHoursLeft-hrs);
   S.dayPhase=Math.min(0.95,1-(S.dayHoursLeft/S.dayHoursTotal));
 
-  addCombo();const comboMult=getComboMult();const specBonus=getCrewSpecialtyBonus(prop.job.type);
-  const payMult=comboMult*(1+specBonus.pay);const comboPay=Math.round(prop.pay*payMult);
+  addCombo();const baseCombo=getComboMult();
+  // Prestige P5+ amplifies combo bonus — only when combo is active (>1)
+  const comboMult=baseCombo>1?1+((baseCombo-1)*prestigeComboMult()):baseCombo;
+  const specBonus=getCrewSpecialtyBonus(prop.job.type);
+  const prestigePayMult=prestigeEarningsMult(); // P1/P6+ stacking earnings bonus
+  const payMult=comboMult*(1+specBonus.pay)*prestigePayMult;const comboPay=Math.round(prop.pay*payMult);
   S.money+=comboPay;S.totalEarnings+=comboPay;S.dayEarnings+=comboPay;S.dayJobsDone++;SFX.cash();
   updateGoalProgress('jobs',1);updateGoalProgress('earnings',comboPay);degradeEquipment(prop.job.type);
 
@@ -1587,18 +1626,177 @@ function renderTrophies(){const g=$('trophy-grid');g.innerHTML='';let e=0;
   MILESTONES.forEach(m=>{const has=S.milestonesHit.has(m.id);if(has)e++;const d=document.createElement('div');d.className=`trophy ${has?'earned':'locked'}`;
     d.innerHTML=`${m.e}<div class="tt">${has?m.t:'???'}</div>`;g.appendChild(d)});$('trophy-count').textContent=`${e}/${MILESTONES.length}`}
 
+// ═══ PRESTIGE SYSTEM ═══
+// Bonus awarded at each prestige level. P6+ falls back to +5% earnings.
+function getPrestigeBonusAt(level){
+  const table={
+    1:{type:'earnings',value:0.05,desc:'+5% base earnings (stacks)'},
+    2:{type:'startCash',value:20,desc:'+$20 starting cash (stacks)'},
+    3:{type:'startTruck',value:1,desc:'Start with a free Used Pickup'},
+    4:{type:'startCrew',value:1,desc:'+1 starting crew member'},
+    5:{type:'comboBoost',value:0.15,desc:'+15% combo bonus (stacks)'},
+  };
+  return table[level]||{type:'earnings',value:0.05,desc:'+5% base earnings (stacks)'};
+}
+function prestigeSum(type){let s=0;(S.prestigeBonuses||[]).forEach(b=>{if(b&&b.type===type)s+=Number(b.value)||0});return s}
+function prestigeEarningsMult(){return 1+prestigeSum('earnings')}
+function prestigeComboMult(){return 1+prestigeSum('comboBoost')}
+function prestigeStartCash(){return prestigeSum('startCash')}
+function prestigeStartTrucks(){return Math.max(0,Math.floor(prestigeSum('startTruck')))}
+function prestigeStartCrew(){return Math.max(0,Math.floor(prestigeSum('startCrew')))}
+
+function showPrestigeModal(){
+  if(calcValuation()<1000000){showToast('🔒 Need $1M valuation to prestige!');return}
+  const nextLevel=(S.prestigeLevel||0)+1;
+  const bonus=getPrestigeBonusAt(nextLevel);
+  const fastest=S.fastestMillionaire?`Fastest $1M: <strong style="color:#ffd54f">Day ${S.fastestMillionaire}</strong><br>`:'';
+  const existingBonuses=(S.prestigeBonuses||[]).map(b=>`<div class="pbl-item">⭐ P${b.level}: ${esc(b.desc)}</div>`).join('')||'<div style="color:#888;font-size:0.68rem">(none yet)</div>';
+  $('me').textContent='⭐';$('mt').textContent=`Prestige ${nextLevel}`;$('mx').textContent='Start a new franchise! You keep permanent bonuses but reset everything else.';
+  $('modal-extra').innerHTML=`
+    <div class="day-summary">
+      <div class="day-stat-row"><span class="dsl">Current Prestige</span><span class="dsv">P${S.prestigeLevel||0}</span></div>
+      <div class="day-stat-row"><span class="dsl">Run Days</span><span class="dsv">${S.day}</span></div>
+      <div class="day-stat-row"><span class="dsl">Run Earnings</span><span class="dsv">$${S.totalEarnings.toLocaleString()}</span></div>
+      <div class="day-stat-row"><span class="dsl">Run Jobs</span><span class="dsv">${S.jobsDone}</span></div>
+      <div class="day-stat-row"><span class="dsl">Valuation</span><span class="dsv">$${calcValuation().toLocaleString()}</span></div>
+      ${S.fastestMillionaire?`<div class="day-stat-row bonus"><span class="dsl">Fastest $1M</span><span class="dsv">Day ${S.fastestMillionaire}</span></div>`:''}
+    </div>
+    <div class="prestige-bonus-list">
+      <div class="pbl-title">🏆 Permanent Bonuses</div>
+      ${existingBonuses}
+      <div class="pbl-item" style="color:#7bc97b;margin-top:6px">🆕 P${nextLevel} reward: <strong>${esc(bonus.desc)}</strong></div>
+    </div>`;
+  $('modal-buttons').innerHTML=`<button class="purple" onclick="doPrestigeReset()" style="background:linear-gradient(135deg,#b8860b,#ffd700);color:#1a1a1a;font-weight:800">⭐ Prestige Now</button><button onclick="closeModal()">Not yet</button>`;
+  $('mo').classList.add('show');
+}
+
+function doPrestigeReset(){
+  // Only allow prestige if threshold met (defensive)
+  if(calcValuation()<1000000){showToast('🔒 Need $1M!');return}
+  // Record fastest run BEFORE resetting S.day
+  if(!S.fastestMillionaire||S.day<S.fastestMillionaire)S.fastestMillionaire=S.day;
+  S.lifetimePrestigeEarnings=(S.lifetimePrestigeEarnings||0)+S.totalEarnings;
+  const newLevel=(S.prestigeLevel||0)+1;
+  S.prestigeLevel=newLevel;
+  const bonus=getPrestigeBonusAt(newLevel);
+  S.prestigeBonuses=Array.isArray(S.prestigeBonuses)?S.prestigeBonuses.slice():[];
+  S.prestigeBonuses.push({level:newLevel,type:bonus.type,value:bonus.value,desc:bonus.desc});
+  // Preserve across reset
+  const keepName=S.playerName;
+  const keepLevel=S.prestigeLevel;
+  const keepBonuses=S.prestigeBonuses;
+  const keepLifetime=S.lifetimePrestigeEarnings;
+  const keepFastest=S.fastestMillionaire;
+  const keepMilestones=new Set([...(S.milestonesHit||[])]);
+  // Clear timers on active dispatches / rush / combo
+  (S.activeDispatches||[]).forEach(d=>{if(d&&d.workTimer)clearInterval(d.workTimer)});
+  if(S.rushTimer)clearInterval(S.rushTimer);
+  if(S.comboTimer)clearTimeout(S.comboTimer);
+  // Reset to defaults
+  S.money=200+prestigeStartCash();
+  S.rep=0;S.jobsDone=0;S.day=1;
+  S.equipment={mower:1,trimmer:0,blower:0,signage:0};
+  S.trucks=[];
+  S.equipDurability={mower:100,trimmer:100,blower:100};
+  S.equipRepairs={mower:0,trimmer:0,blower:0};
+  S.curNB=0;S.nbJobs={};
+  S.activeDispatches=[];
+  S.scrollX=0;S.targetScrollX=0;S.dayPhase=0;
+  S.weather=WEATHER_TYPES[0];S.season=SEASONS[0];
+  S.crew=[{name:keepName||'You',level:1,xp:0,specialty:'general',training:false,available:true}];
+  S.contracts=[];S.bidOffers=[];
+  S.todayEvent=EVENTS[EVENTS.length-1];S.eventSpeedMod=1;S.eventTipMod=1;
+  S.combo=0;S.comboTimer=null;S.maxCombo=0;S.streak=0;
+  S.skillPoints=0;S.perks=new Set();
+  S.dayJobsDone=0;S.dayEarnings=0;S.dayTips=0;S.dayBestStar=0;S.daySpeedBonuses=0;S.dayRepairs=0;S.dayExpenses=0;
+  S.totalEarnings=0;S.perfectDays=0;S.contractIncome=0;
+  S.activeTab='upgrades';
+  S.dayHoursLeft=8;S.dayHoursTotal=8;
+  S.weeklyGoal=null;S.weeklyProgress=0;
+  S.nbUpgrades={};
+  S.rushJob=null;S.rushTimer=null;S.rushCountdown=0;
+  // Restore preserved fields
+  S.playerName=keepName;
+  S.prestigeLevel=keepLevel;
+  S.prestigeBonuses=keepBonuses;
+  S.lifetimePrestigeEarnings=keepLifetime;
+  S.fastestMillionaire=keepFastest;
+  S.milestonesHit=keepMilestones;
+  // Apply starting bonuses: free trucks
+  const numTrucks=prestigeStartTrucks();
+  for(let i=0;i<numTrucks;i++){
+    const tt=TRUCK_TYPES[0];
+    S.trucks.push({type:tt.id,maxCrew:tt.maxCrew,name:`${tt.name} #${S.trucks.length+1}`});
+  }
+  // Apply starting bonuses: extra crew
+  const extraCrew=prestigeStartCrew();
+  for(let i=0;i<extraCrew;i++){
+    S.crew.push({name:`Rookie ${i+1}`,level:1,xp:0,specialty:'general',training:false,available:true});
+  }
+  // Persist and refresh UI (no second loop — guarded in initGameUI)
+  saveGame();
+  closeModal();
+  initGameUI();
+  showToast(`⭐ Prestige ${newLevel}! ${bonus.desc}`);
+  addLog(`⭐ <span class="hl">Prestige ${newLevel}</span> — ${esc(bonus.desc)}`);
+  SFX.level();
+  checkMilestones();
+}
+
+function updatePrestigeUI(){
+  // Header badge
+  const pb=$('prestige-badge');if(pb){
+    if((S.prestigeLevel||0)>0){pb.style.display='';pb.textContent=`⭐ P${S.prestigeLevel}`}
+    else{pb.style.display='none';pb.textContent=''}
+  }
+  // Go-prestige button visibility
+  const gp=$('go-prestige-wrap');if(gp){gp.style.display=calcValuation()>=1000000?'':'none'}
+  // Best-run display
+  const br=$('best-run-display');if(br){
+    if((S.prestigeLevel||0)>0||S.fastestMillionaire){
+      const parts=[];
+      if((S.prestigeLevel||0)>0)parts.push(`⭐ <strong>P${S.prestigeLevel}</strong>`);
+      if(S.fastestMillionaire)parts.push(`📅 <span class="brb-lbl">Fastest $1M:</span> <strong>${S.fastestMillionaire}d</strong>`);
+      br.innerHTML=parts.join(' · ');br.style.display='';
+    }else{br.style.display='none';br.innerHTML=''}
+  }
+}
+
 // ═══ DAY SUMMARY ═══
+function computeDailyExpenses(){
+  // Operating expenses scale with fleet/crew size — late-game economy friction
+  const trucks=S.trucks.length|0;
+  const extraCrew=Math.max(0,(S.crew.length|0)-1); // exclude the player
+  const val=calcValuation();
+  const gasSpike=S.todayEvent&&S.todayEvent.id==='gas_spike';
+  const e={
+    truckMaintenance:trucks*50,
+    crewWages:extraCrew*75,
+    insurance:Math.floor(val*0.0002),
+    fuel:trucks*(gasSpike?120:40),
+  };
+  e.total=e.truckMaintenance+e.crewWages+e.insurance+e.fuel;
+  return e;
+}
+
 function showDaySummary(){
   let totalJobs=0,totalDone=0;Object.values(S.nbJobs).forEach(ps=>{totalJobs+=ps.length;totalDone+=ps.filter(p=>p.done).length});
   const allDone=totalDone===totalJobs&&totalJobs>0;let perfectBonus=0;
   if(allDone){S.perfectDays++;perfectBonus=Math.round(S.dayEarnings*(S.perks.has('perfectionist')?0.3:0.15));S.money+=perfectBonus;S.totalEarnings+=perfectBonus}
+  // Apply operating expenses before rendering totals
+  const ex=computeDailyExpenses();S.money-=ex.total;S.dayExpenses=ex.total;
   const ranks=getPlayerRank();const playerIdx=ranks.findIndex(r=>r.isPlayer);
   $('me').textContent=allDone?'💯':'📊';$('mt').textContent=`${S.playerName||'Player'} — Day ${S.day}`;$('mx').textContent='';
+  const expenseRows=ex.total>0?`
+    <div class="day-stat-row expense-row"><span class="dsl">🚛 Truck maintenance</span><span class="dsv">-$${ex.truckMaintenance.toLocaleString()}</span></div>
+    <div class="day-stat-row expense-row"><span class="dsl">👷 Crew wages</span><span class="dsv">-$${ex.crewWages.toLocaleString()}</span></div>
+    <div class="day-stat-row expense-row"><span class="dsl">🛡️ Insurance</span><span class="dsv">-$${ex.insurance.toLocaleString()}</span></div>
+    <div class="day-stat-row expense-row"><span class="dsl">⛽ Fuel${S.todayEvent&&S.todayEvent.id==='gas_spike'?' (spike)':''}</span><span class="dsv">-$${ex.fuel.toLocaleString()}</span></div>`:'';
   $('modal-extra').innerHTML=`<div class="day-summary"><div class="day-stat-row"><span class="dsl">Jobs</span><span class="dsv">${S.dayJobsDone} done (${totalDone}/${totalJobs} total)</span></div>
     <div class="day-stat-row"><span class="dsl">Earned</span><span class="dsv">$${S.dayEarnings.toLocaleString()}</span></div>
     <div class="day-stat-row"><span class="dsl">Tips</span><span class="dsv">$${S.dayTips.toLocaleString()}</span></div>
     <div class="day-stat-row"><span class="dsl">Repairs</span><span class="dsv">-$${S.dayRepairs}</span></div>
-    <div class="day-stat-row"><span class="dsl">Contracts</span><span class="dsv">$${(S.contractIncome||0).toLocaleString()}</span></div>
+    <div class="day-stat-row"><span class="dsl">Contracts</span><span class="dsv">$${(S.contractIncome||0).toLocaleString()}</span></div>${expenseRows}
     <div class="day-stat-row"><span class="dsl">Hours</span><span class="dsv">${(S.dayHoursTotal-S.dayHoursLeft).toFixed(1)}h / ${S.dayHoursTotal}h</span></div>
     <div class="day-stat-row"><span class="dsl">Fleet</span><span class="dsv">${S.trucks.length} truck${S.trucks.length!==1?'s':''} · ${S.crew.length} crew</span></div>
     <div class="day-stat-row"><span class="dsl">Ranking</span><span class="dsv">#${playerIdx+1} of ${ranks.length}</span></div>
@@ -1653,12 +1851,13 @@ const SAVE_KEY='lawn_legend_save';
 const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','trucks','equipDurability','equipRepairs','curNB',
   'crew','contracts','combo','maxCombo','streak','skillPoints','dayJobsDone','dayEarnings','dayTips','dayBestStar',
   'daySpeedBonuses','dayRepairs','totalEarnings','perfectDays','contractIncome','activeTab','dayHoursLeft','dayHoursTotal',
-  'weeklyGoal','weeklyProgress','nbUpgrades','rushCountdown'];
+  'weeklyGoal','weeklyProgress','nbUpgrades','rushCountdown',
+  'prestigeLevel','prestigeBonuses','lifetimePrestigeEarnings','fastestMillionaire','dayExpenses'];
 
 function getSaveData(){
   const data={};SAVE_FIELDS.forEach(k=>{data[k]=S[k]});
   data.perks=[...S.perks];data.milestonesHit=[...S.milestonesHit];
-  data._version=7;data._savedAt=new Date().toISOString();return data;
+  data._version=8;data._savedAt=new Date().toISOString();return data;
 }
 function saveGame(){
   try{localStorage.setItem(SAVE_KEY,JSON.stringify(getSaveData()));return true}catch(e){console.error('Save failed:',e);return false}
@@ -1676,6 +1875,18 @@ function applySaveData(data){
   if(Array.isArray(S.bidOffers))S.bidOffers.forEach(b=>{if(b&&typeof b==='object'){b.jobName=cleanName(b.jobName,40);b.jobEmoji=cleanName(b.jobEmoji,6);b.neighborhood=cleanName(b.neighborhood,40);b.rivalName=cleanName(b.rivalName,40)}});
   S.perks=new Set(Array.isArray(data.perks)?data.perks.filter(p=>typeof p==='string'):[]);
   S.milestonesHit=new Set(Array.isArray(data.milestonesHit)?data.milestonesHit.filter(m=>typeof m==='string'):[]);
+  // Prestige fields (v8+). Sanitize prestigeBonuses array — only allow known shapes.
+  S.prestigeLevel=Math.max(0,Math.min(999,(Number(S.prestigeLevel)|0)));
+  S.lifetimePrestigeEarnings=Math.max(0,Number(S.lifetimePrestigeEarnings)||0);
+  S.fastestMillionaire=(S.fastestMillionaire==null)?null:Math.max(1,Math.min(99999,Number(S.fastestMillionaire)|0));
+  const allowedTypes=new Set(['earnings','startCash','startTruck','startCrew','comboBoost']);
+  S.prestigeBonuses=Array.isArray(S.prestigeBonuses)?S.prestigeBonuses.filter(b=>b&&typeof b==='object'&&allowedTypes.has(b.type)).map(b=>({
+    level:Math.max(1,Math.min(999,Number(b.level)|0)),
+    type:String(b.type),
+    value:Math.max(0,Math.min(1000,Number(b.value)||0)),
+    desc:cleanName(b.desc,80)
+  })):[];
+  S.dayExpenses=Math.max(0,Number(S.dayExpenses)||0);
   // Reset runtime state
   S.activeDispatches=[];S.nbJobs={};S.bidOffers=data.bidOffers||[];
   S.weather=WEATHER_TYPES[0];S.season=SEASONS[0];
@@ -1740,14 +1951,16 @@ function loadAndStart(){
   $('name-screen').style.display='none';
   initGameUI();
 }
+let _loopStarted=false;
 function initGameUI(){
   $('player-name-display').textContent='— '+S.playerName;
-  updateSeason();rollWeather();generateAllDayJobs();updateUI();renderTrophies();renderBids();renderRankings();renderCompanyTier();
+  updateSeason();rollWeather();generateAllDayJobs();updateUI();renderTrophies();renderBids();renderRankings();renderCompanyTier();updatePrestigeUI();
   $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;
-  addLog(`🌿 Welcome back, <span class="hl">${esc(S.playerName)}</span>!`);
+  const welcomeMsg=(S.prestigeLevel||0)>0?`🌿 Back at it, <span class="hl">${esc(S.playerName)}</span> — <span class="hl">Prestige ${S.prestigeLevel}</span>!`:`🌿 Welcome back, <span class="hl">${esc(S.playerName)}</span>!`;
+  addLog(welcomeMsg);
   addLog('💡 Buy a truck, hire crew, then <span class="hl">dispatch trucks to jobs simultaneously</span>!');
   if(CHALLENGE){showChallengeBanner();addLog(`🎯 Challenge: beat <span class="hl">${esc(CHALLENGE.name)}</span>'s $${CHALLENGE.val.toLocaleString()} by Day ${CHALLENGE.day}`)}
-  loop();
+  if(!_loopStarted){_loopStarted=true;loop()}
 }
 
 // ═══ AUTO-SAVE HOOKS ═══

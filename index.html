@@ -138,11 +138,36 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .fleet-card .fleet-name{font-weight:700;font-size:0.72rem;color:#42a5f5}.fleet-card .fleet-det{font-size:0.6rem;color:#888;margin-top:1px}
 .fleet-card.busy{border-color:rgba(33,150,243,0.3);background:rgba(33,150,243,0.05)}
 @media(max-width:800px){.sidebar{width:270px;min-width:270px}.stats{gap:3px}.stat{padding:3px 6px;font-size:0.65rem}.header h1{font-size:1rem}}
+.name-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d1b2a,#1a5c38);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.name-screen .ns-box{background:#0d1b2a;border:2px solid #40916c;border-radius:16px;padding:36px 40px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.6);max-width:380px;width:90%;animation:pop 0.4s ease}
+.name-screen .ns-title{font-size:2rem;margin-bottom:4px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.4)}.name-screen .ns-sub{font-size:0.85rem;color:#b7e4c7;margin-bottom:20px}
+.name-screen input{width:100%;padding:10px 14px;border-radius:8px;border:2px solid rgba(82,183,136,0.3);background:rgba(255,255,255,0.08);color:#fff;font-size:1rem;font-weight:600;text-align:center;outline:none;margin-bottom:12px;transition:border-color 0.2s}
+.name-screen input:focus{border-color:#52b788}
+.name-screen input::placeholder{color:#666}
+.name-screen .ns-start{background:linear-gradient(135deg,#2d6a4f,#40916c);color:#fff;border:none;padding:10px 28px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;transition:all 0.15s;width:100%}
+.name-screen .ns-start:hover{transform:scale(1.03);box-shadow:0 4px 15px rgba(64,145,108,0.5)}
+.name-screen .ns-start:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none}
+.name-screen .ns-continue{background:linear-gradient(135deg,#1565C0,#42a5f5);margin-top:8px;width:100%;padding:10px 28px;border-radius:8px;border:none;color:#fff;cursor:pointer;font-weight:700;font-size:0.85rem;transition:all 0.15s}
+.name-screen .ns-continue:hover{transform:scale(1.03)}
+.name-screen .ns-saved{font-size:0.7rem;color:#888;margin-top:12px}
+.save-controls{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
+.save-controls button{flex:1;padding:3px 5px;font-size:0.58rem;font-weight:600;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);border-radius:4px;color:#888;cursor:pointer;transition:all 0.15s}
+.save-controls button:hover{background:rgba(82,183,136,0.12);border-color:#52b788;color:#b7e4c7}
 </style>
 </head>
 <body>
+<div class="name-screen" id="name-screen">
+  <div class="ns-box">
+    <div class="ns-title">🌿 Lawn Legend</div>
+    <div class="ns-sub">Landscaping Tycoon</div>
+    <input type="text" id="player-name-input" placeholder="Enter your name..." maxlength="20" autocomplete="off">
+    <button class="ns-start" id="ns-start-btn" disabled onclick="startNewGame()">🚀 Start New Game</button>
+    <button class="ns-continue" id="ns-continue-btn" style="display:none" onclick="loadAndStart()">📂 Continue as <span id="ns-saved-name"></span></button>
+    <div class="ns-saved" id="ns-saved-info"></div>
+  </div>
+</div>
 <div class="header">
-  <h1>🌿 Lawn <span>Legend</span></h1>
+  <h1>🌿 Lawn <span>Legend</span> <span style="font-size:0.65rem;color:#b7e4c7;font-weight:400;margin-left:6px" id="player-name-display"></span></h1>
   <div class="stats">
     <div class="stat">💰 $<span class="v" id="money">200</span></div>
     <div class="stat">⭐ <span class="v" id="rep">0</span></div>
@@ -246,6 +271,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
     <div class="panel">
       <h2>📜 Log</h2>
       <div class="log-entries" id="log"></div>
+      <div class="save-controls">
+        <button onclick="manualSave()">💾 Save</button>
+        <button onclick="exportSave()">📤 Export</button>
+        <button onclick="importSave()">📥 Import</button>
+        <button onclick="confirmNewGame()">🆕 New Game</button>
+      </div>
     </div>
   </div>
   <div class="main-canvas"><canvas id="gc"></canvas></div>
@@ -314,7 +345,7 @@ const RIVAL_COMPANIES=[
 ];
 function getRivalValuation(rival,day){const rate=getTierIndex()>=4?1+(rival.growthRate-1)*0.7:rival.growthRate;return Math.round(rival.baseVal*Math.pow(rate,day))}
 function getPlayerRank(){const pVal=calcValuation();const rivals=RIVAL_COMPANIES.map(r=>({name:r.name,val:getRivalValuation(r,S.day)}));
-  rivals.push({name:'🌿 Lawn Legend (You)',val:pVal,isPlayer:true});rivals.sort((a,b)=>b.val-a.val);return rivals}
+  rivals.push({name:'🌿 '+(S.playerName||'Lawn Legend'),val:pVal,isPlayer:true});rivals.sort((a,b)=>b.val-a.val);return rivals}
 
 const NEIGHBORHOODS=[
   {id:'starter',name:'Starter Street',minRep:0,houses:3,houseTypes:['bungalow','bungalow','ranch'],payMult:1,desc:'Humble beginnings'},
@@ -355,6 +386,7 @@ const WEATHER_TYPES=[
 
 // ═══ GAME STATE ═══
 const S={
+  playerName:'',
   money:200,rep:0,jobsDone:0,day:1,
   equipment:{mower:1,trimmer:0,blower:0,signage:0},
   trucks:[], // [{type:'pickup',maxCrew:5,name:'Truck #1'}]
@@ -710,7 +742,7 @@ function renderContracts(){
 function renderRankings(){const l=$('rival-list');l.innerHTML='';const ranks=getPlayerRank();
   ranks.forEach((r,i)=>{const d=document.createElement('div');d.className=`rival-rank ${r.isPlayer?'player':''}`;
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-    d.innerHTML=`<div class="rank-pos">${medal||'#'+(i+1)}</div><div class="rank-name">${r.isPlayer?'🌿 Lawn Legend (You)':r.name}</div><div class="rank-val">$${r.val.toLocaleString()}</div>`;
+    d.innerHTML=`<div class="rank-pos">${medal||'#'+(i+1)}</div><div class="rank-name">${r.isPlayer?'🌿 '+(S.playerName||'Lawn Legend'):r.name}</div><div class="rank-val">$${r.val.toLocaleString()}</div>`;
     l.appendChild(d)})}
 
 function rollEvent(){
@@ -1171,7 +1203,7 @@ function showDaySummary(){
   const allDone=totalDone===totalJobs&&totalJobs>0;let perfectBonus=0;
   if(allDone){S.perfectDays++;perfectBonus=Math.round(S.dayEarnings*(S.perks.has('perfectionist')?0.3:0.15));S.money+=perfectBonus;S.totalEarnings+=perfectBonus}
   const ranks=getPlayerRank();const playerIdx=ranks.findIndex(r=>r.isPlayer);
-  $('me').textContent=allDone?'💯':'📊';$('mt').textContent=`Day ${S.day} Report`;$('mx').textContent='';
+  $('me').textContent=allDone?'💯':'📊';$('mt').textContent=`${S.playerName||'Player'} — Day ${S.day}`;$('mx').textContent='';
   $('modal-extra').innerHTML=`<div class="day-summary"><div class="day-stat-row"><span class="dsl">Jobs</span><span class="dsv">${S.dayJobsDone} done (${totalDone}/${totalJobs} total)</span></div>
     <div class="day-stat-row"><span class="dsl">Earned</span><span class="dsv">$${S.dayEarnings.toLocaleString()}</span></div>
     <div class="day-stat-row"><span class="dsl">Tips</span><span class="dsv">$${S.dayTips.toLocaleString()}</span></div>
@@ -1225,13 +1257,112 @@ canvas.addEventListener('touchstart',e=>{isDragging=true;dragStartX=e.touches[0]
 canvas.addEventListener('touchmove',e=>{if(isDragging){S.targetScrollX=scrollStartX-(e.touches[0].clientX-dragStartX);e.preventDefault()}},{passive:false});
 canvas.addEventListener('touchend',()=>isDragging=false);
 
+// ═══ SAVE / LOAD SYSTEM ═══
+const SAVE_KEY='lawn_legend_save';
+const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','trucks','equipDurability','equipRepairs','curNB',
+  'crew','contracts','combo','maxCombo','streak','skillPoints','dayJobsDone','dayEarnings','dayTips','dayBestStar',
+  'daySpeedBonuses','dayRepairs','totalEarnings','perfectDays','contractIncome','activeTab','dayHoursLeft','dayHoursTotal',
+  'weeklyGoal','weeklyProgress','nbUpgrades','rushCountdown'];
+
+function getSaveData(){
+  const data={};SAVE_FIELDS.forEach(k=>{data[k]=S[k]});
+  data.perks=[...S.perks];data.milestonesHit=[...S.milestonesHit];
+  data._version=7;data._savedAt=new Date().toISOString();return data;
+}
+function saveGame(){
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(getSaveData()));return true}catch(e){console.error('Save failed:',e);return false}
+}
+function loadSaveData(){
+  try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;return JSON.parse(raw)}catch(e){return null}
+}
+function applySaveData(data){
+  if(!data)return;
+  SAVE_FIELDS.forEach(k=>{if(data[k]!==undefined)S[k]=data[k]});
+  S.perks=new Set(data.perks||[]);S.milestonesHit=new Set(data.milestonesHit||[]);
+  // Reset runtime state
+  S.activeDispatches=[];S.nbJobs={};S.bidOffers=data.bidOffers||[];
+  S.weather=WEATHER_TYPES[0];S.season=SEASONS[0];
+  S.todayEvent=EVENTS[EVENTS.length-1];S.eventSpeedMod=1;S.eventTipMod=1;
+  S.scrollX=0;S.targetScrollX=0;S.comboTimer=null;S.rushJob=null;S.rushTimer=null;
+  S.dayPhase=Math.min(0.95,1-(S.dayHoursLeft/S.dayHoursTotal));
+}
+function autoSave(){if(S.playerName)saveGame()}
+function manualSave(){if(saveGame()){showToast('💾 Game saved!')}else{showToast('❌ Save failed!')}}
+function exportSave(){
+  const data=JSON.stringify(getSaveData(),null,2);
+  const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`lawn-legend-${S.playerName}-day${S.day}.json`;a.click();
+  URL.revokeObjectURL(url);showToast('📤 Save exported!');
+}
+function importSave(){
+  const input=document.createElement('input');input.type='file';input.accept='.json';
+  input.onchange=e=>{const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();reader.onload=ev=>{
+      try{const data=JSON.parse(ev.target.result);
+        if(!data.playerName||!data._version){showToast('❌ Invalid save file');return}
+        applySaveData(data);saveGame();initGameUI();showToast(`📥 Loaded ${data.playerName}'s save!`)}
+      catch(err){showToast('❌ Bad save file')}};reader.readAsText(file)};input.click();
+}
+function confirmNewGame(){
+  $('me').textContent='🆕';$('mt').textContent='Start New Game?';$('mx').textContent='This will erase your current save. Are you sure?';
+  $('modal-extra').innerHTML='';
+  $('modal-buttons').innerHTML='<button class="red" onclick="resetGame()">🗑️ Erase & Restart</button><button onclick="closeModal()">Cancel</button>';
+  $('mo').classList.add('show');
+}
+function resetGame(){
+  closeModal();localStorage.removeItem(SAVE_KEY);location.reload();
+}
+
+// ═══ NAME SCREEN ═══
+const nameInput=$('player-name-input');const startBtn=$('ns-start-btn');const contBtn=$('ns-continue-btn');
+nameInput.addEventListener('input',()=>{startBtn.disabled=nameInput.value.trim().length===0});
+nameInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&nameInput.value.trim())startNewGame()});
+
+function startNewGame(){
+  const name=nameInput.value.trim();if(!name)return;
+  S.playerName=name;
+  S.crew[0].name=name;
+  $('name-screen').style.display='none';
+  initGameUI();saveGame();
+}
+function loadAndStart(){
+  const data=loadSaveData();if(!data)return;
+  applySaveData(data);
+  $('name-screen').style.display='none';
+  initGameUI();
+}
+function initGameUI(){
+  $('player-name-display').textContent='— '+S.playerName;
+  updateSeason();rollWeather();generateAllDayJobs();updateUI();renderTrophies();renderBids();renderRankings();renderCompanyTier();
+  $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;
+  addLog(`🌿 Welcome back, <span class="hl">${S.playerName}</span>!`);
+  addLog('💡 Buy a truck, hire crew, then <span class="hl">dispatch trucks to jobs simultaneously</span>!');
+  loop();
+}
+
+// ═══ AUTO-SAVE HOOKS ═══
+const _origAdvanceDay=advanceDay;
+advanceDay=function(){_origAdvanceDay();autoSave()};
+const _origCompleteDispatch=completeDispatch;
+completeDispatch=function(a,b,c){_origCompleteDispatch(a,b,c);autoSave()};
+const _origBuyUpgrade=buyUpgrade;
+buyUpgrade=function(k){_origBuyUpgrade(k);autoSave()};
+const _origBuyTruck=buyTruck;
+buyTruck=function(i){_origBuyTruck(i);autoSave()};
+const _origHireCrew=hireCrew;
+hireCrew=function(){_origHireCrew();autoSave()};
+const _origBuyPerk=buyPerk;
+buyPerk=function(id){_origBuyPerk(id);autoSave()};
+
 // ═══ INIT ═══
-generateWeeklyGoal();updateSeason();rollWeather();generateAllDayJobs();updateUI();renderTrophies();renderBids();renderRankings();renderCompanyTier();
-$('nb-name-label').textContent=NEIGHBORHOODS[0].name;
-addLog('🌿 Welcome to <span class="hl">Lawn Legend</span>!');
-addLog('💡 Buy a truck, hire crew, then <span class="hl">dispatch trucks to jobs simultaneously</span>!');
-addLog('💡 Click the <span class="hl">❓ Help</span> tab for full instructions.');
-loop();
+(function(){
+  const saved=loadSaveData();
+  if(saved&&saved.playerName){
+    $('ns-saved-name').textContent=saved.playerName;
+    contBtn.style.display='block';
+    $('ns-saved-info').textContent=`Day ${saved.day} · $${Number(saved.money).toLocaleString()} · ${saved.rep}⭐`;
+  }
+})();
 </script>
 </body>
 </html>

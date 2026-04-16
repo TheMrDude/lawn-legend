@@ -137,7 +137,35 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .fleet-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:6px 8px;margin-bottom:3px}
 .fleet-card .fleet-name{font-weight:700;font-size:0.72rem;color:#42a5f5}.fleet-card .fleet-det{font-size:0.6rem;color:#888;margin-top:1px}
 .fleet-card.busy{border-color:rgba(33,150,243,0.3);background:rgba(33,150,243,0.05)}
-@media(max-width:800px){.sidebar{width:270px;min-width:270px}.stats{gap:3px}.stat{padding:3px 6px;font-size:0.65rem}.header h1{font-size:1rem}}
+.mute-toggle{background:rgba(0,0,0,0.25);border:none;padding:4px 9px;border-radius:16px;font-size:0.85rem;cursor:pointer;color:#fff;transition:all 0.15s;line-height:1}
+.mute-toggle:hover{background:rgba(0,0,0,0.4);transform:scale(1.08)}
+.modal button.share{background:linear-gradient(135deg,#5e3c99,#8e44ad)}
+.modal button.share:hover{filter:brightness(1.15)}
+@media(max-width:800px){
+  body{overflow-y:auto}
+  .header{padding:6px 10px;flex-wrap:wrap;gap:4px}
+  .header h1{font-size:0.95rem;flex:1;min-width:0}
+  .stats{gap:3px}
+  .stat{padding:3px 7px;font-size:0.65rem}
+  .game-wrap{flex-direction:column;height:auto;min-height:calc(100vh - 50px);overflow:visible}
+  .sidebar{width:100%;min-width:0;max-height:48vh;border-right:none;border-bottom:1px solid rgba(82,183,136,0.2);order:1}
+  .main-canvas{order:2;flex:none;width:100%;height:52vh;min-height:280px}
+  .panel{padding:9px 11px}
+  .job-card{padding:10px;font-size:0.82rem;margin-bottom:5px;min-height:48px}
+  .jn{font-size:0.84rem}.jp{font-size:0.84rem}
+  .jd{font-size:0.72rem}
+  .dispatch-btn{padding:7px 11px;font-size:0.72rem;min-height:34px}
+  .bb{padding:8px 13px;font-size:0.76rem;min-height:36px}
+  .tab-btn{padding:7px 3px;font-size:0.66rem;min-height:32px}
+  .nb-btn{padding:7px 11px;font-size:0.72rem;min-height:34px}
+  .save-controls button{padding:7px 5px;font-size:0.66rem;min-height:32px}
+  .modal{padding:18px;max-width:94%}
+  .modal button{padding:9px 16px;font-size:0.82rem}
+  .combo-display{top:54px}
+  .toast{top:60px;right:10px;font-size:0.72rem;max-width:calc(100vw - 20px)}
+  .upgrade-card,.crew-card,.perk-card,.contract-card,.fleet-card{padding:8px 10px}
+  .trophy{width:34px;height:34px;font-size:1.05rem}
+}
 .name-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d1b2a,#1a5c38);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column}
 .name-screen .ns-box{background:#0d1b2a;border:2px solid #40916c;border-radius:16px;padding:36px 40px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.6);max-width:380px;width:90%;animation:pop 0.4s ease}
 .name-screen .ns-title{font-size:2rem;margin-bottom:4px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.4)}.name-screen .ns-sub{font-size:0.85rem;color:#b7e4c7;margin-bottom:20px}
@@ -175,6 +203,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
     <div class="stat" id="weather-stat">☀️ <span class="v">Sunny</span></div>
     <div class="stat">🔥 <span class="v" id="streak-count">0</span></div>
     <div class="stat" id="season-stat">🌱 <span class="v" id="season-label">Spring</span></div>
+    <button class="mute-toggle" id="mute-btn" onclick="toggleMute()" title="Toggle sound (muted by default)">🔇</button>
   </div>
 </div>
 <div class="combo-display" id="combo-display" style="display:none">
@@ -296,6 +325,118 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const canvas=$('gc'),ctx=canvas.getContext('2d');
 let W,H;function resize(){W=canvas.width=canvas.parentElement.clientWidth;H=canvas.height=canvas.parentElement.clientHeight}
 resize();window.addEventListener('resize',resize);
+
+// ═══ SOUND EFFECTS (Web Audio API, zero deps) ═══
+const SFX={
+  ctx:null,muted:localStorage.getItem('ll_muted')!=='false', // default muted
+  init(){if(!this.ctx){try{this.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+    if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume()},
+  _tone(freq,dur,type='sine',vol=0.15,delay=0){
+    if(this.muted||!this.ctx)return;const t=this.ctx.currentTime+delay;
+    const o=this.ctx.createOscillator(),g=this.ctx.createGain();
+    o.type=type;o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.005);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g);g.connect(this.ctx.destination);o.start(t);o.stop(t+dur+0.02);
+  },
+  mow(){this._tone(90+Math.random()*40,0.06,'sawtooth',0.05)},
+  cash(){if(this.muted)return;this._tone(800,0.08,'square',0.09);this._tone(1200,0.12,'square',0.09,0.06);this._tone(1600,0.18,'sine',0.08,0.14)},
+  level(){if(this.muted)return;[523,659,784,1047].forEach((f,i)=>this._tone(f,0.2,'triangle',0.11,i*0.08))},
+  click(){this._tone(620,0.03,'sine',0.05)},
+  combo(){if(this.muted)return;const base=500+Math.min(12,S.combo)*55;this._tone(base,0.08,'triangle',0.09);this._tone(base*1.5,0.1,'triangle',0.09,0.07)},
+  rush(){if(this.muted)return;for(let i=0;i<3;i++)this._tone(900,0.1,'square',0.1,i*0.18)}
+};
+function toggleMute(){SFX.muted=!SFX.muted;localStorage.setItem('ll_muted',SFX.muted?'true':'false');
+  const b=$('mute-btn');if(b)b.textContent=SFX.muted?'🔇':'🔊';
+  if(!SFX.muted){SFX.init();SFX.click();showToast('🔊 Sound on')}else{showToast('🔇 Muted')}}
+// Unlock audio on first user gesture (browsers require this)
+document.addEventListener('click',()=>SFX.init(),{once:true});
+document.addEventListener('keydown',()=>SFX.init(),{once:true});
+// Button click sounds via event delegation
+document.addEventListener('click',e=>{
+  if(SFX.muted)return;
+  if(e.target.closest('.bb,.tab-btn,.nb-btn,.dispatch-btn,.modal button,.save-controls button,.ns-start,.ns-continue'))SFX.click();
+});
+
+// ═══ SHAREABLE RESULTS CARDS ═══
+function generateShareCard(w,h){
+  const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
+  // Green gradient background (matches game theme)
+  const grad=g.createLinearGradient(0,0,w,h);
+  grad.addColorStop(0,'#1a5c38');grad.addColorStop(0.5,'#2d6a4f');grad.addColorStop(1,'#0d1b2a');
+  g.fillStyle=grad;g.fillRect(0,0,w,h);
+  // Decorative dots
+  for(let i=0;i<120;i++){g.fillStyle=`rgba(183,228,199,${0.04+Math.random()*0.08})`;
+    g.beginPath();g.arc(Math.random()*w,Math.random()*h,1+Math.random()*4,0,Math.PI*2);g.fill()}
+  // Soft vignette
+  const vg=g.createRadialGradient(w/2,h/2,w*0.3,w/2,h/2,w*0.7);
+  vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,0.35)');
+  g.fillStyle=vg;g.fillRect(0,0,w,h);
+  const cx=w/2;g.textAlign='center';g.textBaseline='middle';
+  // Brand header
+  g.fillStyle='#b7e4c7';g.font=`900 ${Math.round(w*0.065)}px system-ui,-apple-system,sans-serif`;
+  g.fillText('🌿 LAWN LEGEND',cx,h*0.11);
+  g.fillStyle='#ffd54f';g.font=`600 ${Math.round(w*0.028)}px system-ui,-apple-system,sans-serif`;
+  g.fillText('LANDSCAPING TYCOON',cx,h*0.16);
+  // Player name
+  g.fillStyle='#fff';g.font=`bold ${Math.round(w*0.075)}px system-ui,-apple-system,sans-serif`;
+  const nm=(S.playerName||'Player').slice(0,18);g.fillText(nm,cx,h*0.26);
+  // Day badge
+  const badgeW=w*0.7,badgeH=h*0.055,badgeX=(w-badgeW)/2,badgeY=h*0.31;
+  g.fillStyle='rgba(82,183,136,0.18)';g.fillRect(badgeX,badgeY,badgeW,badgeH);
+  g.strokeStyle='#52b788';g.lineWidth=Math.max(2,w*0.003);g.strokeRect(badgeX,badgeY,badgeW,badgeH);
+  g.fillStyle='#b7e4c7';g.font=`bold ${Math.round(w*0.032)}px system-ui,-apple-system,sans-serif`;
+  const seasonLbl=S.season?`${S.season.emoji} ${S.season.name.toUpperCase()}`:'';
+  g.fillText(`DAY ${S.day}  •  ${seasonLbl}`,cx,badgeY+badgeH/2);
+  // Hero valuation
+  const valY=h*0.46;
+  g.fillStyle='#888';g.font=`600 ${Math.round(w*0.026)}px system-ui,-apple-system,sans-serif`;
+  g.fillText('COMPANY VALUATION',cx,valY-h*0.05);
+  g.fillStyle='#ffd54f';g.font=`900 ${Math.round(w*0.12)}px system-ui,-apple-system,sans-serif`;
+  g.fillText('$'+calcValuation().toLocaleString(),cx,valY+h*0.015);
+  // Stats row (3 columns)
+  const statsY=h*0.62;
+  const stats=[
+    ['🚛',String(S.trucks.length||1),'TRUCKS'],
+    ['👷',String(S.crew.length),'CREW'],
+    ['⭐',String(S.rep),'REP'],
+  ];
+  const cols=[w*0.22,w*0.5,w*0.78];
+  stats.forEach((s,i)=>{const x=cols[i];
+    g.fillStyle='#fff';g.font=`${Math.round(w*0.065)}px system-ui,-apple-system,sans-serif`;g.fillText(s[0],x,statsY);
+    g.fillStyle='#b7e4c7';g.font=`900 ${Math.round(w*0.055)}px system-ui,-apple-system,sans-serif`;g.fillText(s[1],x,statsY+h*0.07);
+    g.fillStyle='#888';g.font=`700 ${Math.round(w*0.022)}px system-ui,-apple-system,sans-serif`;g.fillText(s[2],x,statsY+h*0.115);
+  });
+  // Tier line (if defined)
+  try{const tier=getCompanyTier();if(tier){
+    g.fillStyle='#bb86fc';g.font=`700 ${Math.round(w*0.03)}px system-ui,-apple-system,sans-serif`;
+    g.fillText(`${tier.emoji||'⭐'} ${tier.name.toUpperCase()} TIER`,cx,h*0.77);
+  }}catch(e){}
+  // CTA
+  g.fillStyle='#52b788';g.font=`900 ${Math.round(w*0.048)}px system-ui,-apple-system,sans-serif`;
+  g.fillText('▶  PLAY LAWN LEGEND',cx,h*0.87);
+  g.fillStyle='#b7e4c7';g.font=`600 ${Math.round(w*0.028)}px system-ui,-apple-system,sans-serif`;
+  g.fillText('lawn-legend.vercel.app',cx,h*0.925);
+  return c;
+}
+function shareCard(type){
+  const isVert=type==='vertical';const w=isVert?1000:1080,h=isVert?1500:1080;
+  const c=generateShareCard(w,h);
+  c.toBlob(async blob=>{
+    if(!blob){showToast('❌ Card failed');return}
+    const fname=`lawn-legend-${(S.playerName||'player').replace(/\s+/g,'_')}-day${S.day}-${isVert?'pin':'square'}.png`;
+    const file=new File([blob],fname,{type:'image/png'});
+    try{
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:'Lawn Legend',
+          text:`Day ${S.day} — ${S.playerName||'my'} landscaping empire: $${calcValuation().toLocaleString()} valuation! Play at https://lawn-legend.vercel.app`});
+        return;
+      }
+    }catch(e){if(e&&e.name==='AbortError')return}
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname;
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    showToast(`📥 ${isVert?'Pinterest':'Square'} card saved!`);
+  },'image/png');
+}
 
 const TRUCK_COLORS=['#e74c3c','#1565C0','#f39c12','#9b59b6','#00897B','#FF5722','#5C6BC0','#43A047'];
 
@@ -767,7 +908,8 @@ function switchTab(tab){S.activeTab=tab;
   if(tab==='rankings')renderRankings();if(tab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}}
 
 function addCombo(){S.combo++;if(S.combo>S.maxCombo)S.maxCombo=S.combo;clearTimeout(S.comboTimer);
-  S.comboTimer=setTimeout(()=>{S.combo=0;updateComboDisplay()},15000);updateComboDisplay()}
+  S.comboTimer=setTimeout(()=>{S.combo=0;updateComboDisplay()},15000);updateComboDisplay();
+  if(S.combo>1)SFX.combo()}
 function getComboMult(){if(S.combo<=1)return 1;const rate=S.perks.has('combo_master')?0.18:0.12;return Math.min(3,1+((S.combo-1)*rate))}
 function updateComboDisplay(){const cd=$('combo-display');if(S.combo<=1){cd.style.display='none';return}
   cd.style.display='block';const m=getComboMult();$('combo-text').textContent=m.toFixed(1)+'x';
@@ -1096,7 +1238,7 @@ function dispatchJob(propIdx,truckIdx){
         const hc=dprop.houseConfig;const px=propX(dispatch.propIdx)+hc.w+15+wp.c*YARD_TILE+YARD_TILE/2;const py=PROP_Y+20+wp.r*YARD_TILE+YARD_TILE/2;
         if(t.type==='tall_grass')spawnP(px,py,'grass',3);else if(t.type==='leafy')spawnP(px,py,'leaf',t.lc);
         else if(t.type==='garden_bed'){t.fg=0.05;spawnP(px,py,'dirt',2)}else if(t.type==='bare_dirt')spawnP(px,py,'dirt',2);else spawnP(px,py,'grass',2)}}
-    dispatch.workStep++;
+    dispatch.workStep++;SFX.mow();
     S.dayPhase=Math.min(0.95,1-(S.dayHoursLeft/S.dayHoursTotal));
     renderActiveJobs();if(dispatch.nbIdx===S.curNB)renderJobs();
   },stepInt);
@@ -1120,7 +1262,7 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
 
   addCombo();const comboMult=getComboMult();const specBonus=getCrewSpecialtyBonus(prop.job.type);
   const payMult=comboMult*(1+specBonus.pay);const comboPay=Math.round(prop.pay*payMult);
-  S.money+=comboPay;S.totalEarnings+=comboPay;S.dayEarnings+=comboPay;S.dayJobsDone++;
+  S.money+=comboPay;S.totalEarnings+=comboPay;S.dayEarnings+=comboPay;S.dayJobsDone++;SFX.cash();
   updateGoalProgress('jobs',1);updateGoalProgress('earnings',comboPay);degradeEquipment(prop.job.type);
 
   const cust=prop.customer;let sat=R(3,5)+cust.satMod;if(S.perks.has('green_thumb'))sat++;if(S.perks.has('lucky_star')&&Math.random()<0.3)sat=5;
@@ -1164,7 +1306,7 @@ function maybeSpawnRush(){if(S.rushJob)return;
   const rushMult=getTierIndex()>=3?3.6:1.8;
   const pay=Math.round((20+job.diff*40+R(15,40))*nb.payMult*rushMult);const ht=nb.houseTypes[R(0,nb.houseTypes.length-1)];const hc=HOUSE_CONFIGS[ht];
   S.rushJob={houseType:ht,houseConfig:hc,job:{...job},pay,customer:rollCustomer(S.curNB),tiles:initTiles(hc.yardCols,hc.yardRows,job.type),done:false,satisfaction:0,tipped:false,customerOut:false,idx:getProps().length,isRush:true,nbIdx:S.curNB};
-  S.rushCountdown=40;getProps().push(S.rushJob);
+  S.rushCountdown=40;getProps().push(S.rushJob);SFX.rush();
   showToast(`🚨 RUSH! ${job.name} $${pay} — 40s!`);
   S.rushTimer=setInterval(()=>{S.rushCountdown--;
     if(S.rushCountdown<=0||S.rushJob?.done){clearInterval(S.rushTimer);
@@ -1214,7 +1356,7 @@ function showDaySummary(){
     <div class="day-stat-row"><span class="dsl">Ranking</span><span class="dsv">#${playerIdx+1} of ${ranks.length}</span></div>
     ${allDone?`<div class="day-stat-row bonus"><span class="dsl">💯 PERFECT DAY</span><span class="dsv">+$${perfectBonus}</span></div>`:''}
     <div class="day-stat-row total"><span class="dsl">Company Value</span><span class="dsv">$${calcValuation().toLocaleString()}</span></div></div>`;
-  $('modal-buttons').innerHTML='<button onclick="closeModal();advanceDay()">Next Day →</button>';$('mo').classList.add('show');checkMilestones();updateUI()}
+  $('modal-buttons').innerHTML='<button class="share" onclick="shareCard(\'square\')">📸 Share</button><button class="share" onclick="shareCard(\'vertical\')">📌 Pin</button><button onclick="closeModal();advanceDay()">Next Day →</button>';$('mo').classList.add('show');checkMilestones();updateUI()}
 
 $('ndb').onclick=()=>{
   if(S.activeDispatches.length>0){showToast("Wait for crews to finish!");return}
@@ -1239,8 +1381,8 @@ function advanceDay(){
 function closeModal(){$('mo').classList.remove('show');$('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button onclick="closeModal()">OK</button>';
   if(S.dayJobsDone>0&&$('mt').textContent.includes('Report')){advanceDay()}}
 
-function checkMilestones(){MILESTONES.forEach(m=>{if(!S.milestonesHit.has(m.id)&&m.ck()){S.milestonesHit.add(m.id);
-  if(!$('mo').classList.contains('show')){$('me').textContent=m.e;$('mt').textContent=m.t;$('mx').textContent=m.x;$('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button onclick="closeModal()">OK</button>';$('mo').classList.add('show')}
+function checkMilestones(){MILESTONES.forEach(m=>{if(!S.milestonesHit.has(m.id)&&m.ck()){S.milestonesHit.add(m.id);SFX.level();
+  if(!$('mo').classList.contains('show')){$('me').textContent=m.e;$('mt').textContent=m.t;$('mx').textContent=m.x;$('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button class="share" onclick="shareCard(\'square\')">📸 Share</button><button class="share" onclick="shareCard(\'vertical\')">📌 Pin</button><button onclick="closeModal()">OK</button>';$('mo').classList.add('show')}
   addLog(`🏆 <span class="hl">${m.t}</span>`);renderTrophies()}})}
 
 function loop(){animFrame++;
@@ -1362,6 +1504,8 @@ buyPerk=function(id){_origBuyPerk(id);autoSave()};
     contBtn.style.display='block';
     $('ns-saved-info').textContent=`Day ${saved.day} · $${Number(saved.money).toLocaleString()} · ${saved.rep}⭐`;
   }
+  // Sync mute button icon with stored preference
+  const mb=$('mute-btn');if(mb)mb.textContent=SFX.muted?'🔇':'🔊';
 })();
 </script>
 </body>

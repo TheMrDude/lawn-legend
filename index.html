@@ -145,6 +145,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .prestige-bonus-list{text-align:left;font-size:0.72rem;color:#b7e4c7;margin:8px 0;padding:8px 10px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:7px}
 .prestige-bonus-list .pbl-item{padding:2px 0;color:#ffd54f}
 .prestige-bonus-list .pbl-title{color:#ffd54f;font-weight:700;margin-bottom:4px;font-size:0.74rem}
+.market-news{margin-top:8px;padding:8px 10px;background:rgba(33,150,243,0.06);border:1px solid rgba(33,150,243,0.2);border-radius:7px;text-align:left}
+.market-news .mn-title{color:#64b5f6;font-weight:700;font-size:0.72rem;margin-bottom:4px}
+.market-news .mn-item{color:#b0d8ff;font-size:0.7rem;padding:2px 0;line-height:1.35}
 .help-section{font-size:0.68rem;color:#bbb;line-height:1.6}
 .help-section h3{color:#52b788;font-size:0.78rem;margin:8px 0 3px;font-weight:700}
 .help-section p{margin-bottom:5px;color:#999}
@@ -743,11 +746,89 @@ const EVENTS=[
 ];
 
 const RIVAL_COMPANIES=[
-  {name:'GreenCut Pro',baseVal:800,growthRate:1.08},{name:'LawnMaster Inc',baseVal:600,growthRate:1.06},
-  {name:'TurfKing LLC',baseVal:1200,growthRate:1.05},{name:'YardPro Co',baseVal:400,growthRate:1.09},
-  {name:'FreshCut Bros',baseVal:500,growthRate:1.07},
+  {name:'GreenCut Pro',baseVal:3000,growthRate:1.22,personality:'aggressive',catchUp:true},
+  {name:'LawnMaster Inc',baseVal:2000,growthRate:1.18,personality:'steady',catchUp:false},
+  {name:'TurfKing LLC',baseVal:5000,growthRate:1.15,personality:'established',catchUp:false},
+  {name:'YardPro Co',baseVal:1500,growthRate:1.25,personality:'scrappy',catchUp:true},
+  {name:'FreshCut Bros',baseVal:2500,growthRate:1.20,personality:'growing',catchUp:true},
+  {name:'Elite Landscapes',baseVal:8000,growthRate:1.12,personality:'premium',catchUp:false},
+  {name:'ProScape Capital',baseVal:10000,growthRate:1.10,personality:'corporate',catchUp:false},
 ];
-function getRivalValuation(rival,day){const rate=getTierIndex()>=4?1+(rival.growthRate-1)*0.7:rival.growthRate;return Math.round(rival.baseVal*Math.pow(rate,day))}
+// Effective compound growth multiplier with a geometric soft cap so rivals don't
+// explode in the very late game. The excess (rate-1) decays each day past CAP_START;
+// the rate asymptotically approaches (but never reaches) 1.0.
+// Tuned so that at the aggressive 1.22/day base rate, rivals sit in the $3–8M range
+// by mid-game (keeping it competitive) and plateau under ~$20M by day 100 instead of
+// running to absurd billions. Spec suggested day-40/2% but at these base rates that
+// never catches the exponential — simulation showed $34B by day 100. capStart=25 /
+// decay=0.92 yields: 3rd–5th place early, tight race day 25–40, player reclaims #1
+// by day 50–60 and fights to keep it.
+function rivalCompoundMultiplier(baseRate,day){
+  if(day<=0)return 1;
+  const CAP_START=25,DECAY=0.92;
+  if(day<=CAP_START)return Math.pow(baseRate,day);
+  let m=Math.pow(baseRate,CAP_START);
+  const excess=baseRate-1;
+  for(let d=CAP_START+1;d<=day;d++){
+    const dailyRate=1+excess*Math.pow(DECAY,d-CAP_START);
+    m*=dailyRate;
+  }
+  return m;
+}
+function getRivalValuation(rival,day){
+  // Base exponential growth with soft cap
+  let val=rival.baseVal*rivalCompoundMultiplier(rival.growthRate,day);
+  // Catch-up mechanic: aggressive rivals accelerate when the player runs far ahead
+  if(rival.catchUp){
+    const playerVal=calcValuation();
+    if(playerVal>val*3){
+      const catchUpMult=1+Math.min(0.5,(playerVal/val-3)*0.05);
+      val*=catchUpMult;
+    }
+  }
+  // Seeded daily variance so numbers don't look robotic but stay consistent per (rival,day)
+  const seed=(rival.name.length*137+day*31)%100;
+  const variance=0.9+(seed/100)*0.2;
+  val*=variance;
+  // Weekly events — great/bad week multipliers on week boundaries
+  if(day>0&&day%7===0){
+    const eventSeed=(rival.name.length*73+day*17)%100;
+    if(eventSeed>80)val*=1.3;      // great week
+    else if(eventSeed<15)val*=0.7; // bad week
+  }
+  return Math.round(val);
+}
+// Classify the day-over-day delta for a rival (returns null if nothing interesting)
+function getRivalEvent(rival,day){
+  if(day<=1)return null;
+  const eventSeed=(rival.name.length*73+day*17)%100;
+  if(day%7!==0)return null;
+  if(eventSeed>80)return 'great';
+  if(eventSeed<15)return 'bad';
+  return null;
+}
+// Build short "Market News" items for the day summary (≤2 items, human-readable)
+function getMarketNews(){
+  const news=[];const day=S.day;const playerVal=calcValuation();
+  // Weekly rival events
+  RIVAL_COMPANIES.forEach(r=>{
+    const ev=getRivalEvent(r,day);if(!ev)return;
+    const v=getRivalValuation(r,day);
+    if(ev==='great')news.push(`📈 ${r.name} had a great week — jumped to $${v.toLocaleString()}`);
+    else if(ev==='bad')news.push(`📉 ${r.name} lost a contract — dropped to $${v.toLocaleString()}`);
+  });
+  // Closing-in: any rival within 10% of player valuation (below) or above
+  const hotRivals=RIVAL_COMPANIES.map(r=>({r,v:getRivalValuation(r,day)}))
+    .filter(x=>x.v>0&&Math.abs(x.v-playerVal)/Math.max(1,playerVal)<0.1&&x.v!==playerVal);
+  if(hotRivals.length){
+    const h=hotRivals[0];
+    if(h.v>playerVal)news.push(`⚔️ ${h.r.name} is ahead of you — you're losing your lead!`);
+    else news.push(`⚔️ ${h.r.name} is closing in on your valuation!`);
+  }
+  // Shuffle and cap at 2 items via a day-based offset so it doesn't always show the same
+  if(news.length>2){const off=day%news.length;return [news[off%news.length],news[(off+1)%news.length]]}
+  return news;
+}
 function getPlayerRank(){const pVal=calcValuation();const rivals=RIVAL_COMPANIES.map(r=>({name:r.name,val:getRivalValuation(r,S.day)}));
   rivals.push({name:'🌿 '+(S.playerName||'Lawn Legend'),val:pVal,isPlayer:true});rivals.sort((a,b)=>b.val-a.val);return rivals}
 
@@ -1801,7 +1882,8 @@ function showDaySummary(){
     <div class="day-stat-row"><span class="dsl">Fleet</span><span class="dsv">${S.trucks.length} truck${S.trucks.length!==1?'s':''} · ${S.crew.length} crew</span></div>
     <div class="day-stat-row"><span class="dsl">Ranking</span><span class="dsv">#${playerIdx+1} of ${ranks.length}</span></div>
     ${allDone?`<div class="day-stat-row bonus"><span class="dsl">💯 PERFECT DAY</span><span class="dsv">+$${perfectBonus}</span></div>`:''}
-    <div class="day-stat-row total"><span class="dsl">Company Value</span><span class="dsv">$${calcValuation().toLocaleString()}</span></div></div>`;
+    <div class="day-stat-row total"><span class="dsl">Company Value</span><span class="dsv">$${calcValuation().toLocaleString()}</span></div></div>
+    ${(()=>{const news=getMarketNews();return news.length?`<div class="market-news"><div class="mn-title">📰 Market News</div>${news.map(n=>`<div class="mn-item">${esc(n)}</div>`).join('')}</div>`:''})()}`;
   $('modal-buttons').innerHTML='<button class="share" onclick="shareCard(\'square\')">📸 Share</button><button class="share" onclick="shareCard(\'vertical\')">📌 Pin</button><button onclick="closeModal();advanceDay()">Next Day →</button>';$('mo').classList.add('show');checkMilestones();updateUI()}
 
 $('ndb').onclick=()=>{
@@ -1821,6 +1903,14 @@ function advanceDay(){
       S.contracts.push({neighborhood:nb.name,jobName:job.name,jobEmoji:job.emoji,payPerDay:dp,daysLeft:dur,totalDays:dur});
       showToast(`📝 Exclusive: ${job.name} in ${nb.name}`)}})}
   if(getTierIndex()>=2){S.contracts.forEach(c=>{if(!c.tierBoosted){c.payPerDay=Math.round(c.payPerDay*1.25);c.tierBoosted=true}})}
+  // On weekly rollovers, log any rival events so rankings feel alive
+  if(S.day>1&&S.day%7===0){
+    RIVAL_COMPANIES.forEach(r=>{const ev=getRivalEvent(r,S.day);if(!ev)return;
+      const v=getRivalValuation(r,S.day);
+      if(ev==='great')addLog(`📈 <span class="hl">${esc(r.name)}</span> had a great week — $${v.toLocaleString()}`);
+      else if(ev==='bad')addLog(`📉 <span class="hl">${esc(r.name)}</span> lost a contract — $${v.toLocaleString()}`);
+    });
+  }
   generateAllDayJobs();S.targetScrollX=0;
   $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;
   addLog(`🌅 <span class="hl">Day ${S.day}</span> — ${S.season.emoji} ${S.season.name} · ${S.weather.emoji}`);updateUI();

@@ -181,6 +181,65 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .save-controls{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
 .save-controls button{flex:1;padding:3px 5px;font-size:0.58rem;font-weight:600;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);border-radius:4px;color:#888;cursor:pointer;transition:all 0.15s}
 .save-controls button:hover{background:rgba(82,183,136,0.12);border-color:#52b788;color:#b7e4c7}
+/* ═══ CHALLENGE BANNER ═══ */
+.challenge-banner{position:fixed;top:0;left:0;right:0;background:linear-gradient(90deg,#1a5c38,#0d1b2a);border-bottom:3px solid #52b788;padding:8px 14px;z-index:110;box-shadow:0 2px 10px rgba(0,0,0,0.4);animation:slideDown 0.4s ease}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+.cb-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.cb-icon{font-size:1.3rem;flex-shrink:0}
+.cb-text{flex:1;min-width:0}
+.cb-title{color:#b7e4c7;font-weight:700;font-size:0.78rem;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cb-progress{display:flex;align-items:center;gap:8px}
+.cb-bar{flex:1;height:6px;background:rgba(183,228,199,0.15);border-radius:3px;overflow:hidden;min-width:60px}
+.cb-fill{height:100%;background:linear-gradient(90deg,#40916c,#52b788);width:0%;transition:width 0.5s ease;border-radius:3px}
+.cb-pct{color:#b7e4c7;font-size:0.65rem;white-space:nowrap;flex-shrink:0;font-weight:600}
+.cb-share{padding:6px 12px;background:linear-gradient(135deg,#2d6a4f,#40916c);border:none;border-radius:6px;color:#fff;font-weight:700;font-size:0.72rem;cursor:pointer;flex-shrink:0;transition:all 0.15s}
+.cb-share:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.cb-close{padding:4px 9px;background:transparent;border:1px solid rgba(183,228,199,0.25);border-radius:6px;color:#b7e4c7;font-weight:700;font-size:0.72rem;cursor:pointer;flex-shrink:0;transition:all 0.15s}
+.cb-close:hover{background:rgba(183,228,199,0.12);color:#fff}
+body.cb-active{padding-top:56px}
+body.cb-active .game-wrap{height:calc(100vh - 98px)}
+body.cb-active .combo-display{top:106px}
+body.cb-active .toast{top:106px}
+/* ═══ EMAIL MODAL ═══ */
+.email-modal{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center}
+.em-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.75);cursor:pointer}
+.em-box{position:relative;background:linear-gradient(135deg,#1a5c38,#0d1b2a);border:2px solid #40916c;border-radius:14px;padding:28px 26px;max-width:420px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,0.7);animation:pop 0.3s ease;text-align:center}
+.em-emoji{font-size:2.2rem;margin-bottom:6px}
+.em-box h2{color:#b7e4c7;font-size:1.2rem;margin:0 0 10px;font-weight:700}
+.em-box p{color:#9bc9a8;font-size:0.85rem;margin:0 0 18px;line-height:1.5}
+.em-input{width:100%;padding:11px 13px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(82,183,136,0.35);border-radius:7px;color:#fff;font-size:0.9rem;box-sizing:border-box;outline:none;transition:all 0.2s;text-align:center}
+.em-input::placeholder{color:rgba(255,255,255,0.4)}
+.em-input:focus{border-color:#52b788;background:rgba(255,255,255,0.12);box-shadow:0 0 10px rgba(82,183,136,0.25)}
+.em-status{margin-top:10px;padding:8px 11px;border-radius:6px;font-size:0.72rem;display:none;text-align:center}
+.em-status.show{display:block}
+.em-status.ok{background:rgba(82,183,136,0.18);color:#7bc97b;border:1px solid rgba(82,183,136,0.35)}
+.em-status.err{background:rgba(231,76,60,0.15);color:#ff6b6b;border:1px solid rgba(231,76,60,0.35)}
+.em-btns{display:flex;gap:10px;margin-top:16px}
+.em-submit{flex:1;padding:11px 14px;background:linear-gradient(135deg,#2d6a4f,#40916c);border:none;border-radius:7px;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;transition:all 0.2s}
+.em-submit:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-1px);box-shadow:0 4px 12px rgba(82,183,136,0.3)}
+.em-submit:disabled{opacity:0.55;cursor:wait}
+.em-dismiss{flex:1;padding:11px 14px;background:transparent;border:1px solid rgba(183,228,199,0.3);border-radius:7px;color:#9bc9a8;font-weight:600;font-size:0.85rem;cursor:pointer;transition:all 0.2s}
+.em-dismiss:hover{background:rgba(183,228,199,0.08);color:#b7e4c7}
+/* ═══ SHARE MODAL ═══ */
+.share-modal{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center}
+.sm-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.75);cursor:pointer}
+.sm-box{position:relative;background:linear-gradient(135deg,#1a5c38,#0d1b2a);border:2px solid #40916c;border-radius:14px;padding:26px;max-width:460px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,0.7);animation:pop 0.3s ease;text-align:center}
+.sm-emoji{font-size:2rem;margin-bottom:4px}
+.sm-box h2{color:#b7e4c7;font-size:1.15rem;margin:0 0 8px;font-weight:700}
+.sm-box p{color:#9bc9a8;font-size:0.82rem;margin:0 0 18px;line-height:1.4}
+.sm-link-row{display:flex;gap:6px;margin-bottom:14px}
+.sm-link{flex:1;padding:9px 10px;background:rgba(255,255,255,0.08);border:1px solid rgba(82,183,136,0.3);border-radius:6px;color:#b7e4c7;font-size:0.7rem;font-family:monospace;outline:none;text-overflow:ellipsis}
+.sm-copy{padding:9px 14px;background:linear-gradient(135deg,#2d6a4f,#40916c);border:none;border-radius:6px;color:#fff;font-weight:700;font-size:0.72rem;cursor:pointer;flex-shrink:0}
+.sm-copy:hover{filter:brightness(1.15)}
+.sm-copy.copied{background:#52b788}
+.sm-btns{display:flex;gap:10px;margin-bottom:12px}
+.sm-btn{flex:1;padding:10px 14px;border:1px solid rgba(82,183,136,0.3);border-radius:6px;background:rgba(82,183,136,0.08);color:#b7e4c7;font-weight:700;font-size:0.78rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.sm-btn:hover{background:rgba(82,183,136,0.18)}
+.sm-twitter{border-color:rgba(29,155,240,0.4)}
+.sm-twitter:hover{background:rgba(29,155,240,0.12)}
+.sm-close{width:100%;padding:10px;background:transparent;border:1px solid rgba(183,228,199,0.25);border-radius:6px;color:#9bc9a8;font-weight:600;font-size:0.82rem;cursor:pointer;transition:all 0.2s}
+.sm-close:hover{background:rgba(183,228,199,0.08);color:#b7e4c7}
+@media(max-width:800px){.cb-inner{gap:8px}.cb-title{font-size:0.72rem}.cb-share{padding:7px 10px;font-size:0.7rem}.em-box,.sm-box{padding:22px 18px}.em-btns,.sm-btns{flex-direction:column}body.cb-active{padding-top:64px}body.cb-active .game-wrap{height:auto;min-height:calc(100vh - 106px)}}
 </style>
 </head>
 <body>
@@ -189,6 +248,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
     <div class="ns-title">🌿 Lawn Legend</div>
     <div class="ns-sub">Landscaping Tycoon</div>
     <input type="text" id="player-name-input" placeholder="Enter your name..." maxlength="20" autocomplete="off">
+    <input type="email" id="ns-email-input" placeholder="email (optional — weekly challenges)" maxlength="254" autocomplete="email" style="width:100%;padding:10px 14px;border-radius:8px;border:2px solid rgba(82,183,136,0.3);background:rgba(255,255,255,0.08);color:#fff;font-size:0.85rem;text-align:center;outline:none;margin-bottom:10px;transition:border-color 0.2s">
+    <label style="display:flex;align-items:center;gap:6px;justify-content:center;font-size:0.72rem;color:#b7e4c7;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="ns-email-optin" checked style="cursor:pointer"> Get weekly challenges + pro tips</label>
     <button class="ns-start" id="ns-start-btn" disabled onclick="startNewGame()">🚀 Start New Game</button>
     <button class="ns-continue" id="ns-continue-btn" style="display:none" onclick="loadAndStart()">📂 Continue as <span id="ns-saved-name"></span></button>
     <div class="ns-saved" id="ns-saved-info"></div>
@@ -312,6 +373,54 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 </div>
 <div class="toast" id="toast"></div>
 <div class="modal-overlay" id="mo"><div class="modal"><div class="be" id="me">🏆</div><h2 id="mt"></h2><p id="mx"></p><div id="modal-extra"></div><div id="modal-buttons"><button onclick="closeModal()">OK</button></div></div></div>
+
+<!-- ═══ CHALLENGE BANNER ═══ -->
+<div id="challenge-banner" class="challenge-banner" style="display:none">
+  <div class="cb-inner">
+    <div class="cb-icon">🎯</div>
+    <div class="cb-text">
+      <div class="cb-title" id="cb-title"></div>
+      <div class="cb-progress"><div class="cb-bar"><div id="cb-fill" class="cb-fill"></div></div><span class="cb-pct" id="cb-pct"></span></div>
+    </div>
+    <button id="cb-share" class="cb-share">Share</button>
+    <button id="cb-close" class="cb-close" title="Dismiss challenge">✕</button>
+  </div>
+</div>
+
+<!-- ═══ EMAIL CAPTURE MODAL ═══ -->
+<div id="email-modal" class="email-modal" style="display:none">
+  <div class="em-overlay" id="em-overlay"></div>
+  <div class="em-box">
+    <div class="em-emoji" id="em-emoji">📬</div>
+    <h2 id="em-title">Get Weekly Challenges + Pro Tips</h2>
+    <p id="em-desc">Join Lawn Legend pros for exclusive strategies and weekly challenges.</p>
+    <input type="email" id="em-input" class="em-input" placeholder="your@email.com" maxlength="254" autocomplete="email">
+    <div id="em-status" class="em-status"></div>
+    <div class="em-btns">
+      <button id="em-submit" class="em-submit">Subscribe</button>
+      <button id="em-dismiss" class="em-dismiss">No thanks</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CHALLENGE SHARE MODAL ═══ -->
+<div id="share-modal" class="share-modal" style="display:none">
+  <div class="sm-overlay" id="sm-overlay"></div>
+  <div class="sm-box">
+    <div class="sm-emoji" id="sm-emoji">🎯</div>
+    <h2 id="sm-title">Challenge Your Friends!</h2>
+    <p id="sm-desc"></p>
+    <div class="sm-link-row">
+      <input type="text" id="sm-link" class="sm-link" readonly>
+      <button id="sm-copy" class="sm-copy">Copy</button>
+    </div>
+    <div class="sm-btns">
+      <button id="sm-twitter" class="sm-btn sm-twitter">𝕏 Twitter</button>
+      <button id="sm-native" class="sm-btn sm-native">↗️ Share</button>
+    </div>
+    <button id="sm-close" class="sm-close">Close</button>
+  </div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════════
@@ -441,6 +550,138 @@ function shareCard(type){
     document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
     showToast(`📥 ${isVert?'Pinterest':'Square'} card saved!`);
   },'image/png');
+}
+
+// ═══ EMAIL CAPTURE ═══
+const SUBSCRIBE_URL='https://vxzholcypozuurmsmbub.supabase.co/functions/v1/lawn-legend-subscribe';
+const EMAIL_RX=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function emailFlag(k){return localStorage.getItem('ll_email_'+k)==='1'}
+function setEmailFlag(k){try{localStorage.setItem('ll_email_'+k,'1')}catch(e){}}
+async function submitEmailPayload(email,source){
+  if(!EMAIL_RX.test(email)||email.length>254)throw new Error('bad email');
+  const res=await fetch(SUBSCRIBE_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email:email.toLowerCase(),playerName:S.playerName||'',dayReached:S.day|0,valuation:calcValuation()|0,source})});
+  if(!res.ok){const j=await res.json().catch(()=>({}));throw new Error(j.error||('HTTP '+res.status))}
+  return res.json();
+}
+function showEmailModal(trigger,title,desc,emoji){
+  const m=$('email-modal'),inp=$('em-input'),st=$('em-status'),btn=$('em-submit'),dis=$('em-dismiss');
+  $('em-title').textContent=title;$('em-desc').textContent=desc;$('em-emoji').textContent=emoji||'📬';
+  inp.value='';st.textContent='';st.className='em-status';btn.disabled=false;btn.textContent='Subscribe';
+  m.style.display='flex';setTimeout(()=>inp.focus(),120);
+  const close=()=>{m.style.display='none'};
+  const onSubmit=async()=>{
+    const email=(inp.value||'').trim();
+    if(!EMAIL_RX.test(email)){st.textContent='Please enter a valid email address';st.className='em-status show err';return}
+    btn.disabled=true;btn.textContent='Subscribing…';st.textContent='';st.className='em-status';
+    try{await submitEmailPayload(email,trigger);
+      st.textContent='✅ Success! Check your inbox for tips.';st.className='em-status show ok';
+      setEmailFlag(trigger+'_submitted');setEmailFlag(trigger+'_shown');
+      setTimeout(close,1600);
+    }catch(e){st.textContent='Connection error. Please try again.';st.className='em-status show err';
+      btn.disabled=false;btn.textContent='Subscribe'}
+  };
+  btn.onclick=onSubmit;
+  inp.onkeydown=e=>{if(e.key==='Enter')onSubmit()};
+  dis.onclick=()=>{setEmailFlag(trigger+'_dismissed');setEmailFlag(trigger+'_shown');close()};
+  $('em-overlay').onclick=()=>{setEmailFlag(trigger+'_shown');close()};
+  setEmailFlag(trigger+'_shown');
+}
+function checkEmailTriggers(){
+  // Don't interrupt a milestone modal or game-over state
+  if($('mo').classList.contains('show'))return;
+  // Trigger A: post-Day 3 (fires when Day 3 just completed — S.day is now 4)
+  if(S.day>=4&&!emailFlag('day3_shown')&&!emailFlag('day3_dismissed')&&!emailFlag('day3_submitted')){
+    showEmailModal('day3','Get Weekly Challenges + Pro Tips','You made it 3 days — nice run! Join the list for weekly challenges and pro tips from the community.','📬');
+    return;
+  }
+  // Trigger B: first big milestone ($1K earned OR first truck)
+  if(!emailFlag('milestone_shown')&&!emailFlag('milestone_dismissed')&&!emailFlag('milestone_submitted')){
+    if(S.totalEarnings>=1000||S.trucks.length>=1){
+      showEmailModal('milestone','Join the $1K Club!','You\'re in business. Unlock exclusive challenges and pro tips as you scale your empire.','💰');
+      return;
+    }
+  }
+}
+
+// ═══ CHALLENGE LINK SYSTEM ═══
+// Runtime challenge state — not persisted in save (URL-driven)
+let CHALLENGE=null;
+function parseUrlChallenge(){
+  try{
+    const p=new URLSearchParams(window.location.search);
+    const raw=p.get('challenge');if(!raw)return null;
+    const name=cleanName(decodeURIComponent(raw),30);
+    const day=Math.max(1,Math.min(9999,parseInt(p.get('day')||'0',10)||0));
+    const val=Math.max(0,Math.min(9999999999,parseInt(p.get('val')||'0',10)||0));
+    const ref=cleanName(p.get('ref')||'',30);
+    if(!name||day<=0||val<=0)return null;
+    return {name,day,val,ref};
+  }catch(e){return null}
+}
+function challengeActive(){return !!CHALLENGE}
+function updateChallengeProgress(){
+  if(!CHALLENGE)return;
+  const pv=calcValuation();const pct=Math.min(100,Math.round((pv/CHALLENGE.val)*100));
+  const fill=$('cb-fill'),pctEl=$('cb-pct');
+  if(fill)fill.style.width=pct+'%';
+  if(pctEl)pctEl.textContent='$'+pv.toLocaleString()+' / $'+CHALLENGE.val.toLocaleString();
+  const wonKey='ll_chal_won_'+CHALLENGE.name;
+  if(pv>=CHALLENGE.val&&!localStorage.getItem(wonKey)){
+    try{localStorage.setItem(wonKey,'1')}catch(e){}
+    const b=$('challenge-banner');if(b)b.style.borderBottomColor='#ffd700';
+    SFX.level();showToast(`🏆 Challenge beaten! You topped ${CHALLENGE.name}!`);
+    setTimeout(()=>openShareModal('won'),900);
+  }
+}
+function showChallengeBanner(){
+  if(!CHALLENGE)return;
+  const banner=$('challenge-banner');
+  // Build title with textContent to avoid XSS (name is attacker-controllable via URL)
+  $('cb-title').textContent=`Beat ${CHALLENGE.name}'s $${CHALLENGE.val.toLocaleString()} by Day ${CHALLENGE.day}`;
+  banner.style.display='block';document.body.classList.add('cb-active');
+  $('cb-share').onclick=()=>openShareModal('banner');
+  $('cb-close').onclick=()=>{CHALLENGE=null;banner.style.display='none';document.body.classList.remove('cb-active');
+    const url=new URL(window.location.href);['challenge','day','val','ref'].forEach(k=>url.searchParams.delete(k));
+    window.history.replaceState({},'',url.toString())};
+  updateChallengeProgress();
+}
+function generateChallengeLink(){
+  const base=window.location.origin+window.location.pathname;
+  const name=encodeURIComponent(S.playerName||'Player');
+  const ref=CHALLENGE?encodeURIComponent(CHALLENGE.ref||CHALLENGE.name||''):'';
+  const refPart=ref?`&ref=${ref}`:'';
+  return `${base}?challenge=${name}&day=${S.day|0}&val=${calcValuation()|0}${refPart}`;
+}
+function openShareModal(mode){
+  const m=$('share-modal'),desc=$('sm-desc'),title=$('sm-title'),emoji=$('sm-emoji'),
+    linkEl=$('sm-link'),copyBtn=$('sm-copy'),twBtn=$('sm-twitter'),nvBtn=$('sm-native'),closeBtn=$('sm-close');
+  const link=generateChallengeLink();
+  const val=calcValuation();const day=S.day|0;
+  linkEl.value=link;
+  if(mode==='won'&&CHALLENGE){
+    title.textContent='You beat the challenge!';emoji.textContent='🏆';
+    desc.textContent=`You topped ${CHALLENGE.name}'s $${CHALLENGE.val.toLocaleString()} by Day ${day}. Challenge someone else!`;
+  }else{
+    title.textContent='Challenge Your Friends!';emoji.textContent='🎯';
+    desc.textContent=`I reached $${val.toLocaleString()} by Day ${day} in Lawn Legend. Can you beat my score?`;
+  }
+  m.style.display='flex';
+  copyBtn.textContent='Copy';copyBtn.classList.remove('copied');
+  copyBtn.onclick=async()=>{
+    try{await navigator.clipboard.writeText(link);copyBtn.textContent='Copied!';copyBtn.classList.add('copied');
+      setTimeout(()=>{copyBtn.textContent='Copy';copyBtn.classList.remove('copied')},1800)}
+    catch(e){linkEl.select();document.execCommand&&document.execCommand('copy');copyBtn.textContent='Copied!';setTimeout(()=>copyBtn.textContent='Copy',1800)}
+  };
+  twBtn.onclick=()=>{
+    const txt=encodeURIComponent(`I reached $${val.toLocaleString()} by Day ${day} in Lawn Legend! Can you beat me? ${link}`);
+    window.open(`https://twitter.com/intent/tweet?text=${txt}`,'_blank','noopener,noreferrer,width=560,height=440');
+  };
+  if(navigator.share){nvBtn.style.display='';nvBtn.onclick=()=>{
+    navigator.share({title:'Lawn Legend Challenge',text:`I reached $${val.toLocaleString()} by Day ${day}! Can you beat me?`,url:link}).catch(()=>{})}}
+  else{nvBtn.style.display='none'}
+  const close=()=>{m.style.display='none'};
+  closeBtn.onclick=close;$('sm-overlay').onclick=close;
 }
 
 const TRUCK_COLORS=['#e74c3c','#1565C0','#f39c12','#9b59b6','#00897B','#FF5722','#5C6BC0','#43A047'];
@@ -591,6 +832,7 @@ function buyTruck(typeIdx){
   S.trucks.push({type:tt.id,maxCrew:tt.maxCrew,name:`${tt.name} #${S.trucks.length+1}`});
   showToast(`🚛 Bought ${tt.name}! Crew cap now ${getTotalCrewCap()}`);
   addLog(`🚛 New truck: <span class="hl">${tt.name}</span>`);updateUI();checkMilestones();
+  updateChallengeProgress();checkEmailTriggers();
 }
 
 const UPGRADES=[
@@ -1303,6 +1545,7 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   // Maybe spawn rush
   setTimeout(()=>{if(!S.rushJob&&S.activeDispatches.length===0&&Math.random()<0.2&&S.dayHoursLeft>1)maybeSpawnRush()},2000);
   updateDayTimer();updateUI();renderJobs();renderNBSel();renderActiveJobs();checkMilestones();
+  updateChallengeProgress();checkEmailTriggers();
 }
 
 function maybeSpawnRush(){if(S.rushJob)return;
@@ -1382,7 +1625,8 @@ function advanceDay(){
   if(getTierIndex()>=2){S.contracts.forEach(c=>{if(!c.tierBoosted){c.payPerDay=Math.round(c.payPerDay*1.25);c.tierBoosted=true}})}
   generateAllDayJobs();S.targetScrollX=0;
   $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;
-  addLog(`🌅 <span class="hl">Day ${S.day}</span> — ${S.season.emoji} ${S.season.name} · ${S.weather.emoji}`);updateUI()}
+  addLog(`🌅 <span class="hl">Day ${S.day}</span> — ${S.season.emoji} ${S.season.name} · ${S.weather.emoji}`);updateUI();
+  updateChallengeProgress();setTimeout(checkEmailTriggers,400)}
 function closeModal(){$('mo').classList.remove('show');$('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button onclick="closeModal()">OK</button>';
   if(S.dayJobsDone>0&&$('mt').textContent.includes('Report')){advanceDay()}}
 
@@ -1476,6 +1720,17 @@ function startNewGame(){
   const name=cleanName(nameInput.value);if(!name)return;
   S.playerName=name;
   S.crew[0].name=name;
+  // Optional name-screen email opt-in
+  try{
+    const optBox=$('ns-email-optin'),emInp=$('ns-email-input');
+    if(optBox&&optBox.checked&&emInp){
+      const email=(emInp.value||'').trim();
+      if(EMAIL_RX.test(email)&&email.length<=254){
+        // Fire-and-forget; don't block game start on network
+        submitEmailPayload(email,'namescreen').then(()=>{setEmailFlag('namescreen_submitted');setEmailFlag('namescreen_shown')}).catch(e=>console.warn('email subscribe failed:',e&&e.message));
+      }
+    }
+  }catch(e){console.warn('optin err:',e)}
   $('name-screen').style.display='none';
   initGameUI();saveGame();
 }
@@ -1489,8 +1744,9 @@ function initGameUI(){
   $('player-name-display').textContent='— '+S.playerName;
   updateSeason();rollWeather();generateAllDayJobs();updateUI();renderTrophies();renderBids();renderRankings();renderCompanyTier();
   $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;
-  addLog(`🌿 Welcome back, <span class="hl">${S.playerName}</span>!`);
+  addLog(`🌿 Welcome back, <span class="hl">${esc(S.playerName)}</span>!`);
   addLog('💡 Buy a truck, hire crew, then <span class="hl">dispatch trucks to jobs simultaneously</span>!');
+  if(CHALLENGE){showChallengeBanner();addLog(`🎯 Challenge: beat <span class="hl">${esc(CHALLENGE.name)}</span>'s $${CHALLENGE.val.toLocaleString()} by Day ${CHALLENGE.day}`)}
   loop();
 }
 
@@ -1518,6 +1774,8 @@ buyPerk=function(id){_origBuyPerk(id);autoSave()};
   }
   // Sync mute button icon with stored preference
   const mb=$('mute-btn');if(mb)mb.textContent=SFX.muted?'🔇':'🔊';
+  // Parse challenge link from URL (sanitized); banner is rendered after game UI boots
+  CHALLENGE=parseUrlChallenge();
 })();
 </script>
 </body>

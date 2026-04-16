@@ -1214,7 +1214,7 @@ function showDaySummary(){
     <div class="day-stat-row"><span class="dsl">Ranking</span><span class="dsv">#${playerIdx+1} of ${ranks.length}</span></div>
     ${allDone?`<div class="day-stat-row bonus"><span class="dsl">💯 PERFECT DAY</span><span class="dsv">+$${perfectBonus}</span></div>`:''}
     <div class="day-stat-row total"><span class="dsl">Company Value</span><span class="dsv">$${calcValuation().toLocaleString()}</span></div></div>`;
-  $('modal-buttons').innerHTML='<button onclick="closeModal()">Next Day →</button>';$('mo').classList.add('show');checkMilestones();updateUI()}
+  $('modal-buttons').innerHTML='<button onclick="closeModal();advanceDay()">Next Day →</button>';$('mo').classList.add('show');checkMilestones();updateUI()}
 
 $('ndb').onclick=()=>{
   if(S.activeDispatches.length>0){showToast("Wait for crews to finish!");return}

@@ -362,6 +362,30 @@ body.cb-active #toast-stack{top:106px}
 .tut-skip{position:fixed;top:10px;right:10px;z-index:413;background:rgba(255,255,255,0.12);color:#ddd;border:1px solid rgba(255,255,255,0.25);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.72rem}
 .tut-skip:hover{background:rgba(255,255,255,0.22)}
 @media(max-width:800px){.tut-tip{max-width:min(300px,90vw);font-size:0.8rem}#toast-stack{top:60px;right:10px}body.cb-active #toast-stack{top:112px}}
+/* ═══ v11 SEASONAL EVENTS, SPECIAL CONTRACTS, NEW GAME+ ═══ */
+.seasonal-banner{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;font-size:0.66rem;margin-bottom:5px;border:1px solid;line-height:1.3}
+.special-card{border-radius:8px;padding:8px 10px;margin-bottom:6px;border:2px solid #ffd54f;background:linear-gradient(135deg,rgba(255,213,79,0.08),rgba(184,134,11,0.05))}
+.special-card.offer{animation:specPulse 1.8s ease-in-out infinite}
+@keyframes specPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,213,79,0)}50%{box-shadow:0 0 12px 1px rgba(255,213,79,0.4)}}
+.special-card.active{border-color:rgba(255,213,79,0.5)}
+.special-card .sc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.special-card .sc-name{font-weight:700;font-size:0.76rem;color:#ffd54f}
+.special-card .sc-tag{font-size:0.52rem;font-weight:800;color:#1a1a1a;background:linear-gradient(135deg,#ffd54f,#b8860b);padding:2px 7px;border-radius:9px;letter-spacing:0.5px}
+.special-card .sc-desc{font-size:0.64rem;color:#bbb;margin-bottom:3px}
+.special-card .sc-terms{font-size:0.64rem;color:#b7e4c7;margin-bottom:3px}
+.special-card .sc-req{font-size:0.6rem;color:#999;margin-bottom:5px}
+.special-card .sc-btns{display:flex;gap:5px}
+.special-card .sc-btns .bb{flex:1}
+.offline-2x{background:rgba(255,255,255,0.08)!important;color:#888!important;cursor:not-allowed!important;opacity:0.55}
+.starter-packs{margin-bottom:12px;text-align:left}
+.starter-packs .sp-title{font-size:0.72rem;color:#ffd54f;font-weight:700;margin-bottom:6px;text-align:center}
+.starter-packs .sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sp-card{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 6px;text-align:center;cursor:pointer;transition:all 0.15s}
+.sp-card:hover{border-color:rgba(82,183,136,0.5);background:rgba(82,183,136,0.08)}
+.sp-card.sel{border-color:#52b788;background:rgba(82,183,136,0.15);box-shadow:0 0 10px rgba(82,183,136,0.3)}
+.sp-card .sp-emoji{font-size:1.3rem}
+.sp-card .sp-name{font-size:0.68rem;font-weight:700;color:#e0e0e0;margin-top:2px}
+.sp-card .sp-desc{font-size:0.58rem;color:#999;margin-top:2px;line-height:1.25}
 </style>
 </head>
 <body>
@@ -378,6 +402,7 @@ body.cb-active #toast-stack{top:106px}
     <input type="text" id="player-name-input" placeholder="Enter your name..." maxlength="20" autocomplete="off">
     <input type="email" id="ns-email-input" placeholder="email (optional — weekly challenges)" maxlength="254" autocomplete="email" style="width:100%;padding:10px 14px;border-radius:8px;border:2px solid rgba(82,183,136,0.3);background:rgba(255,255,255,0.08);color:#fff;font-size:0.85rem;text-align:center;outline:none;margin-bottom:10px;transition:border-color 0.2s">
     <label style="display:flex;align-items:center;gap:6px;justify-content:center;font-size:0.72rem;color:#b7e4c7;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="ns-email-optin" checked style="cursor:pointer"> Get weekly challenges + pro tips</label>
+    <div id="starter-packs" class="starter-packs" style="display:none"></div>
     <button class="ns-start" id="ns-start-btn" disabled onclick="startNewGame()">🚀 Start New Game</button>
     <button class="ns-continue" id="ns-continue-btn" style="display:none" onclick="loadAndStart()">📂 Continue as <span id="ns-saved-name"></span></button>
     <div class="ns-saved" id="ns-saved-info"></div>
@@ -411,6 +436,7 @@ body.cb-active #toast-stack{top:106px}
       <div id="goal-display" class="goal-bar" style="display:none"></div>
       <div class="streak-bar">🔥 Streak: <span id="streak-val">0</span>d · +<span id="streak-bonus">0</span>% pay</div>
       <div id="event-bar" class="event-bar"></div>
+      <div id="seasonal-banner" class="seasonal-banner" style="display:none"></div>
       <div id="active-jobs-display" class="active-jobs-bar"></div>
       <div class="nb-bar-label">📍 SELECT NEIGHBORHOOD — Drive your crew anywhere!</div>
       <div class="nb-bar" id="nb-sel"></div>
@@ -441,6 +467,7 @@ body.cb-active #toast-stack{top:106px}
         <div id="perk-list"></div>
       </div>
       <div id="tab-contracts" style="display:none">
+        <div id="special-contract"></div>
         <div style="font-size:0.68rem;color:#888;margin-bottom:4px">Bid against rival companies for premium contracts.</div>
         <div id="bid-list"></div>
         <div id="contract-list" style="margin-top:6px"></div>
@@ -1173,6 +1200,11 @@ const S={
   maxCrewCount:1,         // largest crew ever fielded
   jobTypeCounts:{},       // per job type completion counts (favorite job type)
   dayHistory:[],          // last 14 days: [{day,earnings,expenses,jobs,combo}]
+  // ═══ SEASONAL EVENTS + SPECIAL CONTRACTS (v11) ═══
+  seasonalEventsCompleted:{}, // {seasonalJobType: count} — drives seasonal achievements
+  specialContract:null,       // active premium contract (or null)
+  specialOffer:null,          // pending premium contract offer (or null)
+  comboEdge:false,            // New Game+ starter perk: longer combo window
 };
 
 function getProps(){return S.nbJobs[S.curNB]||[]}
@@ -1408,6 +1440,10 @@ const ACHIEVEMENTS=[
   {id:'night_owl',name:'Night Owl',desc:'Use all work hours in a day, 20 times',emoji:'🦉',category:'mastery',rarity:'rare',check:()=>S.fullDayCount>=20,progress:()=>({current:S.fullDayCount,target:20})},
   {id:'jack_of_trades',name:'Jack of All Trades',desc:'Complete every job type at least once',emoji:'🧰',category:'mastery',rarity:'rare',check:()=>S.jobTypesCompleted.size>=UNIQUE_JOB_TYPES.length,progress:()=>({current:S.jobTypesCompleted.size,target:UNIQUE_JOB_TYPES.length})},
   {id:'iron_mower',name:'Iron Mower',desc:'Complete 500 jobs (lifetime)',emoji:'🦾',category:'mastery',rarity:'epic',check:()=>S.lifetimeJobs>=500,progress:()=>({current:S.lifetimeJobs,target:500})},
+  // ── seasonal (v11) ──
+  {id:'snow_warrior',name:'Snow Warrior',desc:'Complete 20 snow removal jobs',emoji:'❄️',category:'mastery',rarity:'rare',check:()=>(S.seasonalEventsCompleted.snow_removal||0)>=20,progress:()=>({current:S.seasonalEventsCompleted.snow_removal||0,target:20})},
+  {id:'festive_spirit',name:'Festive Spirit',desc:'Complete 15 holiday lights jobs',emoji:'🎄',category:'mastery',rarity:'rare',check:()=>(S.seasonalEventsCompleted.holiday_lights||0)>=15,progress:()=>({current:S.seasonalEventsCompleted.holiday_lights||0,target:15})},
+  {id:'leaf_lord',name:'Leaf Lord',desc:'Complete 25 leaf vacuum jobs',emoji:'🍂',category:'mastery',rarity:'epic',check:()=>(S.seasonalEventsCompleted.leaf_vacuum||0)>=25,progress:()=>({current:S.seasonalEventsCompleted.leaf_vacuum||0,target:25})},
   // ── secret (hidden until unlocked) ──
   {id:'lawn_legend_ach',name:'Lawn Legend',desc:'Reach Industry Titan tier ($10M valuation)',emoji:'🌿',category:'secret',rarity:'legendary',check:()=>getTierIndex()>=8},
   {id:'speed_run',name:'Speed Run',desc:'Reach $1M valuation in under 15 days',emoji:'🚀',category:'secret',rarity:'legendary',check:()=>!!S.fastestMillionaire&&S.fastestMillionaire<=15},
@@ -1782,6 +1818,9 @@ function collectContractIncome(){
   let total=0;S.contracts=S.contracts.filter(c=>{c.daysLeft--;total+=c.payPerDay;
     if(c.daysLeft<=0){addLog(`📝 Contract ended: <span class="hl">${c.jobName}</span>`);return false}return true});
   if(total>0){S.money+=total;S.contractIncome=total;S.totalEarnings+=total;S.lifetimeContracts+=total;updateGoalProgress('earnings',total);showToast(`📝 Contracts: +$${total}`)}renderContracts();
+  // Special contract accrues daily; completes (success or fail) when its term ends
+  if(S.specialContract){const sc=S.specialContract;S.money+=sc.payPerDay;S.contractIncome+=sc.payPerDay;S.totalEarnings+=sc.payPerDay;S.lifetimeContracts+=sc.payPerDay;
+    sc.daysLeft--;if(sc.daysLeft<=0)completeSpecialContract();}
 }
 function renderContracts(){
   const l=$('contract-list');l.innerHTML='';if(S.contracts.length===0)return;
@@ -1811,6 +1850,245 @@ function renderEvent(){const eb=$('event-bar');const e=S.todayEvent;if(!e.name){
   eb.className=`event-bar active ${e.bad?'bad':'good'}`;eb.textContent=`${e.name} — ${e.desc}`}
 function showWarnToast(m){pushToast(m,'warn',3200,false)}
 
+// ═══════════════════════════════════════════════════════
+//  v11 SYSTEM 1: SEASONAL EVENTS (real-world calendar)
+// ═══════════════════════════════════════════════════════
+const SEASONAL_EVENTS=[
+  // Date-range events are checked before month events (more specific)
+  {id:'holiday_lights',monthRange:{start:{m:11,d:15},end:{m:0,d:5}},name:'Holiday Lights 🎄',desc:'Hang lights for extra cash! +50% tips',tipMult:1.5,payMult:1.2,color:'#e74c3c',visualEffect:'lights'},
+  {id:'halloween',monthRange:{start:{m:9,d:20},end:{m:9,d:31}},name:'Spooky Season 🎃',desc:'Haunted lawn decorations for bonus pay!',payMult:1.25,tipMult:1.3,color:'#ff6f00',visualEffect:'spooky'},
+  {id:'snow_season',months:[11,0,1],name:'Snow Season ❄️',desc:'Snow removal jobs available!',payMult:1.3,color:'#64b5f6',visualEffect:'snow'},
+  {id:'spring_cleanup',months:[2,3],name:'Spring Cleanup 🌷',desc:'Cleanup season! Extra garden jobs.',payMult:1.15,color:'#66bb6a',visualEffect:'flowers'},
+  {id:'summer_peak',months:[5,6,7],name:'Peak Season ☀️',desc:'Maximum demand! +20% job volume.',extraJobs:2,payMult:1.1,color:'#ffd54f',visualEffect:'heat'},
+  {id:'fall_foliage',months:[8,9,10],name:'Fall Foliage 🍁',desc:'Leaf removal boom! Premium leaf jobs.',payMult:1.2,color:'#ff9800',visualEffect:'leaves'},
+];
+// Seasonal-only jobs — kept OUT of JOB_TYPES so they never leak into normal generation
+// or the "Jack of All Trades" achievement. `work` maps to an existing tile/path kind.
+const SEASONAL_JOBS=[
+  {type:'snow_removal',name:'Snow Removal',emoji:'❄️',diff:3,timeBase:8,work:'mow',seasonal:'snow_season'},
+  {type:'salt_spreading',name:'Salt Spreading',emoji:'🧂',diff:1,timeBase:4,work:'weed',seasonal:'snow_season'},
+  {type:'ice_clearing',name:'Ice Clearing',emoji:'🧊',diff:2,timeBase:5,work:'weed',seasonal:'snow_season'},
+  {type:'holiday_lights',name:'Holiday Lights',emoji:'🎄',diff:4,timeBase:9,work:'trim',seasonal:'holiday_lights'},
+  {type:'decoration_setup',name:'Decoration Setup',emoji:'🎁',diff:3,timeBase:7,work:'trim',seasonal:'holiday_lights'},
+  {type:'spring_cleanup',name:'Spring Cleanup',emoji:'🌷',diff:2,timeBase:7,work:'leaf',seasonal:'spring_cleanup'},
+  {type:'mulching',name:'Mulching',emoji:'🪵',diff:2,timeBase:6,work:'garden',seasonal:'spring_cleanup'},
+  {type:'flower_planting',name:'Flower Planting',emoji:'🌸',diff:2,timeBase:7,work:'garden',seasonal:'spring_cleanup'},
+  {type:'leaf_vacuum',name:'Leaf Vacuum',emoji:'🍂',diff:3,timeBase:7,work:'leaf',seasonal:'fall_foliage'},
+  {type:'gutter_clearing',name:'Gutter Clearing',emoji:'🏠',diff:3,timeBase:8,work:'trim',seasonal:'fall_foliage'},
+  {type:'spooky_setup',name:'Spooky Setup',emoji:'🎃',diff:3,timeBase:7,work:'trim',seasonal:'halloween'},
+];
+let ACTIVE_EVENT=null; // runtime only (real-world based) — refreshed on boot + each day
+function getActiveSeasonalEvent(){
+  const now=new Date(),month=now.getMonth(),day=now.getDate();
+  for(const evt of SEASONAL_EVENTS){
+    if(!evt.monthRange)continue;
+    const s=evt.monthRange.start,e=evt.monthRange.end;
+    if(s.m>e.m){ // wraps year end (e.g. Dec 15 → Jan 5)
+      if((month>s.m||(month===s.m&&day>=s.d))||(month<e.m||(month===e.m&&day<=e.d)))return evt;
+    }else{
+      if((month>s.m||(month===s.m&&day>=s.d))&&(month<e.m||(month===e.m&&day<=e.d)))return evt;
+    }
+  }
+  for(const evt of SEASONAL_EVENTS){if(evt.months&&evt.months.includes(month))return evt}
+  return null;
+}
+function refreshSeasonalEvent(){ACTIVE_EVENT=getActiveSeasonalEvent();seasFlakes=[];seasBats=[];}
+function seasonalTipMult(){return ACTIVE_EVENT&&ACTIVE_EVENT.tipMult?ACTIVE_EVENT.tipMult:1}
+function seasonalPayMult(){return ACTIVE_EVENT&&ACTIVE_EVENT.payMult?ACTIVE_EVENT.payMult:1}
+function makeSeasonalProp(nb,nbIdx,sj,idx){
+  const ht=nb.houseTypes[idx%nb.houseTypes.length],hc=HOUSE_CONFIGS[ht],cust=rollCustomer(nbIdx);
+  let basePay=Math.round((20+sj.diff*30+R(0,20))*nb.payMult*S.season.payMult*cust.payMod*seasonalPayMult());
+  if(S.perks.has('haggler'))basePay=Math.round(basePay*1.12);
+  basePay=Math.round(basePay*(1+getStreakBonus())*getCrewPayBonus()*getNBPayBonus(nbIdx));
+  return {houseType:ht,houseConfig:hc,job:{...sj},pay:basePay,customer:cust,
+    tiles:initTiles(hc.yardCols,hc.yardRows,sj.work||'mow'),done:false,satisfaction:0,tipped:false,customerOut:false,idx,nbIdx,seasonal:true};
+}
+function renderSeasonalBanner(){
+  const el=$('seasonal-banner');if(!el)return;const ev=ACTIVE_EVENT;
+  if(!ev){el.style.display='none';return}
+  el.style.display='flex';el.style.borderColor=ev.color;el.style.background=ev.color+'14';
+  el.innerHTML=`<span style="font-size:0.95rem">${ev.name.slice(-2)}</span><span style="flex:1;min-width:0"><strong style="color:${ev.color}">${esc(ev.name)}</strong> — ${esc(ev.desc)}</span>`;
+}
+// Seasonal canvas particles (lightweight, ≤20 active)
+let seasFlakes=[],seasBats=[];
+function drawSeasonalFX(){
+  const ev=ACTIVE_EVENT;if(!ev||!ev.visualEffect)return;const ve=ev.visualEffect;
+  if(ve==='heat'){ctx.fillStyle='rgba(255,200,0,0.03)';ctx.fillRect(0,0,W,H);return}
+  if(ve==='spooky'){ctx.fillStyle='rgba(255,111,0,0.04)';ctx.fillRect(0,0,W,H);
+    if(seasBats.length<2&&Math.random()<0.012)seasBats.push({x:-30,y:40+Math.random()*90,vx:1+Math.random()*1.5,wp:Math.random()*6});
+    seasBats=seasBats.filter(b=>{b.x+=b.vx;b.wp+=0.3;return b.x<W+40});
+    ctx.fillStyle='rgba(18,18,24,0.85)';seasBats.forEach(b=>{const wy=Math.sin(b.wp)*4;
+      ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.quadraticCurveTo(b.x-6,b.y-6+wy,b.x-12,b.y);ctx.quadraticCurveTo(b.x-6,b.y+3,b.x,b.y);
+      ctx.quadraticCurveTo(b.x+6,b.y-6+wy,b.x+12,b.y);ctx.quadraticCurveTo(b.x+6,b.y+3,b.x,b.y);ctx.fill()});
+    return}
+  if(ve==='lights'){const cols=['#e74c3c','#52b788','#42a5f5','#ffd54f'];const props=getProps();
+    props.forEach((p,i)=>{const px=propX(i)-S.scrollX;if(px<-200||px>W+120)return;const hc=HOUSE_CONFIGS[p.houseType],n=5;
+      for(let k=0;k<n;k++){const lx=px+8+k*(hc.w-16)/(n-1),ly=PROP_Y-3+Math.sin(animFrame*0.05+k)*1.5;
+        ctx.fillStyle=cols[k%cols.length];ctx.globalAlpha=0.55+Math.sin(animFrame*0.1+k)*0.45;
+        ctx.beginPath();ctx.arc(lx,ly,2.4,0,Math.PI*2);ctx.fill()}});
+    ctx.globalAlpha=1;return}
+  if(!seasFlakes.length&&(ve==='snow'||ve==='leaves')){const n=ve==='snow'?18:15;
+    for(let i=0;i<n;i++)seasFlakes.push({x:Math.random()*W,y:Math.random()*H,r:ve==='snow'?1+Math.random()*2:3+Math.random()*3,
+      vy:ve==='snow'?0.4+Math.random()*0.6:0.5+Math.random()*0.8,drift:Math.random()*1.5-0.75,rot:Math.random()*6,vr:(Math.random()-0.5)*0.15,col:['#c0601c','#d4880e','#b84c18'][i%3]})}
+  if(ve==='snow'){ctx.fillStyle='rgba(255,255,255,0.85)';seasFlakes.forEach(f=>{f.y+=f.vy;f.x+=Math.sin(animFrame*0.02+f.y*0.05)*0.3+f.drift*0.2;
+    if(f.y>H){f.y=-5;f.x=Math.random()*W}ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);ctx.fill()})}
+  else if(ve==='leaves'){seasFlakes.forEach(f=>{f.y+=f.vy;f.x+=Math.sin(animFrame*0.02+f.y*0.05)*0.6+f.drift;f.rot+=f.vr;
+    if(f.y>H){f.y=-8;f.x=Math.random()*W}ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.rot);ctx.fillStyle=f.col;
+    ctx.beginPath();ctx.ellipse(0,0,f.r,f.r*0.6,0,0,Math.PI*2);ctx.fill();ctx.restore()})}
+  else if(ve==='flowers'){if(seasFlakes.length<8&&Math.random()<0.04)seasFlakes.push({x:Math.random()*W,y:H+10,vy:-(0.5+Math.random()*0.5),life:1,emoji:['🌷','🌸','🌼','🌻'][R(0,3)]});
+    ctx.textAlign='center';seasFlakes=seasFlakes.filter(f=>{f.y+=f.vy;f.life-=0.006;if(f.life<=0)return false;
+      ctx.globalAlpha=Math.min(1,f.life);ctx.font='16px sans-serif';ctx.fillText(f.emoji,f.x,f.y);return true});ctx.globalAlpha=1}
+}
+
+// ═══════════════════════════════════════════════════════
+//  v11 SYSTEM 2: SPECIAL CONTRACTS (premium, tiered)
+// ═══════════════════════════════════════════════════════
+const SPECIAL_CONTRACTS=[
+  {id:'event',name:'Event Prep',emoji:'🎪',desc:'Wedding, festival, or corporate event lawn prep',minTier:1,payPerDay:[100,200,300],duration:[3,5,7],bonus:'Big tip: $500–$2,000',tipRange:[500,2000],requirements:{trucks:1}},
+  {id:'commercial',name:'Commercial Property',emoji:'🏢',desc:'Office park or strip mall maintenance',minTier:2,payPerDay:[150,250,400],duration:[7,14,21],bonus:'+rep on completion',repBonus:[5,10,15],requirements:{trucks:1,crew:3}},
+  {id:'hoa',name:'HOA Contract',emoji:'🏘️',desc:'Maintain an entire HOA subdivision',minTier:3,payPerDay:[200,350,500],duration:[14,21,28],bonus:'Completion bonus: $2,000–$5,000',completionBonus:[2000,3500,5000],requirements:{trucks:2,crew:4}},
+  {id:'municipal',name:'City Parks Contract',emoji:'🏛️',desc:'Government contract — steady income, strict schedule',minTier:4,payPerDay:[300,500,800],duration:[21,28,35],bonus:'Guaranteed renewal option',renewal:true,requirements:{trucks:3,crew:6}},
+  {id:'celebrity',name:'Celebrity Estate',emoji:'⭐',desc:'A-list client — premium pay, high expectations',minTier:4,payPerDay:[500,750,1000],duration:[7,14,21],bonus:'+rep, social boost',repBonus:[20,35,50],requirements:{trucks:2,crew:5,minRep:80},failPenalty:-30},
+];
+function meetsSpecialReq(c){const r=(c&&c.requirements)||{};const missing=[];
+  if(r.trucks&&S.trucks.length<r.trucks)missing.push(`${r.trucks} trucks (have ${S.trucks.length})`);
+  if(r.crew&&S.crew.length<r.crew)missing.push(`${r.crew} crew (have ${S.crew.length})`);
+  if(r.minRep&&S.rep<r.minRep)missing.push(`${r.minRep}⭐ rep (have ${S.rep})`);
+  return {ok:missing.length===0,missing};
+}
+function buildSpecialOffer(tplId){
+  const ti=getTierIndex();
+  const pool=SPECIAL_CONTRACTS.filter(c=>ti>=c.minTier&&(!tplId||c.id===tplId));
+  if(!pool.length)return null;
+  const c=pool[R(0,pool.length-1)],si=Math.min(2,Math.max(0,ti-c.minTier));
+  return {id:Date.now(),tplId:c.id,name:c.name,emoji:c.emoji,desc:c.desc,bonus:c.bonus,
+    payPerDay:c.payPerDay[si],duration:c.duration[si],daysLeft:c.duration[si],totalDays:c.duration[si],
+    requirements:c.requirements||{},completionBonus:c.completionBonus?c.completionBonus[si]:0,
+    repBonus:c.repBonus?c.repBonus[si]:0,tipRange:c.tipRange||null,renewal:!!c.renewal,failPenalty:c.failPenalty||0};
+}
+function rollSpecialContract(){
+  if(S.specialContract||S.specialOffer)return;
+  if(Math.random()>0.15+getTierIndex()*0.05)return;
+  const o=buildSpecialOffer();if(!o)return;
+  S.specialOffer=o;
+  showToast(`🌟 Special opportunity: ${o.name}! Check the Bids tab.`);
+  addLog(`🌟 <span class="hl">Special offer:</span> ${esc(o.name)} — $${o.payPerDay}/day × ${o.duration}d`);
+}
+function acceptSpecialContract(){const o=S.specialOffer;if(!o){return}
+  const req=meetsSpecialReq(o);if(!req.ok){showErrorToast('Requirements not met!');return}
+  SFX.click();S.specialContract={...o};S.specialOffer=null;
+  showToast(`✅ Accepted ${o.name}! $${o.payPerDay}/day × ${o.duration}d`);
+  addLog(`🌟 Accepted <span class="hl">${esc(o.name)}</span> — $${o.payPerDay}/day × ${o.duration}d`);
+  fxCenter('confetti',{n:18});renderSpecialContract();updateUI();autoSave();
+}
+function declineSpecialContract(){SFX.click();S.specialOffer=null;renderSpecialContract();updateUI();autoSave()}
+function sanitizeSpecial(o){
+  if(!o||typeof o!=='object'||Array.isArray(o))return null;
+  const num=(v,d)=>{const n=Number(v);return isFinite(n)?n:d};
+  const r={};if(o.requirements&&typeof o.requirements==='object'){['trucks','crew','minRep'].forEach(k=>{if(o.requirements[k]!=null)r[k]=Math.max(0,num(o.requirements[k],0)|0)})}
+  return {id:num(o.id,Date.now())|0,tplId:cleanName(o.tplId,30),name:cleanName(o.name,40),emoji:cleanName(o.emoji,6),desc:cleanName(o.desc,120),bonus:cleanName(o.bonus,80),
+    payPerDay:Math.max(0,num(o.payPerDay,0)|0),duration:Math.max(1,num(o.duration,1)|0),daysLeft:Math.max(0,num(o.daysLeft,0)|0),totalDays:Math.max(1,num(o.totalDays,o.duration||1)|0),
+    requirements:r,completionBonus:Math.max(0,num(o.completionBonus,0)|0),repBonus:Math.max(0,num(o.repBonus,0)|0),
+    tipRange:Array.isArray(o.tipRange)&&o.tipRange.length===2?[num(o.tipRange[0],0)|0,num(o.tipRange[1],0)|0]:null,
+    renewal:!!o.renewal,failPenalty:num(o.failPenalty,0)|0};
+}
+function completeSpecialContract(){
+  const sc=S.specialContract;if(!sc)return;const req=meetsSpecialReq(sc);S.specialContract=null;
+  if(req.ok){
+    const msg=[];
+    if(sc.completionBonus){S.money+=sc.completionBonus;S.totalEarnings+=sc.completionBonus;S.lifetimeContracts+=sc.completionBonus;msg.push(`+$${sc.completionBonus.toLocaleString()}`)}
+    if(sc.repBonus){S.rep+=sc.repBonus;msg.push(`+${sc.repBonus}⭐`)}
+    if(sc.tipRange){const tip=R(sc.tipRange[0],sc.tipRange[1]);S.money+=tip;S.totalEarnings+=tip;msg.push(`+$${tip.toLocaleString()} tip`)}
+    fxCenter('confetti',{n:34});SFX.level();
+    pushToast(`🌟 <strong>${esc(sc.name)}</strong> complete! ${esc(msg.join(' · ')||'Nice work')}`,'ach',4200,true);
+    addLog(`🌟 Completed <span class="hl">${esc(sc.name)}</span>${msg.length?' — '+esc(msg.join(' · ')):''}`);
+    if(sc.renewal){const ro={...sc,id:Date.now(),payPerDay:Math.round(sc.payPerDay*1.1),daysLeft:sc.totalDays};S.specialOffer=ro;
+      showToast(`🔁 ${sc.name} renewal available (+10% pay)!`)}
+  }else{
+    if(sc.failPenalty){S.rep=Math.max(0,S.rep+sc.failPenalty);showWarnToast(`⚠️ Failed ${sc.name} — lost ${Math.abs(sc.failPenalty)} rep`)}
+    else showWarnToast(`⚠️ ${sc.name} ended without meeting its requirements`);
+    addLog(`⚠️ Failed <span class="hl">${esc(sc.name)}</span> — requirements not met`);
+  }
+  renderSpecialContract();
+}
+function renderSpecialContract(){
+  const el=$('special-contract');if(!el)return;el.innerHTML='';
+  const o=S.specialOffer,sc=S.specialContract;
+  if(o){const req=meetsSpecialReq(o);
+    const reqLine=Object.keys(o.requirements).length
+      ? `Requires: ${Object.entries(o.requirements).map(([k,v])=>k==='minRep'?`${v}⭐`:`${v} ${k}`).join(', ')}`
+      : 'No requirements';
+    const missHtml=req.ok?'<span style="color:#52b788">✅ Requirements met</span>':`<span style="color:#e74c3c">Missing: ${esc(o.missing?o.missing.join(', '):meetsSpecialReq(o).missing.join(', '))}</span>`;
+    const d=document.createElement('div');d.className='special-card offer';
+    d.innerHTML=`<div class="sc-head"><span class="sc-name">${esc(o.emoji)} ${esc(o.name)}</span><span class="sc-tag">🌟 SPECIAL</span></div>
+      <div class="sc-desc">${esc(o.desc)}</div>
+      <div class="sc-terms">💵 $${o.payPerDay.toLocaleString()}/day · ⏳ ${o.duration} days · 🎁 ${esc(o.bonus||'')}</div>
+      <div class="sc-req">${esc(reqLine)} · ${missHtml}</div>
+      <div class="sc-btns"><button class="bb" ${req.ok?'':'disabled'} onclick="acceptSpecialContract()">✅ Accept</button>
+        <button class="bb red" onclick="declineSpecialContract()">Decline</button></div>`;
+    el.appendChild(d);
+  }
+  if(sc){const pct=Math.round((1-sc.daysLeft/Math.max(1,sc.totalDays))*100);const req=meetsSpecialReq(sc);
+    const d=document.createElement('div');d.className='special-card active';
+    d.innerHTML=`<div class="sc-head"><span class="sc-name">${esc(sc.emoji)} ${esc(sc.name)}</span><span class="sc-tag">IN PROGRESS</span></div>
+      <div class="sc-terms">💵 $${sc.payPerDay.toLocaleString()}/day · ${sc.daysLeft} day${sc.daysLeft!==1?'s':''} left${sc.completionBonus?` · 🎁 $${sc.completionBonus.toLocaleString()} bonus`:''}</div>
+      <div class="dc-bar"><div class="dc-fill" style="width:${pct}%"></div></div>
+      ${req.ok?'':`<div class="sc-req"><span style="color:#e74c3c">⚠️ Requirements no longer met — deliver or lose the bonus!</span></div>`}`;
+    el.appendChild(d);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  v11 SYSTEM 3: OFFLINE PROGRESS
+// ═══════════════════════════════════════════════════════
+function calculateOfflineEarnings(elapsedMs){
+  const hours=Math.min(elapsedMs/3600000,8);
+  if(hours<0.083)return null; // < 5 min
+  const truckIncome=S.trucks.length*25*hours;
+  const contractIncome=S.contracts.reduce((s,c)=>s+c.payPerDay*Math.min(hours/24,c.daysLeft),0)
+    +(S.specialContract?S.specialContract.payPerDay*Math.min(hours/24,S.specialContract.daysLeft):0);
+  const crewIncome=S.crew.reduce((s,c)=>s+c.level*5*hours,0);
+  const prestigeMult=1+(S.prestigeLevel||0)*0.05;
+  const total=Math.round((truckIncome+contractIncome+crewIncome)*prestigeMult);
+  if(total<=0)return null;
+  return {hours:Math.round(hours*10)/10,truckIncome:Math.round(truckIncome),contractIncome:Math.round(contractIncome),crewIncome:Math.round(crewIncome),total};
+}
+function showOfflineModal(r){
+  $('me').textContent='🌅';$('mt').textContent='Welcome Back!';$('mx').textContent=`You were away for ${r.hours} hour${r.hours!==1?'s':''} — your team kept working:`;
+  $('modal-extra').innerHTML=`<div class="day-summary">
+    <div class="day-stat-row"><span class="dsl">🚛 Truck earnings</span><span class="dsv">$${r.truckIncome.toLocaleString()}</span></div>
+    <div class="day-stat-row"><span class="dsl">📝 Contract income</span><span class="dsv">$${r.contractIncome.toLocaleString()}</span></div>
+    <div class="day-stat-row"><span class="dsl">👷 Crew activity</span><span class="dsv">$${r.crewIncome.toLocaleString()}</span></div>
+    <div class="day-stat-row total"><span class="dsl">💰 Total</span><span class="dsv">$${r.total.toLocaleString()}</span></div></div>`;
+  $('modal-buttons').innerHTML=`<button onclick="collectOffline(${r.total})">💰 Collect Earnings</button>
+    <button class="offline-2x" disabled title="Coming soon">▶️ Collect 2× (Watch Ad)</button>`;
+  $('mo').classList.add('show');
+}
+function collectOffline(total){S.money+=total;SFX.level();addLog(`💤 Earned <span class="hl">$${total.toLocaleString()}</span> while away`);showToast(`💤 Collected $${total.toLocaleString()}!`);closeModal();updateUI();saveGame()}
+
+// ═══════════════════════════════════════════════════════
+//  v11 BONUS: NEW GAME+ STARTER PACKS
+// ═══════════════════════════════════════════════════════
+const STARTER_PACKS=[
+  {id:'cash_boost',name:'Cash Boost',emoji:'💰',desc:'Start with $500 extra',effect:()=>{S.money+=500}},
+  {id:'rep_boost',name:'Reputation Head Start',emoji:'⭐',desc:'Start with 5 rep',effect:()=>{S.rep+=5}},
+  {id:'tool_upgrade',name:'Better Tools',emoji:'🔧',desc:'Start with a Self-Propelled Mower',effect:()=>{S.equipment.mower=Math.max(1,S.equipment.mower)}},
+  {id:'combo_edge',name:'Combo Edge',emoji:'🔗',desc:'Combo timer lasts longer',effect:()=>{S.comboEdge=true}},
+];
+let chosenStarterPack=null;
+function hasEverPrestiged(){try{return localStorage.getItem('ll_ever_prestiged')==='1'}catch(e){return false}}
+function renderStarterPacks(){
+  const wrap=$('starter-packs');if(!wrap)return;
+  if(!hasEverPrestiged()){wrap.style.display='none';return}
+  wrap.style.display='block';
+  wrap.innerHTML='<div class="sp-title">🎁 New Game+ — pick a starter bonus:</div><div class="sp-grid" id="sp-grid"></div>';
+  const grid=$('sp-grid');
+  STARTER_PACKS.forEach(p=>{const c=document.createElement('div');c.className='sp-card'+(chosenStarterPack===p.id?' sel':'');
+    c.innerHTML=`<div class="sp-emoji">${p.emoji}</div><div class="sp-name">${esc(p.name)}</div><div class="sp-desc">${esc(p.desc)}</div>`;
+    c.onclick=()=>{SFX.click();chosenStarterPack=chosenStarterPack===p.id?null:p.id;renderStarterPacks()};
+    grid.appendChild(c)});
+}
+
 function switchTab(tab){S.activeTab=tab;
   ['upgrades','crew','perks','contracts','rankings','nbupgrades','stats','help'].forEach((t,i)=>{
     document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);
@@ -1823,7 +2101,7 @@ function addCombo(){S.combo++;if(S.combo>S.maxCombo)S.maxCombo=S.combo;
   if(S.combo===10){S.maxComboCount++;updateDailyProgress('max_combo_count',1)}
   updateDailyProgress('combo_reach',S.combo);
   clearTimeout(S.comboTimer);
-  S.comboTimer=setTimeout(()=>{S.combo=0;S.comboChainEarnings=0;updateComboDisplay()},15000);updateComboDisplay(true);
+  S.comboTimer=setTimeout(()=>{S.combo=0;S.comboChainEarnings=0;updateComboDisplay()},S.comboEdge?20000:15000);updateComboDisplay(true);
   if(S.combo>1){SFX.combo();const m=getComboMult();const col=m>=2?'#ff6b35':m>=1.5?'#ffd54f':'#52b788';fxAtEl('combo-display','combo_spark',{color:col,n:8+Math.min(4,S.combo)})}}
 function getComboMult(){if(S.combo<=1)return 1;const rate=S.perks.has('combo_master')?0.18:0.12;return Math.min(3,1+((S.combo-1)*rate))}
 function updateComboDisplay(bump){const cd=$('combo-display'),el=$('combo-text');if(S.combo<=1){cd.style.display='none';el.classList.remove('maxed');return}
@@ -1851,7 +2129,7 @@ function updateDayTimer(){
 // ═══ GENERATE JOBS ═══
 function generateNBJobs(nbIdx){
   const nb=NEIGHBORHOODS[nbIdx];const props=[];const seasonJobs=S.season.jobs;
-  const totalHouses=nb.houses+getNBExtraJobs(nbIdx);
+  const totalHouses=nb.houses+getNBExtraJobs(nbIdx)+(ACTIVE_EVENT&&ACTIVE_EVENT.extraJobs?ACTIVE_EVENT.extraJobs:0);
   for(let i=0;i<totalHouses;i++){
     const ht=nb.houseTypes[i%nb.houseTypes.length];const hc=HOUSE_CONFIGS[ht];
     const available=JOB_TYPES.filter(j=>{
@@ -1862,7 +2140,7 @@ function generateNBJobs(nbIdx){
       if(!j.stormOnly&&!seasonJobs.includes(j.type))return false;return true});
     if(available.length===0)continue;
     const job=available[R(0,available.length-1)];const cust=rollCustomer(nbIdx);
-    let basePay=Math.round((20+job.diff*30+R(0,20))*nb.payMult*(S.weather.payMult||1)*S.season.payMult*cust.payMod);
+    let basePay=Math.round((20+job.diff*30+R(0,20))*nb.payMult*(S.weather.payMult||1)*S.season.payMult*cust.payMod*seasonalPayMult());
     if(S.perks.has('haggler'))basePay=Math.round(basePay*1.12);
     basePay=Math.round(basePay*(1+getStreakBonus())*getCrewPayBonus()*getNBPayBonus(nbIdx));
     props.push({houseType:ht,houseConfig:hc,job:{...job},pay:basePay,customer:cust,
@@ -1872,6 +2150,9 @@ function generateNBJobs(nbIdx){
     if(sj){const bp=Math.round((20+sj.diff*30+R(15,40))*nb.payMult*1.5);
       props.push({houseType:ht,houseConfig:hc,job:{...sj},pay:bp,customer:rollCustomer(nbIdx),
         tiles:initTiles(hc.yardCols,hc.yardRows,'leaf'),done:false,satisfaction:0,tipped:false,customerOut:false,idx:props.length,nbIdx})}}
+  // Seasonal-event jobs (1–2 per neighborhood during an active real-world event)
+  if(ACTIVE_EVENT){const sjs=SEASONAL_JOBS.filter(j=>j.seasonal===ACTIVE_EVENT.id);
+    if(sjs.length){const n=R(1,2);for(let k=0;k<n;k++){const sj=sjs[R(0,sjs.length-1)];props.push(makeSeasonalProp(nb,nbIdx,sj,props.length))}}}
   return props;
 }
 
@@ -2055,7 +2336,7 @@ function draw(){ctx.clearRect(0,0,W,H);S.scrollX=lerp(S.scrollX,S.targetScrollX,
     if(p.done){ctx.font='bold 24px sans-serif';ctx.textAlign='center';ctx.fillStyle='rgba(82,183,136,0.7)';ctx.fillText('✅',sx+HOUSE_CONFIGS[p.houseType].w+15+p.houseConfig.yardCols*YARD_TILE/2,PROP_Y+20+p.houseConfig.yardRows*YARD_TILE/2+8)}
     const disp=getDispatchForProp(S.curNB,i);
     if(disp){ctx.strokeStyle=TRUCK_COLORS[disp.truckIdx%TRUCK_COLORS.length];ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.strokeRect(sx+HOUSE_CONFIGS[p.houseType].w+11,PROP_Y+16,p.houseConfig.yardCols*YARD_TILE+8,p.houseConfig.yardRows*YARD_TILE+8);ctx.setLineDash([])}}});
-  drawWeatherFX();drawTruckSlides();drawNBLabel();updateDrawParticles()}
+  drawSeasonalFX();drawWeatherFX();drawTruckSlides();drawNBLabel();updateDrawParticles()}
 
 // ═══ GAME LOGIC ═══
 function showToast(m){pushToast(m,'',2600,false)}
@@ -2069,7 +2350,7 @@ function updateUI(){
   if(S.crew.length>S.maxCrewCount)S.maxCrewCount=S.crew.length;
   animateNumber('company-val',_val,'$');$('sp-count').textContent=S.skillPoints;
   updateDayTimer();renderGoal();renderCompanyTier();updatePrestigeUI();updateAchBadge();updateDailyBadge();
-  renderUpgrades();renderNBSel();renderContracts();renderPerks();renderCrew();renderTrophies();renderBids();renderActiveJobs();
+  renderUpgrades();renderNBSel();renderContracts();renderSpecialContract();renderSeasonalBanner();renderPerks();renderCrew();renderTrophies();renderBids();renderActiveJobs();
   if(S.activeTab==='rankings')renderRankings();if(S.activeTab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}
   if(S.activeTab==='stats')renderStats();
 }
@@ -2156,7 +2437,7 @@ function dispatchJob(propIdx,truckIdx){
   const jobHrs=getJobHours(prop.job);
   if(jobHrs>S.dayHoursLeft){showToast('⏰ Not enough hours!');return}
 
-  const workPath=getWorkPath(prop.tiles,prop.job.type);const workTotal=workPath.length;
+  const workPath=getWorkPath(prop.tiles,prop.job.work||prop.job.type);const workTotal=workPath.length;
   if(workTotal===0){completeDispatch(S.curNB,propIdx,truckIdx);return}
 
   let totalTime=Math.max(1,Math.round(prop.job.timeBase/getSpeed(prop.job)));
@@ -2217,7 +2498,7 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   if(avgLvl>=3)sat++;sat=Math.max(1,Math.min(5,sat));prop.satisfaction=sat;prop.customerOut=true;
   if(sat>=5)updateGoalProgress('fivestar',1);
 
-  let tipRate=S.perks.has('tipper')?0.3:0.2;tipRate*=cust.tipMult*S.eventTipMod;tipRate+=getNBTipBonus(nbIdx);
+  let tipRate=S.perks.has('tipper')?0.3:0.2;tipRate*=cust.tipMult*S.eventTipMod*seasonalTipMult();tipRate+=getNBTipBonus(nbIdx);
   if(sat>=5&&cust.tipMult>0){const tip=Math.round(comboPay*tipRate);S.money+=tip;S.totalEarnings+=tip;S.dayTips+=tip;prop.tipped=true;
     S.lifetimeTips+=tip;updateDailyProgress('tips_today',tip);updateDailyProgress('tip_count',1);
     setTimeout(()=>showToast(`${cust.emoji} 5-star! +$${tip} tip!`),600)}
@@ -2231,6 +2512,7 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   S.weathersWorkedIn.add(S.weather.id);
   S.jobTypesCompleted.add(prop.job.type);
   S.jobTypeCounts[prop.job.type]=(S.jobTypeCounts[prop.job.type]||0)+1;
+  if(prop.job.seasonal)S.seasonalEventsCompleted[prop.job.type]=(S.seasonalEventsCompleted[prop.job.type]||0)+1;
   jobFinishTimes.push(Date.now());if(jobFinishTimes.length>5)jobFinishTimes.shift();
   // Combo chain earnings: chain continues while combo > 1, restarts otherwise
   if(S.combo>1)S.comboChainEarnings+=comboPay;else S.comboChainEarnings=comboPay;
@@ -2359,6 +2641,7 @@ function doPrestigeReset(){
   // Record fastest run BEFORE resetting S.day
   if(!S.fastestMillionaire||S.day<S.fastestMillionaire)S.fastestMillionaire=S.day;
   S.lifetimePrestigeEarnings=(S.lifetimePrestigeEarnings||0)+S.totalEarnings;
+  try{localStorage.setItem('ll_ever_prestiged','1')}catch(e){} // unlocks New Game+ starter packs
   const newLevel=(S.prestigeLevel||0)+1;
   S.prestigeLevel=newLevel;
   const bonus=getPrestigeBonusAt(newLevel);
@@ -2510,6 +2793,8 @@ function advanceDay(){
   if(S.weeklyGoal){S.weeklyGoal.daysLeft--;if(S.weeklyGoal.daysLeft<=0)generateWeeklyGoal()}
   if(!S.weeklyGoal||(S.day-1)%7===0)generateWeeklyGoal();
   updateSeason();rollWeather();rollEvent();processTraining();collectContractIncome();generateBids();
+  refreshSeasonalEvent();
+  if((S.day-1)%7===0)rollSpecialContract();
   if(S.day%7===1){NEIGHBORHOODS.forEach((nb,i)=>{
     if(getNBUpgrade(nb.id,'exclusive')&&S.rep>=nb.minRep){
       const avJobs=JOB_TYPES.filter(j=>!j.stormOnly);const job=avJobs[R(0,avJobs.length-1)];
@@ -2561,7 +2846,9 @@ const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','truc
   // v9: achievements + stats (Sets are serialized separately, like perks/milestonesHit)
   'maxComboCount','bestComboEarnings','comboChainEarnings','fullDayCount','consecutiveProfitDays','totalSpent','titleClicks',
   'lifetimeJobs','lifetimeTips','lifetimeExpenses','lifetimeContracts','lifetimeRepairs','bestDay','longestStreak',
-  'highestValuation','bidsWon','bidsLost','totalPlayTime','maxCrewCount','jobTypeCounts','dayHistory'];
+  'highestValuation','bidsWon','bidsLost','totalPlayTime','maxCrewCount','jobTypeCounts','dayHistory',
+  // v11: seasonal events + special contracts + New Game+ perk
+  'seasonalEventsCompleted','specialContract','specialOffer','comboEdge'];
 // v9 numeric stat fields — sanitized on load; missing in pre-v9 saves → default 0
 const V9_NUM_FIELDS=['maxComboCount','bestComboEarnings','comboChainEarnings','fullDayCount','consecutiveProfitDays','totalSpent','titleClicks',
   'lifetimeJobs','lifetimeTips','lifetimeExpenses','lifetimeContracts','lifetimeRepairs','bestDay','longestStreak',
@@ -2573,7 +2860,7 @@ function getSaveData(){
   data.achievementsUnlocked=[...S.achievementsUnlocked];
   data.weathersWorkedIn=[...S.weathersWorkedIn];
   data.jobTypesCompleted=[...S.jobTypesCompleted];
-  data._version=9;data._savedAt=new Date().toISOString();return data;
+  data._version=10;data._savedAt=new Date().toISOString();return data;
 }
 function saveGame(){
   try{localStorage.setItem(SAVE_KEY,JSON.stringify(getSaveData()));return true}catch(e){console.error('Save failed:',e);return false}
@@ -2613,6 +2900,11 @@ function applySaveData(data){
   S.dayHistory=Array.isArray(data.dayHistory)?data.dayHistory.filter(h=>h&&typeof h==='object').slice(-14).map(h=>({
     day:Math.max(0,Number(h.day)|0),earnings:Math.max(0,Number(h.earnings)||0),expenses:Math.max(0,Number(h.expenses)||0),
     jobs:Math.max(0,Number(h.jobs)|0),combo:Math.max(0,Number(h.combo)|0)})):[];
+  // v11: seasonal + special contracts (default gracefully for pre-v11 saves)
+  S.seasonalEventsCompleted=(data.seasonalEventsCompleted&&typeof data.seasonalEventsCompleted==='object'&&!Array.isArray(data.seasonalEventsCompleted))?data.seasonalEventsCompleted:{};
+  S.comboEdge=!!data.comboEdge;
+  S.specialContract=sanitizeSpecial(data.specialContract);
+  S.specialOffer=sanitizeSpecial(data.specialOffer);
   // Reset runtime state
   S.activeDispatches=[];S.nbJobs={};S.bidOffers=data.bidOffers||[];
   S.weather=WEATHER_TYPES[0];S.season=SEASONS[0];
@@ -2668,6 +2960,9 @@ function startNewGame(){
       }
     }
   }catch(e){console.warn('optin err:',e)}
+  // v11: New Game+ starter pack (returning prestiged players only)
+  if(chosenStarterPack){const p=STARTER_PACKS.find(x=>x.id===chosenStarterPack);if(p){try{p.effect()}catch(e){}
+    addLog(`🎁 Starter bonus: <span class="hl">${esc(p.name)}</span>`)}}
   $('name-screen').style.display='none';
   initGameUI();saveGame();
   // First-time players get the interactive tutorial once
@@ -2678,11 +2973,14 @@ function loadAndStart(){
   applySaveData(data);
   $('name-screen').style.display='none';
   initGameUI();
+  // v11: offline progress — reward passive income for time away
+  try{if(data._savedAt){const el=Date.now()-new Date(data._savedAt).getTime();
+    const r=calculateOfflineEarnings(el);if(r&&r.total>0)setTimeout(()=>showOfflineModal(r),500)}}catch(e){}
 }
 let _loopStarted=false;
 function initGameUI(){
   $('player-name-display').textContent='— '+S.playerName;
-  initDailyChallenges();
+  initDailyChallenges();refreshSeasonalEvent();
   updateSeason();rollWeather();generateAllDayJobs();updateUI();renderTrophies();renderBids();renderRankings();renderCompanyTier();updatePrestigeUI();
   checkAchievements();
   $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;
@@ -2722,6 +3020,8 @@ buyPerk=function(id){_origBuyPerk(id);autoSave()};
   // v10: init screen-space FX canvas + retire the splash after its fade
   FX.init();
   setTimeout(()=>{const s=$('splash');if(s)s.style.display='none'},2200);
+  // v11: New Game+ starter-pack picker (returning prestiged players)
+  renderStarterPacks();
 })();
 </script>
 </body>

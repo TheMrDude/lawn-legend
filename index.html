@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Lawn Legend - Landscaping Tycoon</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1a5c38">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lawn Legend">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;min-height:100vh;overflow-x:hidden;user-select:none}
@@ -217,6 +224,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .lb-optin input{width:100%;padding:7px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.25);color:#fff;font-size:0.72rem;margin:6px 0;text-align:center}
 .ach-share{background:rgba(82,183,136,0.15);border:1px solid rgba(82,183,136,0.35);color:#b7e4c7;border-radius:6px;padding:4px 8px;font-size:0.8rem;cursor:pointer;align-self:center}
 .ach-share:hover{background:rgba(82,183,136,0.3)}
+/* ── PWA update banner ── */
+.update-banner{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(80px);z-index:600;background:linear-gradient(135deg,#1a5c38,#2d6a4f);border:1px solid rgba(183,228,199,0.45);color:#eafff0;font-size:0.74rem;font-weight:700;padding:10px 16px;border-radius:22px;box-shadow:0 6px 24px rgba(0,0,0,0.5);cursor:pointer;opacity:0;transition:transform 0.35s,opacity 0.35s}
+.update-banner.show{transform:translateX(-50%) translateY(0);opacity:1}
+.update-banner:hover{filter:brightness(1.12)}
 .mute-toggle:hover{background:rgba(0,0,0,0.4);transform:scale(1.08)}
 .modal button.share{background:linear-gradient(135deg,#5e3c99,#8e44ad)}
 .modal button.share:hover{filter:brightness(1.15)}
@@ -600,6 +611,7 @@ body.cb-active #toast-stack{top:106px}
         <button onclick="importSave()">📥 Import</button>
         <button onclick="confirmNewGame()">🆕 New Game</button>
         <button onclick="replayTutorial()">❓ Tutorial</button>
+        <button id="install-btn" style="display:none" onclick="installApp()">📲 Install App</button>
       </div>
     </div>
   </div>
@@ -3595,6 +3607,65 @@ hireCrew=function(){_origHireCrew();autoSave()};
 const _origBuyPerk=buyPerk;
 buyPerk=function(id){_origBuyPerk(id);autoSave()};
 
+// ═══ PWA: SERVICE WORKER + INSTALL + OFFLINE (v12) ═══
+let _swUserTapped=false;
+function _showUpdateBanner(reg){
+  if($('update-banner'))return;
+  const b=document.createElement('div');b.className='update-banner';b.id='update-banner';
+  b.textContent='🌱 New version ready — Tap to update';
+  b.onclick=()=>{SFX.click();_swUserTapped=true;
+    if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});
+    else location.reload()};
+  document.body.appendChild(b);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>b.classList.add('show')));
+}
+function registerSW(){
+  if(!('serviceWorker' in navigator))return;
+  if(location.protocol==='file:')return; // dev convenience — SW needs http(s)
+  navigator.serviceWorker.register('/sw.js').then(reg=>{
+    // Already-waiting worker (page opened after a deploy landed)
+    if(reg.waiting&&navigator.serviceWorker.controller)_showUpdateBanner(reg);
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;if(!nw)return;
+      nw.addEventListener('statechange',()=>{
+        // New version fully fetched while an old one controls the page → offer it
+        if((nw.state==='installed'||nw.state==='activated')&&navigator.serviceWorker.controller)_showUpdateBanner(reg);
+      });
+    });
+  }).catch(()=>{});
+  // Only reload when the PLAYER chose to update — never force mid-session
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(_swUserTapped)location.reload()});
+}
+// ── Custom install button ──
+let _installPrompt=null;
+const _isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+const _isStandalone=window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();_installPrompt=e;
+  const b=$('install-btn');if(b&&!_isStandalone)b.style.display='';
+});
+window.addEventListener('appinstalled',()=>{_installPrompt=null;const b=$('install-btn');if(b)b.style.display='none';showToast('📲 Installed! Find Lawn Legend on your home screen.')});
+function installApp(){
+  SFX.click();
+  if(_installPrompt){
+    const p=_installPrompt;_installPrompt=null;
+    p.prompt();
+    p.userChoice.then(()=>{const b=$('install-btn');if(b)b.style.display='none'});
+    return;
+  }
+  if(_isIOS&&!_isStandalone){
+    $('me').textContent='📲';$('mt').textContent='Install Lawn Legend';
+    $('mx').textContent="Tap the Share icon, then 'Add to Home Screen'.";
+    $('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button onclick="closeModal()">Got it</button>';
+    $('mo').classList.add('show');
+  }
+}
+// ── Offline awareness ──
+// Cloud sync already retries via the debounced push on every save; this adds
+// an immediate push the moment connectivity returns.
+window.addEventListener('online',()=>{if(S.playerName){setSyncDot('syncing');cloudPush(true)}});
+window.addEventListener('offline',()=>setSyncDot('offline'));
+
 // ═══ INIT ═══
 (function(){
   const saved=loadSaveData();
@@ -3615,6 +3686,10 @@ buyPerk=function(id){_origBuyPerk(id);autoSave()};
   // v12: reconcile cloud save in the background (offline-first — never blocks)
   syncAudioPopover();
   cloudSyncOnLoad();
+  // v12 PWA: service worker, install affordances, offline notice
+  registerSW();
+  if(_isIOS&&!_isStandalone){const b=$('install-btn');if(b)b.style.display=''} // iOS: manual add-to-home-screen flow
+  if(!navigator.onLine)setTimeout(()=>showToast("Offline mode — progress saves locally and syncs when you're back."),2400);
 })();
 </script>
 </body>

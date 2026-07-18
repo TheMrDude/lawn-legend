@@ -158,6 +158,65 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .fleet-card .fleet-name{font-weight:700;font-size:0.72rem;color:#42a5f5}.fleet-card .fleet-det{font-size:0.6rem;color:#888;margin-top:1px}
 .fleet-card.busy{border-color:rgba(33,150,243,0.3);background:rgba(33,150,243,0.05)}
 .mute-toggle{background:rgba(0,0,0,0.25);border:none;padding:4px 9px;border-radius:16px;font-size:0.85rem;cursor:pointer;color:#fff;transition:all 0.15s;line-height:1}
+.audio-wrap{position:relative;display:inline-block}
+.audio-pop{position:absolute;right:0;top:34px;z-index:400;background:#12241a;border:1px solid rgba(82,183,136,0.35);border-radius:10px;padding:10px 12px;width:190px;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+.audio-pop .ap-title{font-size:0.72rem;font-weight:800;color:#b7e4c7;margin-bottom:7px}
+.audio-pop .ap-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.64rem;color:#cfe;margin-bottom:7px;cursor:pointer}
+.audio-pop .ap-row input[type=range]{flex:1;accent-color:#52b788;height:14px}
+.audio-pop .ap-row input[type=checkbox]{accent-color:#52b788;width:14px;height:14px}
+.dispatch-row{margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.fore-tag{font-size:0.58rem;color:#ffd54f;font-weight:700}
+.auto-toggle{display:flex;align-items:center;gap:4px;font-size:0.58rem;color:#b7e4c7;cursor:pointer}
+.auto-toggle input{accent-color:#52b788;width:12px;height:12px}
+.foreman-btn{font-size:0.56rem!important;padding:3px 7px!important}
+/* ── Legacy tab ── */
+.lg-head{background:linear-gradient(135deg,rgba(184,134,11,0.12),rgba(82,183,136,0.08));border:1px solid rgba(255,215,0,0.25);border-radius:9px;padding:10px;margin-bottom:8px}
+.lg-rank{font-size:0.8rem;font-weight:800;color:#ffd54f;margin-bottom:6px}
+.lg-rank .lg-plvl{font-size:0.6rem;color:#b7e4c7;font-weight:600;margin-left:4px}
+.lg-stat{display:flex;justify-content:space-between;font-size:0.66rem;color:#cfe;padding:1px 0}
+.lg-progress{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin:7px 0 2px;overflow:hidden}
+.lg-fill{height:100%;background:linear-gradient(90deg,#b8860b,#ffd700);border-radius:3px;transition:width 0.4s}
+.lg-progress-lbl{font-size:0.58rem;color:#888;text-align:right;margin-bottom:7px}
+.lg-sell{width:100%;padding:8px;border:none;border-radius:7px;background:linear-gradient(135deg,#b8860b,#ffd700,#b8860b);color:#1a1a1a;font-weight:800;font-size:0.74rem;cursor:pointer;letter-spacing:0.4px}
+.lg-sell.disabled{background:rgba(255,255,255,0.08);color:#666;cursor:not-allowed}
+.lg-perks-title{font-size:0.68rem;font-weight:700;color:#7bc97b;margin:8px 0 5px}
+.lg-perk-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.lg-perk{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px}
+.lg-perk.maxed{border-color:rgba(82,183,136,0.4);background:rgba(82,183,136,0.08)}
+.lg-perk-top{display:flex;justify-content:space-between;align-items:center;gap:4px}
+.lg-perk-name{font-size:0.62rem;font-weight:700;color:#fff}
+.lg-pips{display:flex;gap:2px}
+.lg-pip{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15)}
+.lg-pip.on{background:#ffd54f}
+.lg-perk-desc{font-size:0.55rem;color:#9ab;margin:3px 0 5px;line-height:1.25}
+.lg-perk-max{font-size:0.58rem;color:#52b788;font-weight:700;text-align:center}
+.legacy-buy{width:100%;font-size:0.56rem!important;padding:3px!important}
+.sell-lp{font-size:0.72rem;color:#cfe;text-align:center;margin-bottom:8px;line-height:1.4}
+.sell-cols{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.sell-col{font-size:0.58rem;line-height:1.4;padding:7px;border-radius:7px}
+.sell-col.reset{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#f5b7b1}
+.sell-col.keep{background:rgba(82,183,136,0.1);border:1px solid rgba(82,183,136,0.3);color:#a9dfbf}
+.sell-col .sc-h{font-weight:800;margin-bottom:3px;font-size:0.62rem}
+.sell-warn{font-size:0.6rem;color:#f39c12;text-align:center}
+/* ── Cloud sync + leaderboard (v12) ── */
+.sync-wrap{float:right}
+.sync-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#666;vertical-align:middle}
+.sync-dot.synced{background:#52b788;box-shadow:0 0 5px rgba(82,183,136,0.7)}
+.sync-dot.offline{background:#666}
+.sync-dot.syncing{background:#ffd54f;animation:syncPulse 0.9s ease-in-out infinite}
+@keyframes syncPulse{0%,100%{opacity:0.4}50%{opacity:1}}
+.lb-sub{display:flex;gap:4px;margin:6px 0}
+.lb-sub .lb-tab{flex:1;text-align:center;font-size:0.58rem;padding:4px 2px;border-radius:5px;background:rgba(255,255,255,0.05);cursor:pointer;color:#9ab}
+.lb-sub .lb-tab.active{background:rgba(82,183,136,0.2);color:#b7e4c7;font-weight:700}
+.lb-row{display:flex;align-items:center;gap:6px;font-size:0.62rem;padding:3px 5px;border-radius:5px;margin-bottom:2px;background:rgba(255,255,255,0.03)}
+.lb-row.me{border:1px solid #ffd700;background:rgba(255,215,0,0.08)}
+.lb-rank{width:22px;text-align:center;font-weight:700;color:#888}
+.lb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#cfe}
+.lb-val{font-weight:700;color:#ffd54f}
+.lb-optin{background:rgba(82,183,136,0.08);border:1px solid rgba(82,183,136,0.25);border-radius:8px;padding:9px;text-align:center;margin-bottom:7px}
+.lb-optin input{width:100%;padding:7px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.25);color:#fff;font-size:0.72rem;margin:6px 0;text-align:center}
+.ach-share{background:rgba(82,183,136,0.15);border:1px solid rgba(82,183,136,0.35);color:#b7e4c7;border-radius:6px;padding:4px 8px;font-size:0.8rem;cursor:pointer;align-self:center}
+.ach-share:hover{background:rgba(82,183,136,0.3)}
 .mute-toggle:hover{background:rgba(0,0,0,0.4);transform:scale(1.08)}
 .modal button.share{background:linear-gradient(135deg,#5e3c99,#8e44ad)}
 .modal button.share:hover{filter:brightness(1.15)}
@@ -420,6 +479,16 @@ body.cb-active #toast-stack{top:106px}
     <button class="mute-toggle hdr-badge-btn" id="ach-btn" onclick="openAchievements()" title="Achievements">🏅<span class="hdr-count" id="ach-hdr-count" style="display:none"></span></button>
     <button class="mute-toggle hdr-badge-btn" id="daily-btn" onclick="openDailyPanel()" title="Daily Challenges">📅<span class="hdr-count" id="daily-hdr-count" style="display:none"></span></button>
     <button class="mute-toggle" id="mute-btn" onclick="toggleMute()" title="Toggle sound (muted by default)">🔇</button>
+    <div class="audio-wrap">
+      <button class="mute-toggle" id="audio-gear" onclick="toggleAudioPopover()" title="Sound settings">⚙️</button>
+      <div class="audio-pop" id="audio-pop" style="display:none">
+        <div class="ap-title">🔊 Sound</div>
+        <label class="ap-row"><input type="checkbox" id="ap-mute" onchange="onAudioMuteToggle(this.checked)"> Sound on</label>
+        <label class="ap-row">Master <input type="range" id="ap-master" min="0" max="100" value="80" oninput="onAudioSlider('master',this.value)"></label>
+        <label class="ap-row">Effects <input type="range" id="ap-sfx" min="0" max="100" value="100" oninput="onAudioSlider('sfx',this.value)"></label>
+        <label class="ap-row">Ambient <input type="range" id="ap-amb" min="0" max="100" value="55" oninput="onAudioSlider('ambient',this.value)"></label>
+      </div>
+    </div>
   </div>
 </div>
 <div class="combo-display" id="combo-display" style="display:none">
@@ -430,7 +499,7 @@ body.cb-active #toast-stack{top:106px}
   <div class="sidebar">
     <div class="panel">
       <div id="tier-badge" class="company-tier startup">🌱 STARTUP</div>
-      <div id="go-prestige-wrap" style="display:none"><button class="go-prestige-btn" id="go-prestige-btn" onclick="showPrestigeModal()">⭐ GO PRESTIGE</button></div>
+      <div id="go-prestige-wrap" style="display:none"><button class="go-prestige-btn" id="go-prestige-btn" onclick="switchTab('legacy')">💼 SELL THE COMPANY</button></div>
       <div class="val-display"><div class="val-label">Company Valuation</div><div class="val-num" id="company-val">$1,000</div></div>
       <div id="best-run-display" class="best-run-bar" style="display:none"></div>
       <div id="goal-display" class="goal-bar" style="display:none"></div>
@@ -452,6 +521,7 @@ body.cb-active #toast-stack{top:106px}
         <div class="tab-btn" onclick="switchTab('perks')">🧠 Perks</div>
         <div class="tab-btn" onclick="switchTab('contracts')">📝 Bids</div>
         <div class="tab-btn" onclick="switchTab('rankings')">🏅 Rank</div>
+        <div class="tab-btn" onclick="switchTab('legacy')">🏆 Legacy</div>
         <div class="tab-btn" onclick="switchTab('nbupgrades')">🏘️ Area</div>
         <div class="tab-btn" onclick="switchTab('stats')">📊 Stats</div>
         <div class="tab-btn" onclick="switchTab('help')">❓ Help</div>
@@ -475,7 +545,9 @@ body.cb-active #toast-stack{top:106px}
       <div id="tab-rankings" style="display:none">
         <div style="font-size:0.72rem;color:#bb86fc;font-weight:700;margin-bottom:5px">🏅 Local Rankings</div>
         <div id="rival-list"></div>
+        <div id="global-lb"></div>
       </div>
+      <div id="tab-legacy" style="display:none"><div id="legacy-panel"></div></div>
       <div id="tab-nbupgrades" style="display:none">
         <div id="company-tier-display"></div>
         <div style="font-size:0.68rem;color:#888;margin-bottom:4px">Invest in neighborhoods to unlock bonuses.</div>
@@ -520,7 +592,7 @@ body.cb-active #toast-stack{top:106px}
       <div class="trophy-grid" id="trophy-grid"></div>
     </div>
     <div class="panel">
-      <h2>📜 Log</h2>
+      <h2>📜 Log <span class="sync-wrap" title="Cloud sync status"><span class="sync-dot offline" id="sync-dot"></span></span></h2>
       <div class="log-entries" id="log"></div>
       <div class="save-controls">
         <button onclick="manualSave()">💾 Save</button>
@@ -629,36 +701,152 @@ const canvas=$('gc'),ctx=canvas.getContext('2d');
 let W,H;function resize(){W=canvas.width=canvas.parentElement.clientWidth;H=canvas.height=canvas.parentElement.clientHeight}
 resize();window.addEventListener('resize',resize);
 
-// ═══ SOUND EFFECTS (Web Audio API, zero deps) ═══
+// ═══ SOUND DESIGN (Web Audio API — fully synthesized, zero audio files) ═══
+// Mixer buses: master → destination, sfx/amb → master. Sliders retune buses live.
+// Autoplay-safe: the AudioContext is only created/resumed on a real user gesture.
+const AUDIO_DEFAULTS={master:0.8,sfx:1,ambient:0.55,muted:true};
+function loadAudioSettings(){
+  try{const j=JSON.parse(localStorage.getItem('ll_audio'));if(j&&typeof j==='object'){
+    return {master:_clamp01(j.master,0.8),sfx:_clamp01(j.sfx,1),ambient:_clamp01(j.ambient,0.55),muted:!!j.muted}}}catch(e){}
+  // Migrate legacy single mute flag
+  const legacy=localStorage.getItem('ll_muted');const d=Object.assign({},AUDIO_DEFAULTS);
+  if(legacy!==null)d.muted=legacy!=='false';return d;
+}
+function _clamp01(v,dflt){v=Number(v);return isFinite(v)?Math.max(0,Math.min(1,v)):dflt}
 const SFX={
-  ctx:null,muted:localStorage.getItem('ll_muted')!=='false', // default muted
-  init(){if(!this.ctx){try{this.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
-    if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume()},
-  _tone(freq,dur,type='sine',vol=0.15,delay=0){
-    if(this.muted||!this.ctx)return;const t=this.ctx.currentTime+delay;
+  ctx:null,master:null,sfxBus:null,ambBus:null,_nodes:0,_nb:null,_mower:null,_ambTimer:null,_ambMode:null,_wind:null,
+  set:loadAudioSettings(),
+  get muted(){return this.set.muted},set muted(v){this.set.muted=!!v},
+  init(){
+    if(!this.ctx){try{
+      this.ctx=new (window.AudioContext||window.webkitAudioContext)();
+      this.master=this.ctx.createGain();this.master.gain.value=this.set.master;this.master.connect(this.ctx.destination);
+      this.sfxBus=this.ctx.createGain();this.sfxBus.gain.value=this.set.sfx;this.sfxBus.connect(this.master);
+      this.ambBus=this.ctx.createGain();this.ambBus.gain.value=this.set.ambient;this.ambBus.connect(this.master);
+    }catch(e){}}
+    if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume();
+  },
+  save(){try{localStorage.setItem('ll_audio',JSON.stringify(this.set))}catch(e){}
+    // Keep legacy flag in sync so the mute button reads right pre-init
+    try{localStorage.setItem('ll_muted',this.set.muted?'true':'false')}catch(e){}},
+  applyMix(){if(!this.ctx)return;const t=this.ctx.currentTime;
+    this.master.gain.setTargetAtTime(this.set.master,t,0.02);
+    this.sfxBus.gain.setTargetAtTime(this.set.sfx,t,0.02);
+    this.ambBus.gain.setTargetAtTime(this.set.ambient,t,0.02);},
+  _tone(freq,dur,type='sine',vol=0.15,delay=0,bus){
+    if(this.set.muted||!this.ctx||this._nodes>=12)return;const t=this.ctx.currentTime+delay;
     const o=this.ctx.createOscillator(),g=this.ctx.createGain();
     o.type=type;o.frequency.setValueAtTime(freq,t);
     g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.005);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    o.connect(g);g.connect(this.ctx.destination);o.start(t);o.stop(t+dur+0.02);
+    o.connect(g);g.connect(bus||this.sfxBus||this.ctx.destination);
+    this._nodes++;o.start(t);o.stop(t+dur+0.02);
+    o.onended=()=>{this._nodes=Math.max(0,this._nodes-1);try{o.disconnect();g.disconnect()}catch(e){}};
   },
-  mow(){this._tone(90+Math.random()*40,0.06,'sawtooth',0.05)},
-  cash(){if(this.muted)return;this._tone(800,0.08,'square',0.09);this._tone(1200,0.12,'square',0.09,0.06);this._tone(1600,0.18,'sine',0.08,0.14)},
-  level(){if(this.muted)return;[523,659,784,1047].forEach((f,i)=>this._tone(f,0.2,'triangle',0.11,i*0.08))},
-  click(){this._tone(620,0.03,'sine',0.05)},
-  combo(){if(this.muted)return;const base=500+Math.min(12,S.combo)*55;this._tone(base,0.08,'triangle',0.09);this._tone(base*1.5,0.1,'triangle',0.09,0.07)},
-  rush(){if(this.muted)return;for(let i=0;i<3;i++)this._tone(900,0.1,'square',0.1,i*0.18)}
+  _brownNoise(){if(this._nb)return this._nb;const ctx=this.ctx;const len=ctx.sampleRate*2;
+    const buf=ctx.createBuffer(1,len,ctx.sampleRate);const d=buf.getChannelData(0);let last=0;
+    for(let i=0;i<len;i++){const w=Math.random()*2-1;last=(last+0.02*w)/1.02;d[i]=last*3.2}
+    this._nb=buf;return buf},
+  // ── one-shots ──
+  click(){this._tone(800,0.04,'sine',0.05)},
+  cash(){if(this.set.muted)return;this._tone(1319,0.06,'square',0.08);this._tone(1976,0.09,'square',0.08,0.06);
+    if(S.combo>=5)this._tone(2637,0.12,'sine',0.07,0.13)}, // E6→B6, +E7 sparkle on hot combos
+  combo(){if(this.set.muted)return;const c=Math.min(14,S.combo||0);const base=400+c*80; // chains climb in pitch
+    this._tone(base,0.07,'triangle',0.09);this._tone(base*1.5,0.09,'triangle',0.08,0.06)},
+  comboBreak(){if(this.set.muted||!this.ctx)return;const t=this.ctx.currentTime;
+    const o=this.ctx.createOscillator(),g=this.ctx.createGain(),lp=this.ctx.createBiquadFilter();
+    o.type='sawtooth';o.frequency.setValueAtTime(300,t);o.frequency.exponentialRampToValueAtTime(120,t+0.2);
+    lp.type='lowpass';lp.frequency.value=800;
+    g.gain.setValueAtTime(0.12,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
+    o.connect(lp);lp.connect(g);g.connect(this.sfxBus||this.ctx.destination);
+    this._nodes++;o.start(t);o.stop(t+0.24);o.onended=()=>{this._nodes=Math.max(0,this._nodes-1);try{o.disconnect();g.disconnect();lp.disconnect()}catch(e){}}},
+  level(){if(this.set.muted)return;[523,659,784,1047].forEach((f,i)=>this._tone(f,0.2,'triangle',0.11,i*0.08))},
+  milestone(){if(this.set.muted)return;this.level();[523,659,784].forEach((f,i)=>this._tone(f,0.14,'sine',0.08,0.3+i*0.09))}, // + C-E-G arp
+  prestige(){if(this.set.muted)return;[523,659,784,1047,1319].forEach((f,i)=>{this._tone(f,0.3,'triangle',0.12,i*0.13);this._tone(f/2,0.3,'sine',0.06,i*0.13)})},
+  rush(){if(this.set.muted)return;for(let i=0;i<3;i++)this._tone(900,0.1,'square',0.1,i*0.18)},
+  mow(){}, // legacy per-step tick retired in favor of the looping engine hum below
+  // ── looping mower engine (brown noise → lowpass w/ LFO wobble) ──
+  startMower(){if(this.set.muted||!this.ctx||this._mower)return;const ctx=this.ctx;
+    const src=ctx.createBufferSource();src.buffer=this._brownNoise();src.loop=true;
+    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=220;
+    const g=ctx.createGain();g.gain.value=0;g.gain.linearRampToValueAtTime(0.11,ctx.currentTime+0.3);
+    const lfo=ctx.createOscillator(),lfoG=ctx.createGain();lfo.frequency.value=5.5;lfoG.gain.value=45;
+    lfo.connect(lfoG);lfoG.connect(lp.frequency);
+    src.connect(lp);lp.connect(g);g.connect(this.sfxBus||ctx.destination);
+    try{src.start();lfo.start()}catch(e){}this._mower={src,g,lfo}},
+  stopMower(){if(!this._mower||!this.ctx)return;const{src,g,lfo}=this._mower;const t=this.ctx.currentTime;
+    try{g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(g.gain.value,t);g.gain.linearRampToValueAtTime(0,t+0.2);
+      src.stop(t+0.25);lfo.stop(t+0.25)}catch(e){}this._mower=null},
+  // ── ambient soundscape: birds (spring/summer) / wind (fall) / silence (snow event) ──
+  updateAmbient(){
+    if(!this.ctx||this.set.muted||document.hidden){this._setAmb(null);return}
+    const snowEvent=typeof ACTIVE_EVENT!=='undefined'&&ACTIVE_EVENT&&ACTIVE_EVENT.id==='snow';
+    const season=(S.season&&S.season.name)||'';
+    let mode=null;
+    if(snowEvent)mode=null;
+    else if(season==='Spring'||season==='Summer')mode='birds';
+    else if(season==='Fall'||season==='Autumn')mode='wind';
+    this._setAmb(mode);
+  },
+  _setAmb(mode){
+    if(mode===this._ambMode)return;this._ambMode=mode;
+    if(this._ambTimer){clearTimeout(this._ambTimer);this._ambTimer=null}
+    if(this._wind){const t=this.ctx.currentTime;try{this._wind.g.gain.linearRampToValueAtTime(0,t+0.4);this._wind.src.stop(t+0.5)}catch(e){}this._wind=null}
+    if(mode==='birds')this._scheduleChirp();
+    else if(mode==='wind')this._startWind();
+  },
+  _scheduleChirp(){
+    if(this._ambMode!=='birds')return;
+    const chirp=()=>{if(this._ambMode!=='birds'||this.set.muted||document.hidden){return}
+      const n=1+Math.floor(Math.random()*3);
+      for(let i=0;i<n;i++){const f=2000+Math.random()*2000;this._tone(f,0.05+Math.random()*0.04,'sine',0.05,i*0.09,this.ambBus)}
+      this._ambTimer=setTimeout(chirp,2500+Math.random()*4000)};
+    this._ambTimer=setTimeout(chirp,1500+Math.random()*2500);
+  },
+  _startWind(){if(!this.ctx)return;const ctx=this.ctx;
+    const src=ctx.createBufferSource();src.buffer=this._brownNoise();src.loop=true;
+    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=500;
+    const g=ctx.createGain();g.gain.value=0;g.gain.linearRampToValueAtTime(0.07,ctx.currentTime+0.8);
+    const lfo=ctx.createOscillator(),lfoG=ctx.createGain();lfo.frequency.value=0.3;lfoG.gain.value=0.04;
+    lfo.connect(lfoG);lfoG.connect(g.gain);
+    src.connect(lp);lp.connect(g);g.connect(this.ambBus||ctx.destination);
+    try{src.start();lfo.start()}catch(e){}this._wind={src,g,lfo}},
+  hardStop(){this.stopMower();this._setAmb(null)} // for tab-hidden / focus loss
 };
-function toggleMute(){SFX.muted=!SFX.muted;localStorage.setItem('ll_muted',SFX.muted?'true':'false');
+// Manual jobs drive the engine hum; auto-dispatch (foreman) jobs stay silent.
+function updateMowerLoop(){
+  if(!SFX.ctx)return;
+  if((S.activeDispatches||[]).some(d=>d&&!d.auto))SFX.startMower();else SFX.stopMower();
+}
+function toggleMute(){SFX.muted=!SFX.muted;SFX.save();
   const b=$('mute-btn');if(b)b.textContent=SFX.muted?'🔇':'🔊';
-  if(!SFX.muted){SFX.init();SFX.click();showToast('🔊 Sound on')}else{showToast('🔇 Muted')}}
+  if(!SFX.muted){SFX.init();SFX.applyMix();SFX.click();SFX.updateAmbient();showToast('🔊 Sound on')}
+  else{SFX.hardStop();showToast('🔇 Muted')}
+  syncAudioPopover();}
 // Unlock audio on first user gesture (browsers require this)
 document.addEventListener('click',()=>SFX.init(),{once:true});
 document.addEventListener('keydown',()=>SFX.init(),{once:true});
+// Stop loops when the tab is hidden; resume ambient when it returns
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){SFX.hardStop();if(typeof cloudPush==='function')cloudPush(true);}
+  else{if(!SFX.set.muted&&SFX.ctx){SFX.ctx.resume&&SFX.ctx.resume();SFX.updateAmbient();updateMowerLoop()}}
+});
 // Button click sounds via event delegation
 document.addEventListener('click',e=>{
-  if(SFX.muted)return;
-  if(e.target.closest('.bb,.tab-btn,.nb-btn,.dispatch-btn,.modal button,.save-controls button,.ns-start,.ns-continue'))SFX.click();
+  if(SFX.set.muted)return;
+  if(e.target.closest('.bb,.tab-btn,.nb-btn,.dispatch-btn,.modal button,.save-controls button,.ns-start,.ns-continue,.legacy-buy,.foreman-btn,.audio-pop button'))SFX.click();
 });
+// ── Audio settings popover ──
+function toggleAudioPopover(){const p=$('audio-pop');if(!p)return;const open=p.style.display==='block';
+  if(open){p.style.display='none';return}SFX.init();syncAudioPopover();p.style.display='block'}
+function syncAudioPopover(){
+  const mk=$('ap-master'),sk=$('ap-sfx'),ak=$('ap-amb'),mu=$('ap-mute');
+  if(mk)mk.value=Math.round(SFX.set.master*100);if(sk)sk.value=Math.round(SFX.set.sfx*100);
+  if(ak)ak.value=Math.round(SFX.set.ambient*100);if(mu)mu.checked=!SFX.set.muted;
+  const b=$('mute-btn');if(b)b.textContent=SFX.set.muted?'🔇':'🔊';}
+function onAudioSlider(kind,val){SFX.set[kind]=_clamp01(val/100,SFX.set[kind]);SFX.init();SFX.applyMix();SFX.save()}
+function onAudioMuteToggle(on){SFX.muted=!on;SFX.save();
+  if(!SFX.muted){SFX.init();SFX.applyMix();SFX.updateAmbient();SFX.click()}else{SFX.hardStop()}
+  const b=$('mute-btn');if(b)b.textContent=SFX.muted?'🔇':'🔊'}
 
 // ═══════════════════════════════════════════════════════
 //  v10 VISUAL POLISH ENGINES
@@ -839,6 +1027,213 @@ function shareCard(type){
     const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname;
     document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
     showToast(`📥 ${isVert?'Pinterest':'Square'} card saved!`);
+  },'image/png');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  SUPABASE CONFIG — cloud saves, global leaderboard (v12)
+//  Offline-first: every call is fire-and-forget or gracefully degraded.
+//  The anon key is a public, client-safe key (RLS enforced; honor-system v1).
+// ═══════════════════════════════════════════════════════════════════
+const SUPABASE_URL='https://vxzholcypozuurmsmbub.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4emhvbGN5cG96dXVybXNtYnViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMDM2MjcsImV4cCI6MjA3NTg3OTYyN30.qn6tFm2I5HSP3X0XNa-dRoBYUmuuaemoKRGBs7wzNCg';
+const SB_REST=SUPABASE_URL+'/rest/v1/';
+const SB_HEADERS={'apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON,'Content-Type':'application/json'};
+// Anonymous device identity — a random uuid, no accounts, no PII
+function _uuid(){if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&0x3|0x8)).toString(16)})}
+function getPlayerId(){let id=localStorage.getItem('ll_player_id');
+  if(!id||!/^[0-9a-f-]{36}$/i.test(id)){id=_uuid();try{localStorage.setItem('ll_player_id',id)}catch(e){}}return id}
+const PLAYER_ID=getPlayerId();
+// Fetch wrapper: 5s timeout, silent failure → returns null, flips the sync dot to offline
+async function sbFetch(path,opts){
+  opts=opts||{};const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),5000);
+  try{const res=await fetch(SB_REST+path,{...opts,headers:{...SB_HEADERS,...(opts.headers||{})},signal:ctrl.signal});
+    clearTimeout(to);if(!res.ok)throw new Error('HTTP '+res.status);
+    const txt=await res.text();return txt?JSON.parse(txt):[];
+  }catch(e){clearTimeout(to);setSyncDot('offline');return null}
+}
+
+// ═══ CLOUD SAVE SYNC ═══
+let _cloudPushTimer=null,_lastCloudPush=0,_cloudBusy=false;
+function setSyncDot(state){const d=$('sync-dot');if(!d)return;
+  d.className='sync-dot '+state;
+  d.title=state==='synced'?'☁️ Synced':state==='syncing'?'☁️ Syncing…':'☁️ Offline (playing locally)';}
+async function cloudPushNow(){
+  if(_cloudBusy)return;_cloudBusy=true;setSyncDot('syncing');
+  const body=[{player_id:PLAYER_ID,save_data:getSaveData(),saved_at:new Date().toISOString()}];
+  const r=await sbFetch('ll_saves?on_conflict=player_id',{method:'POST',
+    headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});
+  _cloudBusy=false;_lastCloudPush=Date.now();
+  setSyncDot(r===null?'offline':'synced');
+}
+// Debounced push — never more than 1 write / 30s during normal play. immediate=true bypasses.
+function cloudPush(immediate){
+  if(!S.playerName)return;
+  if(immediate){if(_cloudPushTimer){clearTimeout(_cloudPushTimer);_cloudPushTimer=null}cloudPushNow();return}
+  if(_cloudPushTimer)return; // already scheduled
+  const wait=Math.max(0,30000-(Date.now()-_lastCloudPush));
+  _cloudPushTimer=setTimeout(()=>{_cloudPushTimer=null;cloudPushNow()},wait);
+}
+async function cloudPull(){
+  const r=await sbFetch('ll_saves?player_id=eq.'+encodeURIComponent(PLAYER_ID)+'&select=save_data,saved_at&limit=1');
+  if(r&&r.length&&r[0].save_data)return r[0].save_data;return null;
+}
+// On load: reconcile the cloud save against local. Newest _savedAt wins; a big cloud lead prompts.
+let _pendingCloud=null;
+async function cloudSyncOnLoad(){
+  const cloud=await cloudPull();
+  if(cloud===null){setSyncDot('offline');return}
+  setSyncDot('synced');
+  if(!cloud._savedAt||!cloud.playerName)return;
+  const local=loadSaveData();
+  if(!local){
+    // New device — silently restore, then let the player Continue
+    try{localStorage.setItem(SAVE_KEY,JSON.stringify(cloud));
+      $('ns-saved-name').textContent=cloud.playerName||'';contBtn.style.display='block';
+      $('ns-saved-info').textContent=`Day ${cloud.day|0} · $${Number(cloud.money||0).toLocaleString()} · ${cloud.rep|0}⭐ · ☁️ restored`;
+      showToast('☁️ Cloud save restored!');
+    }catch(e){}
+    return;
+  }
+  const cloudT=new Date(cloud._savedAt).getTime();const localT=local._savedAt?new Date(local._savedAt).getTime():0;
+  if(cloudT-localT>300000)showCloudConflict(cloud,new Date(cloud._savedAt)); // cloud newer by >5 min
+}
+function showCloudConflict(cloud,when){
+  if($('mo').classList.contains('show'))return; // don't stack over another modal
+  _pendingCloud=cloud;
+  $('me').textContent='☁️';$('mt').textContent='Newer Cloud Save Found';$('mx').textContent='';
+  $('modal-extra').innerHTML=`<div style="font-size:0.72rem;color:#cfe;text-align:center;line-height:1.5">A newer cloud save from <strong>${esc(when.toLocaleString())}</strong> was found<br>(Day ${cloud.day|0} · $${Number(cloud.money||0).toLocaleString()}). Load it?</div>`;
+  $('modal-buttons').innerHTML=`<button onclick="loadCloudSave()">☁️ Load Cloud</button><button onclick="closeModal()">Keep Local</button>`;
+  $('mo').classList.add('show');
+}
+function loadCloudSave(){
+  if(!_pendingCloud)return;const c=_pendingCloud;_pendingCloud=null;
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(c))}catch(e){}
+  applySaveData(c);if(!S.runStartMs)S.runStartMs=Date.now();
+  closeModal();$('name-screen').style.display='none';
+  SFX.init();SFX.applyMix();SFX.updateAmbient();
+  initGameUI();showToast('☁️ Cloud save loaded!');
+}
+
+// ═══ GLOBAL LEADERBOARD ═══
+function fmtDuration(s){if(s==null)return '—';s=+s;const m=Math.floor(s/60),ss=s%60;return (m>0?m+'m ':'')+ss+'s'}
+const LB_BOARDS={
+  valuation:{label:'💼 Value',order:'valuation.desc',fmt:v=>'$'+Number(v.valuation||0).toLocaleString()},
+  combo:{label:'⚡ Combo',order:'best_combo.desc',fmt:v=>(v.best_combo||0)+'x'},
+  fastest:{label:'🚀 $100k',order:'fastest_100k_seconds.asc',fmt:v=>fmtDuration(v.fastest_100k_seconds)},
+};
+let _lbBoard='valuation',_lbCache={},_lbCacheAt={};
+function isProfane(n){const bl=['fuck','shit','bitch','cunt','nigger','faggot','rape','nazi','slut','whore','dick','asshole'];
+  const s=String(n).toLowerCase().replace(/[^a-z]/g,'');return bl.some(w=>s.includes(w))}
+function pushLeaderboard(){
+  if(!S.lbOptIn||!S.lbName)return;
+  const body=[{player_id:PLAYER_ID,display_name:String(S.lbName).slice(0,20),valuation:calcValuation(),
+    jobs_completed:S.lifetimeJobs|0,best_combo:Math.max(S.bestComboEver|0,S.maxCombo|0),prestige_level:S.prestigeLevel|0,
+    fastest_100k_seconds:S.fastest100kSeconds==null?null:(S.fastest100kSeconds|0)}];
+  sbFetch('ll_leaderboard?on_conflict=player_id',{method:'POST',
+    headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});
+}
+async function fetchBoard(board,force){
+  const now=Date.now();
+  if(!force&&_lbCache[board]&&(now-(_lbCacheAt[board]||0))<60000)return _lbCache[board];
+  const b=LB_BOARDS[board];
+  let q='ll_leaderboard?select=player_id,display_name,valuation,best_combo,prestige_level,fastest_100k_seconds&order='+b.order+'&limit=25';
+  if(board==='fastest')q+='&fastest_100k_seconds=not.is.null';
+  const r=await sbFetch(q);
+  if(r){_lbCache[board]=r;_lbCacheAt[board]=now;setSyncDot('synced');return r}
+  return _lbCache[board]||null;
+}
+function setLbBoard(b){SFX.click();_lbBoard=b;renderGlobalLB()}
+async function renderGlobalLB(force){
+  const el=$('global-lb');if(!el)return;
+  let optHtml;
+  if(!S.lbOptIn){
+    optHtml=`<div class="lb-optin"><div style="font-size:0.68rem;color:#b7e4c7;font-weight:700">🌍 Join the global rankings?</div>
+      <input id="lb-name-input" maxlength="20" placeholder="Display name (max 20)" value="${esc(S.lbName||S.playerName||'')}">
+      <button class="bb" style="width:100%" onclick="joinLeaderboard()">🌍 Join Rankings</button>
+      <div style="font-size:0.55rem;color:#888;margin-top:4px">You can view the boards without joining.</div></div>`;
+  }else{
+    optHtml=`<div style="font-size:0.6rem;color:#7bc97b;margin-bottom:5px">🌍 Ranked as <strong>${esc(S.lbName)}</strong> · <span onclick="leaveLeaderboard()" style="color:#e74c3c;cursor:pointer;text-decoration:underline">leave</span></div>`;
+  }
+  const subs=Object.keys(LB_BOARDS).map(k=>`<div class="lb-tab ${_lbBoard===k?'active':''}" onclick="setLbBoard('${k}')">${LB_BOARDS[k].label}</div>`).join('');
+  el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <div style="font-size:0.72rem;color:#42a5f5;font-weight:700">🌍 Global Leaderboard</div>
+      <button class="bb" style="font-size:0.55rem;padding:2px 7px" onclick="renderGlobalLB(true)" title="Refresh">🔄</button></div>
+    ${optHtml}<div class="lb-sub">${subs}</div><div id="lb-list"><div style="font-size:0.6rem;color:#888;text-align:center;padding:8px">Loading…</div></div>`;
+  const rows=await fetchBoard(_lbBoard,force);
+  const list=$('lb-list');if(!list)return;
+  if(rows===null){list.innerHTML='<div style="font-size:0.6rem;color:#888;text-align:center;padding:8px">☁️ Offline — leaderboard unavailable</div>';return}
+  if(!rows.length){list.innerHTML='<div style="font-size:0.6rem;color:#888;text-align:center;padding:8px">No entries yet — be the first!</div>';return}
+  const b=LB_BOARDS[_lbBoard];const medals=['🥇','🥈','🥉'];
+  list.innerHTML=rows.map((r,i)=>{const me=r.player_id===PLAYER_ID;const rank=medals[i]||('#'+(i+1));
+    return `<div class="lb-row ${me?'me':''}"><span class="lb-rank">${rank}</span><span class="lb-name">${esc(r.display_name||'Anon')}${(r.prestige_level|0)>0?` <span style="color:#ffd54f">P${r.prestige_level}</span>`:''}</span><span class="lb-val">${b.fmt(r)}</span></div>`}).join('');
+}
+function joinLeaderboard(){
+  const inp=$('lb-name-input');let name=cleanName(inp?inp.value:'',20);
+  if(!name){showErrorToast('Enter a display name');return}
+  if(isProfane(name)){showErrorToast('Please choose a different name');return}
+  S.lbName=name;S.lbOptIn=true;saveGame();pushLeaderboard();showToast('🌍 Joined the global rankings!');renderGlobalLB(true);
+}
+function leaveLeaderboard(){SFX.click();S.lbOptIn=false;saveGame();showToast('Left the rankings.');renderGlobalLB()}
+// Fastest-to-$100k: first time this run's earnings cross $100k, record the best elapsed time
+function checkFastest100k(){
+  if(!S.runStartMs||S.totalEarnings<100000)return;
+  const secs=Math.max(1,Math.round((Date.now()-S.runStartMs)/1000));
+  if(S.fastest100kSeconds==null||secs<S.fastest100kSeconds)S.fastest100kSeconds=secs;
+}
+
+// ═══ SHAREABLE ACHIEVEMENT CARDS (1080×1080, offscreen canvas) ═══
+function generateAchievementCard(ach){
+  const w=1080,h=1080,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
+  const grad=g.createLinearGradient(0,0,0,h);grad.addColorStop(0,'#0a2f1f');grad.addColorStop(1,'#1a3a2a');
+  g.fillStyle=grad;g.fillRect(0,0,w,h);
+  // Mowed-stripe pattern band (alternating green rects at low alpha)
+  for(let i=0;i<26;i++){g.fillStyle=`rgba(82,183,136,${i%2?0.06:0.015})`;g.fillRect(0,i*(h/26),w,h/26)}
+  // Confetti dots for milestone-tier achievements
+  const milestoneTier=ach.rarity==='legendary'||ach.rarity==='epic';
+  if(milestoneTier){const cols=['#ffd54f','#52b788','#42a5f5','#e74c3c','#bb86fc'];
+    for(let i=0;i<90;i++){g.fillStyle=cols[i%cols.length];g.globalAlpha=0.25+Math.random()*0.4;
+      g.beginPath();g.arc(Math.random()*w,Math.random()*h*0.9,2+Math.random()*5,0,Math.PI*2);g.fill()}g.globalAlpha=1}
+  const cx=w/2;g.textAlign='center';g.textBaseline='middle';
+  // rarity ribbon
+  const rarCol={common:'#9ab',rare:'#42a5f5',epic:'#bb86fc',legendary:'#ffd54f'}[ach.rarity]||'#9ab';
+  g.fillStyle=rarCol;g.font=`800 ${Math.round(w*0.03)}px system-ui,-apple-system,sans-serif`;
+  g.fillText('ACHIEVEMENT UNLOCKED',cx,h*0.13);
+  g.fillStyle=rarCol;g.font=`700 ${Math.round(w*0.026)}px system-ui,-apple-system,sans-serif`;
+  g.fillText(String(ach.rarity).toUpperCase(),cx,h*0.185);
+  // big emoji
+  g.font=`${Math.round(w*0.22)}px system-ui,-apple-system,sans-serif`;g.fillText(ach.emoji,cx,h*0.36);
+  // name + desc
+  g.fillStyle='#fff';g.font=`900 ${Math.round(w*0.072)}px system-ui,-apple-system,sans-serif`;g.fillText(String(ach.name).slice(0,22),cx,h*0.51);
+  g.fillStyle='#b7e4c7';g.font=`500 ${Math.round(w*0.032)}px system-ui,-apple-system,sans-serif`;g.fillText(String(ach.desc).slice(0,54),cx,h*0.575);
+  // player name + rank
+  g.fillStyle='#fff';g.font=`bold ${Math.round(w*0.05)}px system-ui,-apple-system,sans-serif`;
+  g.fillText((S.playerName||'Player').slice(0,18),cx,h*0.66);
+  g.fillStyle='#ffd54f';g.font=`600 ${Math.round(w*0.03)}px system-ui,-apple-system,sans-serif`;
+  g.fillText(getPrestigeRank(),cx,h*0.705);
+  // 3 stat columns
+  const statsY=h*0.8;const stats=[['💼','$'+calcValuation().toLocaleString(),'VALUATION'],['✅',String(S.lifetimeJobs|0),'JOBS'],['⚡',(Math.max(S.bestComboEver|0,S.maxCombo|0))+'x','BEST COMBO']];
+  const colsX=[w*0.23,w*0.5,w*0.77];
+  stats.forEach((s,i)=>{const x=colsX[i];
+    g.fillStyle='#52b788';g.font=`900 ${Math.round(w*0.042)}px system-ui,-apple-system,sans-serif`;g.fillText(s[1],x,statsY);
+    g.fillStyle='#888';g.font=`700 ${Math.round(w*0.02)}px system-ui,-apple-system,sans-serif`;g.fillText(s[2],x,statsY+h*0.045)});
+  // footer wordmark + url
+  g.fillStyle='#b7e4c7';g.font=`900 ${Math.round(w*0.05)}px system-ui,-apple-system,sans-serif`;g.fillText('🌱 LAWN LEGEND',cx,h*0.91);
+  g.fillStyle='#6b8';g.font=`600 ${Math.round(w*0.026)}px system-ui,-apple-system,sans-serif`;g.fillText('lawn-legend.vercel.app',cx,h*0.955);
+  return c;
+}
+function shareAchievementCard(achId){
+  SFX.click();const ach=ACHIEVEMENTS.find(a=>a.id===achId);if(!ach)return;
+  const c=generateAchievementCard(ach);
+  c.toBlob(async blob=>{
+    if(!blob){showToast('❌ Card failed');return}
+    const file=new File([blob],'lawn-legend-'+achId+'.png',{type:'image/png'});
+    const text=`I just unlocked ${ach.emoji} ${ach.name} in Lawn Legend 🌱 Can you beat my $${calcValuation().toLocaleString()} valuation? https://lawn-legend.vercel.app`;
+    try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text,title:'Lawn Legend'});showToast('📸 Shared!');return}}
+    catch(e){if(e&&e.name==='AbortError')return}
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='lawn-legend-'+achId+'.png';
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);showToast('📥 Achievement card saved!');
   },'image/png');
 }
 
@@ -1205,6 +1600,13 @@ const S={
   specialContract:null,       // active premium contract (or null)
   specialOffer:null,          // pending premium contract offer (or null)
   comboEdge:false,            // New Game+ starter perk: longer combo window
+  // ═══ PRESTIGE 2.0 — LEGACY POINTS + CREW AUTO-DISPATCH (v11) ═══
+  legacy:{points:0,perks:{}}, // banked Legacy Points + {perkId:level} permanent perk tree
+  runStartMs:0,               // wall-clock start of this run (fastest-to-$100k timer, U5)
+  fastest100kSeconds:null,    // best time (s) from run start to $100k lifetime money
+  lbOptIn:false,              // opted into the global leaderboard (U5)
+  lbName:'',                  // chosen public display name (U5)
+  bestComboEver:0,            // lifetime highest combo (leaderboard + share card)
 };
 
 function getProps(){return S.nbJobs[S.curNB]||[]}
@@ -1232,8 +1634,9 @@ function getTotalCrewCap(){if(S.trucks.length===0)return 1;return S.trucks.reduc
 function hasTruck(){return S.trucks.length>0}
 function buyTruck(typeIdx){
   const tt=TRUCK_TYPES[typeIdx];if(!tt)return;
-  if(S.money<tt.cost){showErrorToast('Not enough money!');return}
-  S.money-=tt.cost;trackSpend(tt.cost);
+  const cost=Math.round(tt.cost*legacyPriceMult());
+  if(S.money<cost){showErrorToast('Not enough money!');return}
+  S.money-=cost;trackSpend(cost);
   S.trucks.push({type:tt.id,maxCrew:tt.maxCrew,name:`${tt.name} #${S.trucks.length+1}`});
   showToast(`🚛 Bought ${tt.name}! Crew cap now ${getTotalCrewCap()}`);
   addLog(`🚛 New truck: <span class="hl">${tt.name}</span>`);updateUI();checkMilestones();
@@ -1262,6 +1665,39 @@ const PERKS=[
   {id:'insurance',name:'Insurance',emoji:'🛡️',desc:'Event repair costs halved',cost:4},
   {id:'endurance',name:'Endurance',emoji:'💪',desc:'+2 work hours per day',cost:5},
 ];
+
+// ═══ LEGACY PERK TREE (permanent, bought with Legacy Points across all future runs) ═══
+const LEGACY_PERKS=[
+  {id:'seed_money',   name:'Seed Money',       emoji:'💰', maxLevel:5, cost:l=>l+1,     desc:'+$300 starting cash per level'},
+  {id:'silver_tongue',name:'Silver Tongue',    emoji:'🗣️', maxLevel:3, cost:l=>2*(l+1), desc:'+10% job pay per level'},
+  {id:'chain_master', name:'Chain Master',     emoji:'⚡', maxLevel:3, cost:l=>2*(l+1), desc:'Combo timer +15% duration per level'},
+  {id:'cheap_labor',  name:'Networked Hiring', emoji:'👷', maxLevel:3, cost:l=>2*(l+1), desc:'Crew wages -10% per level'},
+  {id:'fleet_deal',   name:'Fleet Discount',   emoji:'🚛', maxLevel:2, cost:l=>3*(l+1), desc:'Trucks & equipment -15% per level'},
+  {id:'night_owl',    name:'Night Owl Crews',  emoji:'🌙', maxLevel:2, cost:l=>3*(l+1), desc:'Offline earnings cap +2 hours per level'},
+  {id:'local_fame',   name:'Local Fame',       emoji:'⭐', maxLevel:3, cost:l=>2*(l+1), desc:'+15% rep gain per level'},
+];
+function legacyLevel(id){return (S.legacy&&S.legacy.perks&&S.legacy.perks[id])|0}
+function legacyPerkCost(p){return p.cost(legacyLevel(p.id))}
+function legacyPayMult(){return 1+legacyLevel('silver_tongue')*0.10}
+function legacyRepMult(){return 1+legacyLevel('local_fame')*0.15}
+function legacyComboTimerMult(){return 1+legacyLevel('chain_master')*0.15}
+function legacyWageMult(){return Math.max(0,1-legacyLevel('cheap_labor')*0.10)}
+function legacyPriceMult(){return Math.max(0.4,1-legacyLevel('fleet_deal')*0.15)}
+function legacyStartCash(){return legacyLevel('seed_money')*300}
+function legacyOfflineCapHours(){return 8+legacyLevel('night_owl')*2}
+function legacyPointsForValuation(v){
+  // 1 LP per $50k of valuation, +1 bonus LP per full prestige already completed
+  return Math.floor(v/50000)+(S.prestigeLevel||0);
+}
+// ── Prestige rank titles (shown by the player name) ──
+const PRESTIGE_RANKS=[[0,'Owner-Operator'],[1,'Serial Founder'],[2,'Franchise Builder'],[3,'Regional Mogul'],[5,'Industry Titan'],[8,'Lawn Legend 🏆']];
+function getPrestigeRank(lv){lv=(lv==null?(S.prestigeLevel||0):lv);let name=PRESTIGE_RANKS[0][1];for(const[m,n]of PRESTIGE_RANKS)if(lv>=m)name=n;return name}
+const SELL_THRESHOLD=250000;
+// ── Foreman / crew auto-dispatch helpers ──
+function getForeman(truckIdx){const t=S.trucks[truckIdx];if(!t||!t.foreman)return null;return S.crew.find(c=>c&&c.foreman&&c.name===t.foreman)||null}
+function truckHasForeman(truckIdx){return !!getForeman(truckIdx)}
+function autoUnitsCount(){return S.trucks.reduce((n,t,i)=>n+((t&&t.auto&&truckHasForeman(i))?1:0),0)}
+function foremanTruckCount(){return S.trucks.reduce((n,t,i)=>n+(truckHasForeman(i)?1:0),0)}
 
 const GOAL_TEMPLATES=[
   {desc:'Complete {n} jobs this week',key:'jobs',targets:[10,15,20,30],reward:'money',rewardAmt:300},
@@ -1464,7 +1900,7 @@ function checkAchievements(){
     SFX.level();showAchToast(a);
     addLog(`🏅 Achievement unlocked: <span class="hl">${esc(a.name)}</span> (${a.rarity})`);
   });
-  if(any){updateAchBadge();autoSave();
+  if(any){updateAchBadge();autoSave();pushLeaderboard();
     if($('ach-overlay').classList.contains('show'))renderAchievements()}
 }
 function trackSpend(amt){if(amt>0){S.totalSpent+=amt;checkAchievements()}}
@@ -1491,7 +1927,7 @@ function renderAchievements(){
       progHtml=`<div class="ach-bar"><div class="ach-fill" style="width:${pct}%"></div></div><div class="ach-prog-label">${Math.min(p.current,p.target).toLocaleString()} / ${p.target.toLocaleString()}</div>`}catch(e){}}
     d.innerHTML=`<div class="ach-emoji">${hidden?'❔':un?a.emoji:'👤'}</div>
       <div class="ach-info"><div class="ach-name">${hidden?'???':esc(a.name)}</div><div class="ach-desc">${hidden?'Secret achievement — keep playing to discover it!':esc(a.desc)}</div>${progHtml}</div>
-      <div class="rar ${hidden?'secret':a.rarity}">${hidden?'secret':a.rarity}</div>`;
+      ${un?`<button class="ach-share" onclick="shareAchievementCard('${a.id}')" title="Share this achievement">📸</button>`:`<div class="rar ${hidden?'secret':a.rarity}">${hidden?'secret':a.rarity}</div>`}`;
     list.appendChild(d)});
 }
 function updateAchBadge(){const el=$('ach-hdr-count');if(!el)return;const n=S.achievementsUnlocked.size;
@@ -1736,13 +2172,23 @@ function renderCrew(){
   const fd=$('fleet-display');
   let fleetHtml=`<div style="font-size:0.68rem;color:#42a5f5;font-weight:700;margin-bottom:4px">🚛 Fleet (${S.trucks.length} truck${S.trucks.length!==1?'s':''}) — Crew ${S.crew.length}/${getTotalCrewCap()}</div>`;
   if(S.trucks.length===0)fleetHtml+=`<div style="font-size:0.62rem;color:#e74c3c;margin-bottom:4px">No trucks yet! Buy one below to start hiring.</div>`;
+  const eligibleForemen=S.crew.filter(c=>c.level>=3&&!c.foreman).length;
   S.trucks.forEach((t,ti)=>{
     const busy=isTruckBusy(ti);const disp=busy?S.activeDispatches.find(d=>d.truckIdx===ti):null;
     const statusText=busy?`🔧 Working: ${disp?NEIGHBORHOODS[disp.nbIdx].name:''}`:'✅ Available';
-    fleetHtml+=`<div class="fleet-card ${busy?'busy':''}"><div class="fleet-name">🚛 ${t.name}</div><div class="fleet-det">Cap: ${t.maxCrew} crew · <span style="color:${busy?'#42a5f5':'#52b788'}">${statusText}</span></div></div>`});
+    const fore=getForeman(ti);
+    let dispatchRow='';
+    if(fore){
+      dispatchRow=`<div class="dispatch-row"><span class="fore-tag">🎖️ Foreman: ${esc(fore.name)}</span>
+        <label class="auto-toggle"><input type="checkbox" ${t.auto?'checked':''} onchange="toggleAutoDispatch(${ti})"> Auto-dispatch</label></div>`;
+    }else{
+      const canPromote=eligibleForemen>0&&S.money>=1500&&!isAnyTruckBusy();
+      dispatchRow=`<div class="dispatch-row"><button class="foreman-btn bb" ${canPromote?'':'disabled'} onclick="promoteForeman(${ti})" title="Promote a Lv3+ crew member ($1,500)">🎖️ Assign Foreman $1,500</button></div>`;
+    }
+    fleetHtml+=`<div class="fleet-card ${busy?'busy':''}"><div class="fleet-name">🚛 ${t.name}${fore?' <span style="color:#ffd54f;font-size:0.55rem">⚙️AUTO</span>':''}</div><div class="fleet-det">Cap: ${t.maxCrew} crew · <span style="color:${busy?'#42a5f5':'#52b788'}">${statusText}</span></div>${dispatchRow}</div>`});
   fleetHtml+=`<div style="font-size:0.6rem;color:#888;margin:4px 0">Buy trucks to expand crew capacity & dispatch slots:</div>`;
-  TRUCK_TYPES.forEach((tt,i)=>{
-    fleetHtml+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:0.65rem"><span>🚛 ${tt.name} (+${tt.maxCrew} crew)</span><button class="bb" style="font-size:0.55rem;padding:2px 6px" ${S.money<tt.cost||isAnyTruckBusy()?'disabled':''} onclick="buyTruck(${i})">$${tt.cost.toLocaleString()}</button></div>`});
+  TRUCK_TYPES.forEach((tt,i)=>{const price=Math.round(tt.cost*legacyPriceMult());const disc=price<tt.cost;
+    fleetHtml+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:0.65rem"><span>🚛 ${tt.name} (+${tt.maxCrew} crew)</span><button class="bb" style="font-size:0.55rem;padding:2px 6px" ${S.money<price||isAnyTruckBusy()?'disabled':''} onclick="buyTruck(${i})">${disc?`<span style="text-decoration:line-through;opacity:0.5">$${tt.cost.toLocaleString()}</span> `:''}$${price.toLocaleString()}</button></div>`});
   fd.innerHTML=fleetHtml;
   S.crew.forEach((c,i)=>{const d=document.createElement('div');
     d.className=`crew-card ${c.training?'training':''}${!c.available?' unavail':''}`;
@@ -2042,9 +2488,11 @@ function renderSpecialContract(){
 //  v11 SYSTEM 3: OFFLINE PROGRESS
 // ═══════════════════════════════════════════════════════
 function calculateOfflineEarnings(elapsedMs){
-  const hours=Math.min(elapsedMs/3600000,8);
+  const hours=Math.min(elapsedMs/3600000,legacyOfflineCapHours());
   if(hours<0.083)return null; // < 5 min
-  const truckIncome=S.trucks.length*25*hours;
+  // Foreman auto-units keep working at $40/hr; plain trucks tick along at $25/hr.
+  const foremanTrucks=foremanTruckCount();const plainTrucks=Math.max(0,S.trucks.length-foremanTrucks);
+  const truckIncome=(plainTrucks*25+foremanTrucks*40)*hours;
   const contractIncome=S.contracts.reduce((s,c)=>s+c.payPerDay*Math.min(hours/24,c.daysLeft),0)
     +(S.specialContract?S.specialContract.payPerDay*Math.min(hours/24,S.specialContract.daysLeft):0);
   const crewIncome=S.crew.reduce((s,c)=>s+c.level*5*hours,0);
@@ -2090,18 +2538,19 @@ function renderStarterPacks(){
 }
 
 function switchTab(tab){S.activeTab=tab;
-  ['upgrades','crew','perks','contracts','rankings','nbupgrades','stats','help'].forEach((t,i)=>{
+  ['upgrades','crew','perks','contracts','rankings','legacy','nbupgrades','stats','help'].forEach((t,i)=>{
     document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);
     $('tab-'+t).style.display=t===tab?'block':'none'});
   const shown=$('tab-'+tab);if(shown){shown.classList.remove('tab-anim');void shown.offsetWidth;shown.classList.add('tab-anim')}
-  if(tab==='rankings')renderRankings();if(tab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}
+  if(tab==='rankings'){renderRankings();renderGlobalLB()}if(tab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}
+  if(tab==='legacy')renderLegacy();
   if(tab==='stats')renderStats()}
 
-function addCombo(){S.combo++;if(S.combo>S.maxCombo)S.maxCombo=S.combo;
+function addCombo(){S.combo++;if(S.combo>S.maxCombo)S.maxCombo=S.combo;if(S.combo>(S.bestComboEver|0))S.bestComboEver=S.combo;
   if(S.combo===10){S.maxComboCount++;updateDailyProgress('max_combo_count',1)}
   updateDailyProgress('combo_reach',S.combo);
   clearTimeout(S.comboTimer);
-  S.comboTimer=setTimeout(()=>{S.combo=0;S.comboChainEarnings=0;updateComboDisplay()},S.comboEdge?20000:15000);updateComboDisplay(true);
+  S.comboTimer=setTimeout(()=>{S.combo=0;S.comboChainEarnings=0;SFX.comboBreak();updateComboDisplay()},Math.round((S.comboEdge?20000:15000)*legacyComboTimerMult()));updateComboDisplay(true);
   if(S.combo>1){SFX.combo();const m=getComboMult();const col=m>=2?'#ff6b35':m>=1.5?'#ffd54f':'#52b788';fxAtEl('combo-display','combo_spark',{color:col,n:8+Math.min(4,S.combo)})}}
 function getComboMult(){if(S.combo<=1)return 1;const rate=S.perks.has('combo_master')?0.18:0.12;return Math.min(3,1+((S.combo-1)*rate))}
 function updateComboDisplay(bump){const cd=$('combo-display'),el=$('combo-text');if(S.combo<=1){cd.style.display='none';el.classList.remove('maxed');return}
@@ -2115,7 +2564,7 @@ function rollWeather(){const roll=Math.random();let c=0;for(const w of WEATHER_T
   const ws=$('weather-stat');ws.innerHTML=`${S.weather.emoji} <span class="v">${S.weather.name}</span>`;
   const wd=$('weather-display');const cs=S.weather.id==='sunny'||S.weather.id==='cloudy'?'sunny':S.weather.id==='rainy'?'rainy':S.weather.id==='windy'?'windy':S.weather.id==='stormy'?'stormy':'drought';
   wd.innerHTML=`<div class="weather-bar ${cs}">${S.weather.emoji} ${S.weather.name}</div>`}
-function updateSeason(){S.season=getSeason(S.day);$('season-label').textContent=S.season.name}
+function updateSeason(){S.season=getSeason(S.day);$('season-label').textContent=S.season.name;if(SFX.ctx)SFX.updateAmbient()}
 
 function getDayHours(){return S.perks.has('endurance')?10:8}
 function getJobHours(job){const base=job.diff*0.8+0.5;let speed=getSpeed(job);return Math.max(0.3,base/speed)}
@@ -2157,7 +2606,7 @@ function generateNBJobs(nbIdx){
 }
 
 function generateAllDayJobs(){
-  S.nbJobs={};S.activeDispatches.forEach(d=>{clearInterval(d.workTimer)});S.activeDispatches=[];
+  S.nbJobs={};S.activeDispatches.forEach(d=>{clearInterval(d.workTimer)});S.activeDispatches=[];updateMowerLoop();
   S.rushJob=null;clearInterval(S.rushTimer);
   S.dayHoursTotal=getDayHours();S.dayHoursLeft=S.dayHoursTotal;
   NEIGHBORHOODS.forEach((nb,i)=>{if(S.rep>=nb.minRep)S.nbJobs[i]=generateNBJobs(i)});
@@ -2348,6 +2797,7 @@ function updateUI(){
   $('streak-count').textContent=S.streak;$('streak-val').textContent=S.streak;$('streak-bonus').textContent=Math.round(getStreakBonus()*100);
   const _val=calcValuation();if(_val>S.highestValuation)S.highestValuation=_val;
   if(S.crew.length>S.maxCrewCount)S.maxCrewCount=S.crew.length;
+  checkFastest100k();
   animateNumber('company-val',_val,'$');$('sp-count').textContent=S.skillPoints;
   updateDayTimer();renderGoal();renderCompanyTier();updatePrestigeUI();updateAchBadge();updateDailyBadge();
   renderUpgrades();renderNBSel();renderContracts();renderSpecialContract();renderSeasonalBanner();renderPerks();renderCrew();renderTrophies();renderBids();renderActiveJobs();
@@ -2463,6 +2913,7 @@ function dispatchJob(propIdx,truckIdx){
   },stepInt);
 
   S.activeDispatches.push(dispatch);
+  updateMowerLoop();
   S.targetScrollX=propX(propIdx)-W*0.3;
   spawnTruckSlide(TRUCK_COLORS[(truckIdx>=0?truckIdx:0)%TRUCK_COLORS.length]);
   const truckLabel=truckIdx>=0?`Truck #${truckIdx+1}`:'You';
@@ -2477,9 +2928,12 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   const _disp=S.activeDispatches.find(d=>d.nbIdx===nbIdx&&d.propIdx===propIdx&&d.truckIdx===truckIdx);
   const jobSecs=_disp?Math.round((Date.now()-_disp.startTime)/1000):0;
   // Remove from active dispatches
+  const _wasAuto=_disp&&_disp.auto;
   S.activeDispatches=S.activeDispatches.filter(d=>!(d.nbIdx===nbIdx&&d.propIdx===propIdx&&d.truckIdx===truckIdx));
-
+  updateMowerLoop();
   const props=getAllProps(nbIdx);const prop=props[propIdx];if(!prop)return;
+  // ═══ AUTO-DISPATCH (foreman) path: 75% pay, no combo, half XP — active play stays optimal ═══
+  if(_wasAuto){completeAutoDispatch(prop,propIdx,nbIdx,truckIdx);return}
   prop.done=true;prop._justDone=true;
   const hrs=getJobHours(prop.job);S.dayHoursLeft=Math.max(0,S.dayHoursLeft-hrs);
   S.dayPhase=Math.min(0.95,1-(S.dayHoursLeft/S.dayHoursTotal));
@@ -2489,7 +2943,7 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   const comboMult=baseCombo>1?1+((baseCombo-1)*prestigeComboMult()):baseCombo;
   const specBonus=getCrewSpecialtyBonus(prop.job.type);
   const prestigePayMult=prestigeEarningsMult(); // P1/P6+ stacking earnings bonus
-  const payMult=comboMult*(1+specBonus.pay)*prestigePayMult;const comboPay=Math.round(prop.pay*payMult);
+  const payMult=comboMult*(1+specBonus.pay)*prestigePayMult*legacyPayMult();const comboPay=Math.round(prop.pay*payMult);
   S.money+=comboPay;S.totalEarnings+=comboPay;S.dayEarnings+=comboPay;S.dayJobsDone++;SFX.cash();
   updateGoalProgress('jobs',1);updateGoalProgress('earnings',comboPay);degradeEquipment(prop.job.type);
 
@@ -2503,7 +2957,7 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
     S.lifetimeTips+=tip;updateDailyProgress('tips_today',tip);updateDailyProgress('tip_count',1);
     setTimeout(()=>showToast(`${cust.emoji} 5-star! +$${tip} tip!`),600)}
 
-  const repMult=1+(S.equipment.signage*0.25)+getNBRepBonus(nbIdx);const repGain=Math.round(prop.job.diff*repMult);S.rep+=repGain;
+  const repMult=(1+(S.equipment.signage*0.25)+getNBRepBonus(nbIdx))*legacyRepMult();const repGain=Math.round(prop.job.diff*repMult);S.rep+=repGain;
   if(prop.isRush){clearInterval(S.rushTimer);S.rushJob=null}
 
   S.jobsDone++;
@@ -2552,6 +3006,93 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   updateChallengeProgress();checkEmailTriggers();
 }
 
+// Foreman-run auto job: pays 75%, contributes nothing to combos, half XP. A floor, never a replacement.
+function completeAutoDispatch(prop,propIdx,nbIdx,truckIdx){
+  prop.done=true;prop._justDone=true;
+  const hrs=getJobHours(prop.job);S.dayHoursLeft=Math.max(0,S.dayHoursLeft-hrs);
+  S.dayPhase=Math.min(0.95,1-(S.dayHoursLeft/S.dayHoursTotal));
+  const specBonus=getCrewSpecialtyBonus(prop.job.type);
+  const pay=Math.round(prop.pay*0.75*(1+specBonus.pay)*prestigeEarningsMult()*legacyPayMult());
+  S.money+=pay;S.totalEarnings+=pay;S.dayEarnings+=pay;S.dayJobsDone++;
+  updateGoalProgress('jobs',1);updateGoalProgress('earnings',pay);degradeEquipment(prop.job.type);
+  const repGain=Math.round(prop.job.diff*(1+(S.equipment.signage*0.25)+getNBRepBonus(nbIdx))*legacyRepMult());S.rep+=repGain;
+  S.jobsDone++;S.lifetimeJobs++;
+  S.jobTypesCompleted.add(prop.job.type);S.jobTypeCounts[prop.job.type]=(S.jobTypeCounts[prop.job.type]||0)+1;
+  if(prop.job.seasonal)S.seasonalEventsCompleted[prop.job.type]=(S.seasonalEventsCompleted[prop.job.type]||0)+1;
+  // Foreman + assigned crew earn XP at half rate
+  const fore=getForeman(truckIdx);const xp=prop.job.diff*0.5;
+  if(fore)fore.xp+=xp;getAvailableCrew().slice(0,2).forEach(c=>{if(c!==fore)c.xp+=xp});
+  updateDailyProgress('jobs_today',1);updateDailyProgress('earnings_today',pay);updateDailyProgress('rep_today',repGain);
+  if(S.jobsDone%8===0){S.skillPoints++}
+  SFX.cash();
+  if(nbIdx===S.curNB){const hc=prop.houseConfig;spawnCash(propX(propIdx)+hc.w+15+hc.yardCols*YARD_TILE/2,PROP_Y+20+hc.yardRows*YARD_TILE/2,pay,false)}
+  const crewLabel=`Crew ${truckIdx+1}`;
+  showToast(`🚛 ${crewLabel} auto-completed ${prop.job.name} (+$${pay})`);
+  addLog(`🚛 <span class="hl">${crewLabel}</span> auto-completed ${prop.job.name} <span style="color:#7bc97b">(+$${pay})</span>`);
+  updateDayTimer();updateUI();renderJobs();renderNBSel();renderActiveJobs();checkMilestones();checkAchievements();
+}
+
+// ═══ CREW AUTO-DISPATCH (Foreman units) ═══
+function promoteForeman(truckIdx){
+  const t=S.trucks[truckIdx];if(!t||t.foreman)return;
+  if(isAnyTruckBusy()){showToast('Wait for crews to finish!');return}
+  if(S.money<1500){showErrorToast('Foreman costs $1,500!');return}
+  // Promote the highest-level un-promoted crew member (level 3+)
+  const cand=S.crew.filter(c=>c.level>=3&&!c.foreman).sort((a,b)=>b.level-a.level)[0];
+  if(!cand){showToast('Need a Lv3+ crew member to promote!');return}
+  S.money-=1500;trackSpend(1500);
+  cand.foreman=true;t.foreman=cand.name;t.auto=true;
+  showToast(`🎖️ ${cand.name} promoted to Foreman of ${t.name}!`);
+  addLog(`🎖️ <span class="hl">${esc(cand.name)}</span> is now Foreman — ${t.name} auto-dispatches jobs.`);
+  updateUI();autoSave();
+}
+function toggleAutoDispatch(truckIdx){const t=S.trucks[truckIdx];if(!t||!t.foreman)return;
+  t.auto=!t.auto;showToast(t.auto?`⚙️ ${t.name} auto-dispatch ON`:`⏸️ ${t.name} auto-dispatch OFF`);
+  renderCrew();autoSave()}
+function pickAutoJob(){
+  // Lowest-pay available job the unit can handle — leave the big/combo jobs for the player
+  let best=null;
+  Object.keys(S.nbJobs).forEach(k=>{const nb=+k;const props=S.nbJobs[nb]||[];
+    props.forEach((p,pi)=>{if(!p||p.done||p.isRush||isJobBeingWorked(nb,pi))return;
+      if(getJobHours(p.job)>S.dayHoursLeft)return;
+      if(!best||p.pay<best.pay)best={nb,pi,pay:p.pay}})});
+  return best;
+}
+function autoDispatchTick(){
+  if(!S.playerName)return;const ns=$('name-screen');if(ns&&ns.style.display!=='none')return;
+  if(S.dayHoursLeft<=0.3)return;
+  S.trucks.forEach((t,ti)=>{
+    if(!t.auto||!truckHasForeman(ti)||isTruckBusy(ti))return; // cap: 1 job per unit at a time
+    const job=pickAutoJob();if(!job)return;
+    startAutoDispatch(job.nb,job.pi,ti);
+  });
+}
+function startAutoDispatch(nbIdx,propIdx,truckIdx){
+  const props=getAllProps(nbIdx);const prop=props[propIdx];if(!prop||prop.done)return;
+  if(isJobBeingWorked(nbIdx,propIdx)||isTruckBusy(truckIdx))return;
+  const workPath=getWorkPath(prop.tiles,prop.job.work||prop.job.type);const workTotal=workPath.length;
+  const dispatch={truckIdx,nbIdx,propIdx,workPath,workStep:0,workTotal,workTimer:null,startTime:Date.now(),auto:true};
+  if(workTotal===0){S.activeDispatches.push(dispatch);completeDispatch(nbIdx,propIdx,truckIdx);return}
+  const totalTime=Math.max(1,Math.round(prop.job.timeBase/getSpeed(prop.job)));
+  const stepInt=(totalTime*1000)/workTotal;
+  dispatch.workTimer=setInterval(()=>{
+    if(dispatch.workStep>=dispatch.workTotal){clearInterval(dispatch.workTimer);completeDispatch(dispatch.nbIdx,dispatch.propIdx,dispatch.truckIdx);return}
+    const wp=dispatch.workPath[dispatch.workStep];const nbp=getAllProps(dispatch.nbIdx);const dprop=nbp[dispatch.propIdx];
+    if(!dprop){clearInterval(dispatch.workTimer);return}
+    const tl=dprop.tiles[wp.r][wp.c];
+    if(!tl.done){tl.done=true;
+      if(dispatch.nbIdx===S.curNB){const hc=dprop.houseConfig;const px=propX(dispatch.propIdx)+hc.w+15+wp.c*YARD_TILE+YARD_TILE/2;const py=PROP_Y+20+wp.r*YARD_TILE+YARD_TILE/2;
+        if(tl.type==='tall_grass')spawnP(px,py,'grass',3);else if(tl.type==='leafy')spawnP(px,py,'leaf',tl.lc);
+        else if(tl.type==='garden_bed'){tl.fg=0.05;spawnP(px,py,'dirt',2)}else if(tl.type==='bare_dirt')spawnP(px,py,'dirt',2);else spawnP(px,py,'grass',2)}}
+    dispatch.workStep++;
+    if(dispatch.nbIdx===S.curNB){renderActiveJobs();renderJobs()}
+  },stepInt);
+  S.activeDispatches.push(dispatch);
+  spawnTruckSlide(TRUCK_COLORS[truckIdx%TRUCK_COLORS.length]); // reuse the truck slide-in feedback
+  addLog(`🚛 <span class="hl">Crew ${truckIdx+1}</span> auto-dispatched: ${prop.job.name} at ${NEIGHBORHOODS[nbIdx].name}`);
+  renderActiveJobs();renderJobs();renderNBSel();
+}
+
 function maybeSpawnRush(){if(S.rushJob)return;
   const avail=JOB_TYPES.filter(j=>!j.stormOnly&&!(j.reqTrimmer&&S.equipment.trimmer<(j.reqTrimmer||0))&&!(j.reqTruck&&!hasTruck())&&!(j.reqBlower&&S.equipment.blower<(j.reqBlower||0)));
   const job=avail[R(0,avail.length-1)];const nb=NEIGHBORHOODS[S.curNB];
@@ -2577,8 +3118,8 @@ function renderUpgrades(){const l=$('upgrade-list');l.innerHTML='';
     const d=document.createElement('div');d.className='upgrade-card';
     d.innerHTML=`<div class="ui"><div class="un">${u.icon} ${u.key[0].toUpperCase()+u.key.slice(1)}</div><div class="ud">${mx?'MAX':`${next.n} — ${next.d}`}</div><div class="ul">${u.levels[cur].n}</div>${durBar}</div><div style="display:flex;flex-direction:column;align-items:end;gap:2px">${maintBtns}${mx?'<span style="color:#52b788;font-size:0.65rem">✅</span>':`<button class="bb" ${S.money<next.c||isAnyTruckBusy()?'disabled':''} onclick="buyUpgrade('${u.key}')">⬆️ $${next.c.toLocaleString()}</button>`}</div>`;
     l.appendChild(d)})}
-function buyUpgrade(k){const u=UPGRADES.find(x=>x.key===k),n=S.equipment[k]+1;if(n>=u.levels.length)return;const nx=u.levels[n];if(S.money<nx.c)return;
-  S.money-=nx.c;trackSpend(nx.c);S.equipment[k]=n;S.equipDurability[k]=100;S.equipRepairs[k]=0;showToast(`${u.icon} ${nx.n}!`);updateUI();renderJobs();checkMilestones()}
+function buyUpgrade(k){const u=UPGRADES.find(x=>x.key===k),n=S.equipment[k]+1;if(n>=u.levels.length)return;const nx=u.levels[n];const cost=Math.round(nx.c*legacyPriceMult());if(S.money<cost)return;
+  S.money-=cost;trackSpend(cost);S.equipment[k]=n;S.equipDurability[k]=100;S.equipRepairs[k]=0;showToast(`${u.icon} ${nx.n}!`);updateUI();renderJobs();checkMilestones()}
 function renderPerks(){const l=$('perk-list');l.innerHTML='';
   PERKS.forEach(p=>{const owned=S.perks.has(p.id);const d=document.createElement('div');d.className=`perk-card ${owned?'owned':''}`;
     d.innerHTML=`<div class="perk-info"><div class="perk-name">${p.emoji} ${p.name}</div><div class="perk-desc">${p.desc}</div>${owned?'<div style="color:#52b788;font-size:0.6rem">✅</div>':`<div class="perk-cost">🧠 ${p.cost}pt</div>`}</div>${owned?'':`<button class="bb" ${S.skillPoints<p.cost?'disabled':''} onclick="buyPerk('${p.id}')">Get</button>`}`;
@@ -2610,115 +3151,133 @@ function prestigeStartCash(){return prestigeSum('startCash')}
 function prestigeStartTrucks(){return Math.max(0,Math.floor(prestigeSum('startTruck')))}
 function prestigeStartCrew(){return Math.max(0,Math.floor(prestigeSum('startCrew')))}
 
-function showPrestigeModal(){
-  if(calcValuation()<1000000){showToast('🔒 Need $1M valuation to prestige!');return}
-  const nextLevel=(S.prestigeLevel||0)+1;
-  const bonus=getPrestigeBonusAt(nextLevel);
-  const fastest=S.fastestMillionaire?`Fastest $1M: <strong style="color:#ffd54f">Day ${S.fastestMillionaire}</strong><br>`:'';
-  const existingBonuses=(S.prestigeBonuses||[]).map(b=>`<div class="pbl-item">⭐ P${b.level}: ${esc(b.desc)}</div>`).join('')||'<div style="color:#888;font-size:0.68rem">(none yet)</div>';
-  $('me').textContent='⭐';$('mt').textContent=`Prestige ${nextLevel}`;$('mx').textContent='Start a new franchise! You keep permanent bonuses but reset everything else.';
-  $('modal-extra').innerHTML=`
-    <div class="day-summary">
-      <div class="day-stat-row"><span class="dsl">Current Prestige</span><span class="dsv">P${S.prestigeLevel||0}</span></div>
-      <div class="day-stat-row"><span class="dsl">Run Days</span><span class="dsv">${S.day}</span></div>
-      <div class="day-stat-row"><span class="dsl">Run Earnings</span><span class="dsv">$${S.totalEarnings.toLocaleString()}</span></div>
-      <div class="day-stat-row"><span class="dsl">Run Jobs</span><span class="dsv">${S.jobsDone}</span></div>
-      <div class="day-stat-row"><span class="dsl">Valuation</span><span class="dsv">$${calcValuation().toLocaleString()}</span></div>
-      ${S.fastestMillionaire?`<div class="day-stat-row bonus"><span class="dsl">Fastest $1M</span><span class="dsv">Day ${S.fastestMillionaire}</span></div>`:''}
-    </div>
-    <div class="prestige-bonus-list">
-      <div class="pbl-title">🏆 Permanent Bonuses</div>
-      ${existingBonuses}
-      <div class="pbl-item" style="color:#7bc97b;margin-top:6px">🆕 P${nextLevel} reward: <strong>${esc(bonus.desc)}</strong></div>
+// ═══ LEGACY TAB (Prestige 2.0 — Sell the Company + permanent perk tree) ═══
+function renderLegacy(){
+  const panel=$('legacy-panel');if(!panel)return;
+  const val=calcValuation();const wouldEarn=legacyPointsForValuation(val);const banked=(S.legacy&&S.legacy.points)|0;
+  const canSell=val>=SELL_THRESHOLD;const lv=S.prestigeLevel||0;
+  const pct=Math.min(100,Math.round(val/SELL_THRESHOLD*100));
+  let head=`<div class="lg-head">
+    <div class="lg-rank">🏆 ${esc(getPrestigeRank())} <span class="lg-plvl">Prestige ${lv}</span></div>
+    <div class="lg-stat"><span>Valuation</span><strong>$${val.toLocaleString()}</strong></div>
+    <div class="lg-stat"><span>Sell now → earn</span><strong style="color:#ffd54f">${wouldEarn} LP</strong></div>
+    <div class="lg-stat"><span>Banked Legacy Points</span><strong style="color:#7bc97b">${banked} LP</strong></div>
+    <div class="lg-progress"><div class="lg-fill" style="width:${pct}%"></div></div>
+    <div class="lg-progress-lbl">${canSell?'✅ Ready to sell':`$${val.toLocaleString()} / $${SELL_THRESHOLD.toLocaleString()} to sell`}</div>
+    <button class="lg-sell ${canSell?'':'disabled'}" ${canSell?'':'disabled'} onclick="showSellModal()">💼 Sell the Company</button>
+  </div>`;
+  let perks=`<div class="lg-perks-title">🌳 Legacy Perks <span style="color:#888;font-weight:400">(permanent, all future runs)</span></div><div class="lg-perk-grid">`;
+  LEGACY_PERKS.forEach(p=>{
+    const lvl=legacyLevel(p.id);const maxed=lvl>=p.maxLevel;const cost=p.cost(lvl);
+    const afford=banked>=cost;
+    const pips=Array.from({length:p.maxLevel},(_,i)=>`<span class="lg-pip ${i<lvl?'on':''}"></span>`).join('');
+    perks+=`<div class="lg-perk ${maxed?'maxed':''}">
+      <div class="lg-perk-top"><span class="lg-perk-name">${p.emoji} ${esc(p.name)}</span><span class="lg-pips">${pips}</span></div>
+      <div class="lg-perk-desc">${esc(p.desc)}</div>
+      ${maxed?`<div class="lg-perk-max">✅ MAXED</div>`:`<button class="legacy-buy bb" ${afford?'':'disabled'} onclick="buyLegacyPerk('${p.id}')">${cost} LP →</button>`}
     </div>`;
-  $('modal-buttons').innerHTML=`<button class="purple" onclick="doPrestigeReset()" style="background:linear-gradient(135deg,#b8860b,#ffd700);color:#1a1a1a;font-weight:800">⭐ Prestige Now</button><button onclick="closeModal()">Not yet</button>`;
+  });
+  perks+='</div>';
+  panel.innerHTML=head+perks;
+}
+function buyLegacyPerk(id){
+  const p=LEGACY_PERKS.find(x=>x.id===id);if(!p)return;
+  const lvl=legacyLevel(id);if(lvl>=p.maxLevel)return;
+  const cost=p.cost(lvl);if(!S.legacy||S.legacy.points<cost){showErrorToast('Not enough Legacy Points!');return}
+  S.legacy.points-=cost;S.legacy.perks[id]=lvl+1;
+  showToast(`${p.emoji} ${p.name} → Lv${lvl+1}!`);
+  SFX.level();updateUI();renderLegacy();autoSave();
+}
+function showSellModal(){
+  const val=calcValuation();
+  if(val<SELL_THRESHOLD){showToast(`🔒 Need $${SELL_THRESHOLD.toLocaleString()} valuation to sell!`);return}
+  const lp=legacyPointsForValuation(val);const nextLv=(S.prestigeLevel||0)+1;
+  $('me').textContent='💼';$('mt').textContent='Sell the Company?';$('mx').textContent='';
+  $('modal-extra').innerHTML=`
+    <div class="sell-lp">You'll bank <strong>${lp} Legacy Points</strong> and rise to <strong>${esc(getPrestigeRank(nextLv))}</strong> (Prestige ${nextLv}).</div>
+    <div class="sell-cols">
+      <div class="sell-col reset"><div class="sc-h">🔄 Resets</div>money · equipment · trucks · crew · contracts · rep · neighborhoods · day · combo</div>
+      <div class="sell-col keep"><div class="sc-h">✅ Carries over</div>Prestige rank · Legacy Points &amp; Perks · achievements · lifetime stats · sound &amp; tutorial settings</div>
+    </div>
+    <div class="sell-warn">⚠️ This ends your current run. It cannot be undone.</div>`;
+  // Two-step confirm — the first click arms, the second sells.
+  $('modal-buttons').innerHTML=`<button class="red" id="sell-confirm" onclick="armSell(this)">💼 Sell for ${lp} LP</button><button onclick="closeModal()">Keep Playing</button>`;
   $('mo').classList.add('show');
 }
-
-function doPrestigeReset(){
-  // Only allow prestige if threshold met (defensive)
-  if(calcValuation()<1000000){showToast('🔒 Need $1M!');return}
-  // Record fastest run BEFORE resetting S.day
-  if(!S.fastestMillionaire||S.day<S.fastestMillionaire)S.fastestMillionaire=S.day;
+let _sellArmed=false;
+function armSell(btn){
+  if(!_sellArmed){_sellArmed=true;btn.textContent='⚠️ Tap again to confirm';btn.style.background='linear-gradient(135deg,#c0392b,#e74c3c)';
+    setTimeout(()=>{_sellArmed=false;if(btn&&btn.isConnected){const val=calcValuation();btn.textContent=`💼 Sell for ${legacyPointsForValuation(val)} LP`;btn.style.background=''}},2600);return}
+  _sellArmed=false;sellCompany();
+}
+function sellCompany(){
+  const val=calcValuation();
+  if(val<SELL_THRESHOLD){showToast('🔒 Not enough valuation!');return}
+  const lp=legacyPointsForValuation(val);
+  // Fastest-$1M record only meaningful for millionaire runs
+  if(val>=1000000&&(!S.fastestMillionaire||S.day<S.fastestMillionaire))S.fastestMillionaire=S.day;
   S.lifetimePrestigeEarnings=(S.lifetimePrestigeEarnings||0)+S.totalEarnings;
   try{localStorage.setItem('ll_ever_prestiged','1')}catch(e){} // unlocks New Game+ starter packs
-  const newLevel=(S.prestigeLevel||0)+1;
-  S.prestigeLevel=newLevel;
-  const bonus=getPrestigeBonusAt(newLevel);
-  S.prestigeBonuses=Array.isArray(S.prestigeBonuses)?S.prestigeBonuses.slice():[];
-  S.prestigeBonuses.push({level:newLevel,type:bonus.type,value:bonus.value,desc:bonus.desc});
-  // Preserve across reset
-  const keepName=S.playerName;
-  const keepLevel=S.prestigeLevel;
-  const keepBonuses=S.prestigeBonuses;
-  const keepLifetime=S.lifetimePrestigeEarnings;
-  const keepFastest=S.fastestMillionaire;
-  const keepMilestones=new Set([...(S.milestonesHit||[])]);
-  // Clear timers on active dispatches / rush / combo
+  const newLevel=(S.prestigeLevel||0)+1;S.prestigeLevel=newLevel;
+  if(!S.legacy)S.legacy={points:0,perks:{}};
+  S.legacy.points=(S.legacy.points|0)+lp;
+  // Clear active timers before wiping the run
   (S.activeDispatches||[]).forEach(d=>{if(d&&d.workTimer)clearInterval(d.workTimer)});
   if(S.rushTimer)clearInterval(S.rushTimer);
   if(S.comboTimer)clearTimeout(S.comboTimer);
-  // Reset to defaults
-  S.money=200+prestigeStartCash();
+  SFX.hardStop();
+  // Reset the run (persistent fields on S — legacy/prestige/achievements/lifetime/lb — are left untouched)
+  const keepName=S.playerName;
+  S.money=200+legacyStartCash()+prestigeStartCash();
   S.rep=0;S.jobsDone=0;S.day=1;
   S.equipment={mower:1,trimmer:0,blower:0,signage:0};
   S.trucks=[];
   S.equipDurability={mower:100,trimmer:100,blower:100};
   S.equipRepairs={mower:0,trimmer:0,blower:0};
-  S.curNB=0;S.nbJobs={};
-  S.activeDispatches=[];
+  S.curNB=0;S.nbJobs={};S.activeDispatches=[];
   S.scrollX=0;S.targetScrollX=0;S.dayPhase=0;
   S.weather=WEATHER_TYPES[0];S.season=SEASONS[0];
-  S.crew=[{name:keepName||'You',level:1,xp:0,specialty:'general',training:false,available:true}];
-  S.contracts=[];S.bidOffers=[];
+  S.crew=[{name:keepName||'You',level:1,xp:0,specialty:'general',training:false,available:true,foreman:false}];
+  S.contracts=[];S.bidOffers=[];S.specialContract=null;S.specialOffer=null;
   S.todayEvent=EVENTS[EVENTS.length-1];S.eventSpeedMod=1;S.eventTipMod=1;
   S.combo=0;S.comboTimer=null;S.maxCombo=0;S.streak=0;
   S.skillPoints=0;S.perks=new Set();
   S.dayJobsDone=0;S.dayEarnings=0;S.dayTips=0;S.dayBestStar=0;S.daySpeedBonuses=0;S.dayRepairs=0;S.dayExpenses=0;
   S.totalEarnings=0;S.perfectDays=0;S.contractIncome=0;
-  S.activeTab='upgrades';
-  S.dayHoursLeft=8;S.dayHoursTotal=8;
-  S.weeklyGoal=null;S.weeklyProgress=0;
-  S.nbUpgrades={};
+  S.activeTab='upgrades';S.dayHoursLeft=8;S.dayHoursTotal=8;
+  S.weeklyGoal=null;S.weeklyProgress=0;S.nbUpgrades={};
   S.rushJob=null;S.rushTimer=null;S.rushCountdown=0;
-  // v9: per-run trackers reset; lifetime stats + achievements persist across prestige
   S.consecutiveProfitDays=0;S.comboChainEarnings=0;S.dayHistory=[];
-  // Restore preserved fields
-  S.playerName=keepName;
-  S.prestigeLevel=keepLevel;
-  S.prestigeBonuses=keepBonuses;
-  S.lifetimePrestigeEarnings=keepLifetime;
-  S.fastestMillionaire=keepFastest;
-  S.milestonesHit=keepMilestones;
-  // Apply starting bonuses: free trucks
-  const numTrucks=prestigeStartTrucks();
-  for(let i=0;i<numTrucks;i++){
-    const tt=TRUCK_TYPES[0];
-    S.trucks.push({type:tt.id,maxCrew:tt.maxCrew,name:`${tt.name} #${S.trucks.length+1}`});
-  }
-  // Apply starting bonuses: extra crew
-  const extraCrew=prestigeStartCrew();
-  for(let i=0;i<extraCrew;i++){
-    S.crew.push({name:`Rookie ${i+1}`,level:1,xp:0,specialty:'general',training:false,available:true});
-  }
-  // Persist and refresh UI (no second loop — guarded in initGameUI)
-  saveGame();
+  S.runStartMs=0;
+  // Apply any legacy free-truck / crew bonuses carried from the old per-level table (back-compat)
+  for(let i=0;i<prestigeStartTrucks();i++){const tt=TRUCK_TYPES[0];S.trucks.push({type:tt.id,maxCrew:tt.maxCrew,name:`${tt.name} #${S.trucks.length+1}`})}
+  for(let i=0;i<prestigeStartCrew();i++){S.crew.push({name:`Rookie ${i+1}`,level:1,xp:0,specialty:'general',training:false,available:true,foreman:false})}
+  saveGame();if(typeof cloudPush==='function')cloudPush(true);
   closeModal();
-  initGameUI();
-  showToast(`⭐ Prestige ${newLevel}! ${bonus.desc}`);
-  addLog(`⭐ <span class="hl">Prestige ${newLevel}</span> — ${esc(bonus.desc)}`);
-  SFX.level();fxCenter('prestige_glow');fxCenter('confetti',{n:30});
-  checkMilestones();
+  // Celebrate, then route back to the name screen (New Game+ starter packs appear there)
+  SFX.prestige();fxCenter('prestige_glow');fxCenter('confetti',{n:40});
+  setTimeout(()=>{
+    $('name-screen').style.display='flex';
+    $('ns-saved-name').textContent=keepName||'';
+    contBtn.style.display='none'; // starting a fresh franchise, not continuing
+    const inp=$('player-name-input');if(inp){inp.value=keepName||'';startBtn.disabled=!(keepName&&keepName.trim())}
+    renderStarterPacks();
+    showToast(`💼 Company sold! +${lp} Legacy Points`);
+  },900);
 }
 
+function updateNameHeader(){const el=$('player-name-display');if(!el)return;
+  el.textContent=`— ${S.playerName||'Player'} · ${getPrestigeRank()}`;}
 function updatePrestigeUI(){
   // Header badge
   const pb=$('prestige-badge');if(pb){
     if((S.prestigeLevel||0)>0){pb.style.display='';pb.textContent=`⭐ P${S.prestigeLevel}`}
     else{pb.style.display='none';pb.textContent=''}
   }
-  // Go-prestige button visibility
-  const gp=$('go-prestige-wrap');if(gp){gp.style.display=calcValuation()>=1000000?'':'none'}
+  updateNameHeader();
+  // "Sell the Company" button unlocks at the valuation threshold
+  const gp=$('go-prestige-wrap');if(gp){gp.style.display=calcValuation()>=SELL_THRESHOLD?'':'none'}
+  if(S.activeTab==='legacy')renderLegacy();
   // Best-run display
   const br=$('best-run-display');if(br){
     if((S.prestigeLevel||0)>0||S.fastestMillionaire){
@@ -2739,7 +3298,7 @@ function computeDailyExpenses(){
   const gasSpike=S.todayEvent&&S.todayEvent.id==='gas_spike';
   const e={
     truckMaintenance:trucks*50,
-    crewWages:extraCrew*75,
+    crewWages:Math.round(extraCrew*75*legacyWageMult()),
     insurance:Math.floor(val*0.0002),
     fuel:trucks*(gasSpike?120:40),
   };
@@ -2774,7 +3333,7 @@ function showDaySummary(){
   $('modal-buttons').innerHTML='<button class="share" onclick="shareCard(\'square\')">📸 Share</button><button class="share" onclick="shareCard(\'vertical\')">📌 Pin</button><button onclick="closeModal();advanceDay()">Next Day →</button>';$('mo').classList.add('show');checkMilestones();updateUI()}
 
 $('ndb').onclick=()=>{
-  if(S.activeDispatches.length>0){showToast("Wait for crews to finish!");return}
+  if(S.activeDispatches.some(d=>d&&!d.auto)){showToast("Wait for crews to finish!");return}
   if(S.dayJobsDone>0){showDaySummary();return}advanceDay()};
 function advanceDay(){
   // ═══ v9: end-of-day stats rollup (before daily counters reset) ═══
@@ -2814,11 +3373,12 @@ function advanceDay(){
   $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;
   addLog(`🌅 <span class="hl">Day ${S.day}</span> — ${S.season.emoji} ${S.season.name} · ${S.weather.emoji}`);updateUI();
   initDailyChallenges();checkAchievements();
-  updateChallengeProgress();setTimeout(checkEmailTriggers,400)}
+  updateChallengeProgress();setTimeout(checkEmailTriggers,400);
+  cloudPush(true);pushLeaderboard();if(SFX.ctx)SFX.updateAmbient()}
 function closeModal(){$('mo').classList.remove('show');$('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button onclick="closeModal()">OK</button>';
   if(S.dayJobsDone>0&&$('mt').textContent.includes('Report')){advanceDay()}}
 
-function checkMilestones(){MILESTONES.forEach(m=>{if(!S.milestonesHit.has(m.id)&&m.ck()){S.milestonesHit.add(m.id);SFX.level();fxCenter('confetti',{n:28});
+function checkMilestones(){MILESTONES.forEach(m=>{if(!S.milestonesHit.has(m.id)&&m.ck()){S.milestonesHit.add(m.id);SFX.milestone();fxCenter('confetti',{n:28});
   if(!$('mo').classList.contains('show')){$('me').textContent=m.e;$('mt').textContent=m.t;$('mx').textContent=m.x;$('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button class="share" onclick="shareCard(\'square\')">📸 Share</button><button class="share" onclick="shareCard(\'vertical\')">📌 Pin</button><button onclick="closeModal()">OK</button>';$('mo').classList.add('show')}
   addLog(`🏆 <span class="hl">${m.t}</span>`);renderTrophies()}})}
 
@@ -2848,7 +3408,9 @@ const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','truc
   'lifetimeJobs','lifetimeTips','lifetimeExpenses','lifetimeContracts','lifetimeRepairs','bestDay','longestStreak',
   'highestValuation','bidsWon','bidsLost','totalPlayTime','maxCrewCount','jobTypeCounts','dayHistory',
   // v11: seasonal events + special contracts + New Game+ perk
-  'seasonalEventsCompleted','specialContract','specialOffer','comboEdge'];
+  'seasonalEventsCompleted','specialContract','specialOffer','comboEdge',
+  // v11 prestige 2.0 + auto-dispatch; v12 cloud/leaderboard identity
+  'legacy','runStartMs','fastest100kSeconds','lbOptIn','lbName','bestComboEver'];
 // v9 numeric stat fields — sanitized on load; missing in pre-v9 saves → default 0
 const V9_NUM_FIELDS=['maxComboCount','bestComboEarnings','comboChainEarnings','fullDayCount','consecutiveProfitDays','totalSpent','titleClicks',
   'lifetimeJobs','lifetimeTips','lifetimeExpenses','lifetimeContracts','lifetimeRepairs','bestDay','longestStreak',
@@ -2860,10 +3422,10 @@ function getSaveData(){
   data.achievementsUnlocked=[...S.achievementsUnlocked];
   data.weathersWorkedIn=[...S.weathersWorkedIn];
   data.jobTypesCompleted=[...S.jobTypesCompleted];
-  data._version=10;data._savedAt=new Date().toISOString();return data;
+  data._version=12;data._savedAt=new Date().toISOString();return data;
 }
 function saveGame(){
-  try{localStorage.setItem(SAVE_KEY,JSON.stringify(getSaveData()));return true}catch(e){console.error('Save failed:',e);return false}
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(getSaveData()));cloudPush();return true}catch(e){console.error('Save failed:',e);return false}
 }
 function loadSaveData(){
   try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;return JSON.parse(raw)}catch(e){return null}
@@ -2903,6 +3465,19 @@ function applySaveData(data){
   // v11: seasonal + special contracts (default gracefully for pre-v11 saves)
   S.seasonalEventsCompleted=(data.seasonalEventsCompleted&&typeof data.seasonalEventsCompleted==='object'&&!Array.isArray(data.seasonalEventsCompleted))?data.seasonalEventsCompleted:{};
   S.comboEdge=!!data.comboEdge;
+  // v11 prestige 2.0: legacy points + perk tree (only known perk ids, clamped to maxLevel)
+  const lg=(data.legacy&&typeof data.legacy==='object'&&!Array.isArray(data.legacy))?data.legacy:{};
+  const perks={};(LEGACY_PERKS).forEach(p=>{const v=Math.max(0,Math.min(p.maxLevel,Number(lg.perks&&lg.perks[p.id])|0));if(v>0)perks[p.id]=v});
+  S.legacy={points:Math.max(0,Math.min(999999,Number(lg.points)|0)),perks};
+  // Foreman flags: only trust a foreman name that maps to an actual crew member
+  if(Array.isArray(S.crew))S.crew.forEach(c=>{if(c&&typeof c==='object')c.foreman=!!c.foreman});
+  if(Array.isArray(S.trucks))S.trucks.forEach(t=>{if(t&&typeof t==='object'){
+    const has=t.foreman&&Array.isArray(S.crew)&&S.crew.some(c=>c&&c.foreman&&c.name===t.foreman);
+    if(!has){t.foreman=null;t.auto=false}else t.auto=!!t.auto}});
+  // v11/12 run timer + leaderboard identity
+  S.runStartMs=Math.max(0,Number(data.runStartMs)|0);
+  S.fastest100kSeconds=(data.fastest100kSeconds==null)?null:Math.max(0,Number(data.fastest100kSeconds)|0);
+  S.lbOptIn=!!data.lbOptIn;S.lbName=cleanName(data.lbName,20);S.bestComboEver=Math.max(0,Number(data.bestComboEver)|0);
   S.specialContract=sanitizeSpecial(data.specialContract);
   S.specialOffer=sanitizeSpecial(data.specialOffer);
   // Reset runtime state
@@ -2949,6 +3524,8 @@ function startNewGame(){
   const name=cleanName(nameInput.value);if(!name)return;
   S.playerName=name;
   S.crew[0].name=name;
+  S.runStartMs=Date.now(); // fastest-to-$100k timer starts now
+  SFX.init();SFX.applyMix();SFX.updateAmbient();
   // Optional name-screen email opt-in
   try{
     const optBox=$('ns-email-optin'),emInp=$('ns-email-input');
@@ -2971,7 +3548,9 @@ function startNewGame(){
 function loadAndStart(){
   const data=loadSaveData();if(!data)return;
   applySaveData(data);
+  if(!S.runStartMs)S.runStartMs=Date.now(); // seed timer for pre-v12 saves
   $('name-screen').style.display='none';
+  SFX.init();SFX.applyMix();SFX.updateAmbient();
   initGameUI();
   // v11: offline progress — reward passive income for time away
   try{if(data._savedAt){const el=Date.now()-new Date(data._savedAt).getTime();
@@ -2989,7 +3568,10 @@ function initGameUI(){
   addLog('💡 Buy a truck, hire crew, then <span class="hl">dispatch trucks to jobs simultaneously</span>!');
   if(CHALLENGE){showChallengeBanner();addLog(`🎯 Challenge: beat <span class="hl">${esc(CHALLENGE.name)}</span>'s $${CHALLENGE.val.toLocaleString()} by Day ${CHALLENGE.day}`)}
   if(!_loopStarted){_loopStarted=true;loop()}
+  if(!_autoTimer)_autoTimer=setInterval(autoDispatchTick,3000); // crew auto-dispatch cadence
+  updateNameHeader();if(SFX.ctx)SFX.updateAmbient();
 }
+let _autoTimer=null;
 
 // ═══ AUTO-SAVE HOOKS ═══
 const _origAdvanceDay=advanceDay;
@@ -3022,6 +3604,9 @@ buyPerk=function(id){_origBuyPerk(id);autoSave()};
   setTimeout(()=>{const s=$('splash');if(s)s.style.display='none'},2200);
   // v11: New Game+ starter-pack picker (returning prestiged players)
   renderStarterPacks();
+  // v12: reconcile cloud save in the background (offline-first — never blocks)
+  syncAudioPopover();
+  cloudSyncOnLoad();
 })();
 </script>
 </body>

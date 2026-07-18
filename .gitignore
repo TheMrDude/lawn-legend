@@ -1,0 +1,6 @@
+# TWA build artifacts — never commit signing material
+android.keystore
+*.aab
+*.apk
+build/
+node_modules/

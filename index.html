@@ -1175,7 +1175,11 @@ function joinLeaderboard(){
   if(isProfane(name)){showErrorToast('Please choose a different name');return}
   S.lbName=name;S.lbOptIn=true;saveGame();pushLeaderboard();showToast('🌍 Joined the global rankings!');renderGlobalLB(true);
 }
-function leaveLeaderboard(){SFX.click();S.lbOptIn=false;saveGame();showToast('Left the rankings.');renderGlobalLB()}
+function leaveLeaderboard(){SFX.click();S.lbOptIn=false;saveGame();
+  // Remove the public row too — opting out shouldn't leave the name/score visible
+  sbFetch('ll_leaderboard?player_id=eq.'+encodeURIComponent(PLAYER_ID),{method:'DELETE',headers:{'Prefer':'return=minimal'}})
+    .then(()=>{Object.keys(_lbCacheAt).forEach(k=>_lbCacheAt[k]=0);renderGlobalLB(true)});
+  showToast('Left the rankings.');renderGlobalLB()}
 // Fastest-to-$100k: first time this run's earnings cross $100k, record the best elapsed time
 function checkFastest100k(){
   if(!S.runStartMs||S.totalEarnings<100000)return;
@@ -3116,7 +3120,8 @@ function renderUpgrades(){const l=$('upgrade-list');l.innerHTML='';
       if(canRep)maintBtns+=`<button class="bb red" style="font-size:0.55rem;padding:2px 5px;margin:1px" onclick="repairEquipment('${u.key}')">🔧 $${getRepairCost(u.key)}</button>`;
       maintBtns+=`<button class="bb" style="font-size:0.55rem;padding:2px 5px;margin:1px;background:#2980b9" onclick="replaceEquipment('${u.key}')">🆕 $${getReplaceCost(u.key)}</button>`}
     const d=document.createElement('div');d.className='upgrade-card';
-    d.innerHTML=`<div class="ui"><div class="un">${u.icon} ${u.key[0].toUpperCase()+u.key.slice(1)}</div><div class="ud">${mx?'MAX':`${next.n} — ${next.d}`}</div><div class="ul">${u.levels[cur].n}</div>${durBar}</div><div style="display:flex;flex-direction:column;align-items:end;gap:2px">${maintBtns}${mx?'<span style="color:#52b788;font-size:0.65rem">✅</span>':`<button class="bb" ${S.money<next.c||isAnyTruckBusy()?'disabled':''} onclick="buyUpgrade('${u.key}')">⬆️ $${next.c.toLocaleString()}</button>`}</div>`;
+    const price=mx?0:Math.round(next.c*legacyPriceMult());const disc=!mx&&price<next.c; // Fleet Discount — match buyUpgrade()
+    d.innerHTML=`<div class="ui"><div class="un">${u.icon} ${u.key[0].toUpperCase()+u.key.slice(1)}</div><div class="ud">${mx?'MAX':`${next.n} — ${next.d}`}</div><div class="ul">${u.levels[cur].n}</div>${durBar}</div><div style="display:flex;flex-direction:column;align-items:end;gap:2px">${maintBtns}${mx?'<span style="color:#52b788;font-size:0.65rem">✅</span>':`<button class="bb" ${S.money<price||isAnyTruckBusy()?'disabled':''} onclick="buyUpgrade('${u.key}')">⬆️ ${disc?`<span style="text-decoration:line-through;opacity:0.5">$${next.c.toLocaleString()}</span> `:''}$${price.toLocaleString()}</button>`}</div>`;
     l.appendChild(d)})}
 function buyUpgrade(k){const u=UPGRADES.find(x=>x.key===k),n=S.equipment[k]+1;if(n>=u.levels.length)return;const nx=u.levels[n];const cost=Math.round(nx.c*legacyPriceMult());if(S.money<cost)return;
   S.money-=cost;trackSpend(cost);S.equipment[k]=n;S.equipDurability[k]=100;S.equipRepairs[k]=0;showToast(`${u.icon} ${nx.n}!`);updateUI();renderJobs();checkMilestones()}
@@ -3334,6 +3339,8 @@ function showDaySummary(){
 
 $('ndb').onclick=()=>{
   if(S.activeDispatches.some(d=>d&&!d.auto)){showToast("Wait for crews to finish!");return}
+  // Foremen wrap up their in-progress jobs as you close out the day (paid, not dropped)
+  S.activeDispatches.filter(d=>d&&d.auto).slice().forEach(d=>{clearInterval(d.workTimer);completeDispatch(d.nbIdx,d.propIdx,d.truckIdx)});
   if(S.dayJobsDone>0){showDaySummary();return}advanceDay()};
 function advanceDay(){
   // ═══ v9: end-of-day stats rollup (before daily counters reset) ═══
@@ -3475,7 +3482,8 @@ function applySaveData(data){
     const has=t.foreman&&Array.isArray(S.crew)&&S.crew.some(c=>c&&c.foreman&&c.name===t.foreman);
     if(!has){t.foreman=null;t.auto=false}else t.auto=!!t.auto}});
   // v11/12 run timer + leaderboard identity
-  S.runStartMs=Math.max(0,Number(data.runStartMs)|0);
+  S.runStartMs=Math.max(0,Math.floor(Number(data.runStartMs)||0)); // NOTE: |0 would truncate a ms epoch to 32 bits
+  if(S.runStartMs&&S.runStartMs<1e12)S.runStartMs=0; // pre-fix saves stored a truncated epoch — reseed on load
   S.fastest100kSeconds=(data.fastest100kSeconds==null)?null:Math.max(0,Number(data.fastest100kSeconds)|0);
   S.lbOptIn=!!data.lbOptIn;S.lbName=cleanName(data.lbName,20);S.bestComboEver=Math.max(0,Number(data.bestComboEver)|0);
   S.specialContract=sanitizeSpecial(data.specialContract);

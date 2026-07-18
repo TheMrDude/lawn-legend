@@ -1,12 +1,13 @@
 // Lawn Legend service worker — offline play + clean updates.
 // Bump CACHE_VERSION on every deploy that changes index.html.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = 'lawn-legend-' + CACHE_VERSION;
 
 const PRECACHE = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/privacy.html',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/icon-512-maskable.png',
@@ -42,19 +43,21 @@ self.addEventListener('fetch', e => {
   // Only handle same-origin GETs
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  const isShell = e.request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html';
+  const isNav = e.request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html';
 
-  if (isShell) {
-    // Network-first: players get updates when online; cache keeps the game
-    // loading with no connection.
+  if (isNav) {
+    // Network-first: players get updates when online; cache keeps pages
+    // loading with no connection. Cache under the page's own path — the game
+    // shell at '/', other pages (e.g. /privacy.html) under themselves.
+    const cacheKey = (url.pathname === '/' || url.pathname === '/index.html') ? '/index.html' : url.pathname;
     e.respondWith(
       fetch(e.request)
         .then(res => {
           const copy = res.clone();
-          caches.open(CACHE_NAME).then(c => c.put('/index.html', copy));
+          caches.open(CACHE_NAME).then(c => c.put(cacheKey, copy));
           return res;
         })
-        .catch(() => caches.match('/index.html'))
+        .catch(() => caches.match(cacheKey).then(hit => hit || caches.match('/index.html')))
     );
     return;
   }

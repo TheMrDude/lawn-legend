@@ -85,6 +85,38 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .tab-row{display:flex;gap:2px;margin-bottom:5px;flex-wrap:wrap}
 .tab-btn{flex:1;padding:3px;text-align:center;font-size:0.6rem;font-weight:600;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);border-radius:5px;cursor:pointer;color:#888;min-width:40px}
 .tab-btn.active{background:rgba(64,145,108,0.15);border-color:#52b788;color:#b7e4c7}
+.tab-dot{display:inline-block;min-width:13px;height:13px;line-height:13px;font-size:0.5rem;background:#ffd54f;color:#1b3a2a;border-radius:7px;margin-left:2px;font-weight:800;padding:0 2px}
+/* ═══ RETENTION PACK UI ═══ */
+.streak-flame{font-size:0.62rem;font-weight:700;color:#ff8c42;margin-left:5px;vertical-align:middle;text-shadow:0 0 6px rgba(255,140,66,0.5)}
+#voucher-stat .v{color:#ffd54f}
+.dc-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+.dc-streak{font-size:0.78rem;color:#ff8c42;font-weight:700}
+.dc-best{font-size:0.62rem;color:#b7e4c7}
+.dc-rain{font-size:0.62rem;color:#9ec7ff;margin-bottom:8px}
+.dc-dim{color:#777}
+.dc-list{display:flex;flex-direction:column;gap:6px}
+.dc-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:8px 10px;transition:border-color .3s,background .3s}
+.dc-card.ready{border-color:#ffd54f;background:rgba(255,213,79,0.08);box-shadow:0 0 12px rgba(255,213,79,0.12)}
+.dc-card.claimed{opacity:0.6;border-color:rgba(82,183,136,0.4)}
+.dc-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.dc-ico{font-size:1rem}
+.dc-desc{font-size:0.72rem;color:#e8f5ee;font-weight:600}
+.dc-bar{height:8px;background:rgba(0,0,0,0.3);border-radius:5px;overflow:hidden;margin-bottom:4px}
+.dc-fill{height:100%;background:linear-gradient(90deg,#40916c,#52b788);border-radius:5px;transition:width .4s ease}
+.dc-card.ready .dc-fill{background:linear-gradient(90deg,#ffb703,#ffd54f)}
+.dc-foot{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.dc-prog{font-size:0.6rem;color:#9db}
+.dc-reward{font-size:0.6rem;color:#888}
+.dc-done{font-size:0.62rem;color:#52b788;font-weight:700}
+.dc-claim{background:linear-gradient(135deg,#ffb703,#ff8c42);color:#1b1b1b;border:none;border-radius:7px;padding:5px 12px;font-size:0.64rem;font-weight:800;cursor:pointer;animation:dcpulse 1.4s ease-in-out infinite}
+.dc-claim:hover{filter:brightness(1.1)}
+@keyframes dcpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.dc-bonus{margin-top:10px;text-align:center;font-size:0.66rem;color:#ffd54f;padding:7px;border:1px dashed rgba(255,213,79,0.4);border-radius:8px}
+.dc-bonus.got{color:#52b788;border-color:rgba(82,183,136,0.4);border-style:solid}
+.dc-tiers{margin-top:10px}
+.dc-tiers-lbl{font-size:0.58rem;color:#888;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.dc-tier{display:inline-block;font-size:0.56rem;color:#888;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 6px;margin:0 3px 3px 0}
+.dc-tier.hit{color:#1b3a2a;background:#ffd54f;border-color:#ffd54f;font-weight:700}
 .perk-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:6px 8px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
 .perk-card.owned{border-color:rgba(82,183,136,0.3);background:rgba(82,183,136,0.05)}
 .perk-info{flex:1}.perk-name{font-weight:600;font-size:0.72rem}.perk-desc{font-size:0.62rem;color:#888;margin-top:1px}.perk-cost{font-size:0.62rem;color:#ffd54f;margin-top:1px}
@@ -480,7 +512,7 @@ body.cb-active #toast-stack{top:106px}
   </div>
 </div>
 <div class="header">
-  <h1 onclick="titleClick()" style="cursor:pointer">🌿 Lawn <span>Legend</span> <span style="font-size:0.65rem;color:#b7e4c7;font-weight:400;margin-left:6px" id="player-name-display"></span><span id="prestige-badge" class="prestige-badge" style="display:none"></span></h1>
+  <h1 onclick="titleClick()" style="cursor:pointer">🌿 Lawn <span>Legend</span> <span style="font-size:0.65rem;color:#b7e4c7;font-weight:400;margin-left:6px" id="player-name-display"></span><span id="prestige-badge" class="prestige-badge" style="display:none"></span><span id="streak-flame" class="streak-flame" style="display:none"></span></h1>
   <div class="stats">
     <div class="stat">💰 $<span class="v" id="money">200</span></div>
     <div class="stat">⭐ <span class="v" id="rep">0</span></div>
@@ -488,6 +520,7 @@ body.cb-active #toast-stack{top:106px}
     <div class="stat" id="weather-stat">☀️ <span class="v">Sunny</span></div>
     <div class="stat">🔥 <span class="v" id="streak-count">0</span></div>
     <div class="stat" id="season-stat">🌱 <span class="v" id="season-label">Spring</span></div>
+    <div class="stat" id="voucher-stat" style="display:none" title="Golden Vouchers — earned through play, spent in the Pro Shop">🎟️ <span class="v" id="voucher-count">0</span></div>
     <button class="mute-toggle hdr-badge-btn" id="ach-btn" onclick="openAchievements()" title="Achievements">🏅<span class="hdr-count" id="ach-hdr-count" style="display:none"></span></button>
     <button class="mute-toggle hdr-badge-btn" id="daily-btn" onclick="openDailyPanel()" title="Daily Challenges">📅<span class="hdr-count" id="daily-hdr-count" style="display:none"></span></button>
     <button class="mute-toggle" id="mute-btn" onclick="toggleMute()" title="Toggle sound (muted by default)">🔇</button>
@@ -528,17 +561,19 @@ body.cb-active #toast-stack{top:106px}
     </div>
     <div class="panel">
       <div class="tab-row">
-        <div class="tab-btn active" onclick="switchTab('upgrades')">🛒 Shop</div>
-        <div class="tab-btn" onclick="switchTab('crew')">👷 Crew</div>
-        <div class="tab-btn" onclick="switchTab('perks')">🧠 Perks</div>
-        <div class="tab-btn" onclick="switchTab('contracts')">📝 Bids</div>
-        <div class="tab-btn" onclick="switchTab('rankings')">🏅 Rank</div>
-        <div class="tab-btn" onclick="switchTab('legacy')">🏆 Legacy</div>
-        <div class="tab-btn" onclick="switchTab('nbupgrades')">🏘️ Area</div>
-        <div class="tab-btn" onclick="switchTab('stats')">📊 Stats</div>
-        <div class="tab-btn" onclick="switchTab('help')">❓ Help</div>
+        <div class="tab-btn active" data-tab="upgrades" onclick="switchTab('upgrades')">🛒 Shop</div>
+        <div class="tab-btn" data-tab="daily2" onclick="switchTab('daily2')">📋 Daily<span class="tab-dot" id="daily2-hdr-count" style="display:none"></span></div>
+        <div class="tab-btn" data-tab="crew" onclick="switchTab('crew')">👷 Crew</div>
+        <div class="tab-btn" data-tab="perks" onclick="switchTab('perks')">🧠 Perks</div>
+        <div class="tab-btn" data-tab="contracts" onclick="switchTab('contracts')">📝 Bids</div>
+        <div class="tab-btn" data-tab="rankings" onclick="switchTab('rankings')">🏅 Rank</div>
+        <div class="tab-btn" data-tab="legacy" onclick="switchTab('legacy')">🏆 Legacy</div>
+        <div class="tab-btn" data-tab="nbupgrades" onclick="switchTab('nbupgrades')">🏘️ Area</div>
+        <div class="tab-btn" data-tab="stats" onclick="switchTab('stats')">📊 Stats</div>
+        <div class="tab-btn" data-tab="help" onclick="switchTab('help')">❓ Help</div>
       </div>
       <div id="tab-upgrades"><div id="upgrade-list"></div></div>
+      <div id="tab-daily2" style="display:none"></div>
       <div id="tab-crew" style="display:none">
         <div id="fleet-display"></div>
         <div id="crew-list"></div>
@@ -1625,6 +1660,33 @@ const S={
   lbOptIn:false,              // opted into the global leaderboard (U5)
   lbName:'',                  // chosen public display name (U5)
   bestComboEver:0,            // lifetime highest combo (leaderboard + share card)
+  // ═══ RETENTION PACK — Golden Vouchers (premium play-only currency, U7–U11) ═══
+  vouchers:0,                 // Golden Vouchers 🎟️ — earned only through play, spent in the Pro Shop (U10)
+  // ═══ U7: DAILY CONTRACTS + FORGIVING STREAKS ═══
+  dc:{
+    date:'',                  // YYYY-MM-DD the current 3 contracts belong to
+    contracts:[],             // [{key,icon,desc,target,progress,completed,claimed,rewardCash,nb}]
+    claimedAll:false,         // grabbed the all-3 Voucher bonus today
+    streak:0,                 // current daily streak (days with >=1 contract completed)
+    bestStreak:0,             // permanent best streak (survives resets)
+    lastCreditDate:'',        // last date a contract completion advanced the streak
+    rainDays:2,               // held grace days (max 2) — absorb missed days
+    playDays:0,               // distinct local days played (drives Rain Day regen)
+    lastRegenAt:0,            // playDays value when a Rain Day was last granted
+    streakRewarded:[],        // streak milestones (3/7/14/30) already paid this streak-life
+  },
+  // ═══ U9: lifetime counters for the Goal Ladder (added where missing) ═══
+  lifetimeGolden:0,           // Golden Clients caught (U8)
+  goalLadderIdx:0,            // current pinned milestone index
+  goalLadderDone:[],          // completed ladder ids (ordered)
+  earnedTitles:[],            // milestone/streak/shop titles unlocked
+  sessionWarmup:null,         // {target,progress,done} — per-session warm-up goal
+  // ═══ U10: Pro Shop collection ═══
+  skinsOwned:['rusty'],       // owned mower skin ids
+  skinEquipped:'rusty',
+  trophiesOwned:[],           // owned yard trophy ids
+  trophiesPlaced:[],          // up to 3 placed in the scene
+  titleEquipped:'',           // equipped title id ('' = none)
 };
 
 function getProps(){return S.nbJobs[S.curNB]||[]}
@@ -2556,17 +2618,23 @@ function renderStarterPacks(){
 }
 
 function switchTab(tab){S.activeTab=tab;
-  ['upgrades','crew','perks','contracts','rankings','legacy','nbupgrades','stats','help'].forEach((t,i)=>{
-    document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);
-    $('tab-'+t).style.display=t===tab?'block':'none'});
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    const t=btn.getAttribute('data-tab');btn.classList.toggle('active',t===tab);
+    const panel=$('tab-'+t);if(panel)panel.style.display=t===tab?'block':'none';
+  });
   const shown=$('tab-'+tab);if(shown){shown.classList.remove('tab-anim');void shown.offsetWidth;shown.classList.add('tab-anim')}
   if(tab==='rankings'){renderRankings();renderGlobalLB()}if(tab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}
   if(tab==='legacy')renderLegacy();
-  if(tab==='stats')renderStats()}
+  if(tab==='stats')renderStats();
+  if(tab==='daily2')renderDailyContracts();
+  if(tab==='goals'&&typeof renderGoalLadder==='function')renderGoalLadder();
+  if(tab==='proshop'&&typeof renderProShop==='function')renderProShop();
+  if(tab==='weekly'&&typeof renderWeeklyTab==='function')renderWeeklyTab();}
 
 function addCombo(){S.combo++;if(S.combo>S.maxCombo)S.maxCombo=S.combo;if(S.combo>(S.bestComboEver|0))S.bestComboEver=S.combo;
   if(S.combo===10){S.maxComboCount++;updateDailyProgress('max_combo_count',1)}
   updateDailyProgress('combo_reach',S.combo);
+  dcTrack('combo',S.combo,'max'); // U7 daily contract: highest combo reached
   clearTimeout(S.comboTimer);
   S.comboTimer=setTimeout(()=>{S.combo=0;S.comboChainEarnings=0;SFX.comboBreak();updateComboDisplay()},Math.round((S.comboEdge?20000:15000)*legacyComboTimerMult()));updateComboDisplay(true);
   if(S.combo>1){SFX.combo();const m=getComboMult();const col=m>=2?'#ff6b35':m>=1.5?'#ffd54f':'#52b788';fxAtEl('combo-display','combo_spark',{color:col,n:8+Math.min(4,S.combo)})}}
@@ -2821,6 +2889,11 @@ function updateUI(){
   renderUpgrades();renderNBSel();renderContracts();renderSpecialContract();renderSeasonalBanner();renderPerks();renderCrew();renderTrophies();renderBids();renderActiveJobs();
   if(S.activeTab==='rankings')renderRankings();if(S.activeTab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}
   if(S.activeTab==='stats')renderStats();
+  updateVoucherUI();updateStreakFlame();
+  if(S.activeTab==='daily2')renderDailyContracts();
+  if(S.activeTab==='goals'&&typeof renderGoalLadder==='function')renderGoalLadder();
+  if(S.activeTab==='proshop'&&typeof renderProShop==='function')renderProShop();
+  if(typeof updateGoalBanner==='function')updateGoalBanner();
 }
 function getSpeed(j){
   let m=1;if(['mow','full','sod'].includes(j.type))m*=(1+S.equipment.mower*0.25);
@@ -2999,6 +3072,8 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   if(prop.job.diff>=3)updateDailyProgress('hard_jobs',1);
   if(prop.isRush)updateDailyProgress('rush_today',1);
   dailyTrackNB(nbIdx);
+  // U7 daily contracts: manual job → jobs + cash + neighborhood progress
+  dcTrack('jobs',1);dcTrack('cash',comboPay);dcTrackNB(nbIdx);
   const _nbProps=getAllProps(nbIdx);
   if(_nbProps.length>0&&_nbProps.every(p=>p.done))updateDailyProgress('clear_nb',1);
   if(S.jobsDone%8===0){S.skillPoints++;showToast('🧠 +1 Skill Point!')}
@@ -3041,6 +3116,8 @@ function completeAutoDispatch(prop,propIdx,nbIdx,truckIdx){
   const fore=getForeman(truckIdx);const xp=prop.job.diff*0.5;
   if(fore)fore.xp+=xp;getAvailableCrew().slice(0,2).forEach(c=>{if(c!==fore)c.xp+=xp});
   updateDailyProgress('jobs_today',1);updateDailyProgress('earnings_today',pay);updateDailyProgress('rep_today',repGain);
+  // U7 daily contracts: auto job → jobs + cash + auto-dispatch + neighborhood progress
+  dcTrack('jobs',1);dcTrack('cash',pay);dcTrack('auto',1);dcTrackNB(nbIdx);
   if(S.jobsDone%8===0){S.skillPoints++}
   SFX.cash();
   if(nbIdx===S.curNB){const hc=prop.houseConfig;spawnCash(propX(propIdx)+hc.w+15+hc.yardCols*YARD_TILE/2,PROP_Y+20+hc.yardRows*YARD_TILE/2,pay,false)}
@@ -3417,6 +3494,225 @@ canvas.addEventListener('touchstart',e=>{isDragging=true;dragStartX=e.touches[0]
 canvas.addEventListener('touchmove',e=>{if(isDragging){S.targetScrollX=scrollStartX-(e.touches[0].clientX-dragStartX);e.preventDefault()}},{passive:false});
 canvas.addEventListener('touchend',()=>isDragging=false);
 
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  RETENTION PACK — shared helpers (Golden Vouchers, titles)         ║
+// ╚══════════════════════════════════════════════════════════════════╝
+function grantVouchers(n,reason){
+  n=Math.max(0,Math.round(n));if(!n)return;
+  S.vouchers=Math.max(0,Math.min(9999999,(S.vouchers|0)+n));
+  addLog(`🎟️ <span class="hl">+${n} Golden Voucher${n>1?'s':''}</span>${reason?' — '+esc(reason):''}`);
+  updateVoucherUI();
+}
+function earnTitle(id){
+  if(!id||typeof id!=='string')return false;
+  if(!Array.isArray(S.earnedTitles))S.earnedTitles=[];
+  if(S.earnedTitles.includes(id))return false;
+  S.earnedTitles.push(id);
+  const label=(typeof titleLabel==='function')?titleLabel(id):id;
+  addLog(`🏷️ New title unlocked: <span class="hl">${esc(label)}</span>`);
+  return true;
+}
+function updateVoucherUI(){
+  const el=$('voucher-count');if(el)el.textContent=S.vouchers|0;
+  const st=$('voucher-stat');if(st)st.style.display=(S.vouchers>0||(S.dc&&S.dc.bestStreak>0))?'':'none';
+  const ps=$('proshop-voucher');if(ps)ps.textContent=(S.vouchers|0).toLocaleString();
+}
+function niceRound(n){n=Math.round(n);if(n<=0)return 0;const mag=Math.pow(10,Math.max(1,String(Math.round(n)).length-2));return Math.max(mag,Math.round(n/mag)*mag)}
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  UPGRADE 7 — DAILY CONTRACTS & FORGIVING STREAKS                   ║
+// ╚══════════════════════════════════════════════════════════════════╝
+const DC_STREAK_TIERS=[
+  {days:3, cash:1500,  vouchers:1, flame:'🔥'},
+  {days:7, cash:4000,  vouchers:2, flame:'🔥'},
+  {days:14,cash:9000,  vouchers:3, flame:'🔥'},
+  {days:30,cash:25000, vouchers:5, flame:'🔥'},
+];
+// Contract templates. mk(rng, ctx) → {icon,desc,target,key,rewardCash,nb?}
+const DC_TEMPLATES=[
+  {key:'jobs',icon:'✅',make:(rng,ctx)=>{const t=Math.round([10,12,14][Math.floor(rng()*3)]*ctx.pScale);
+    return{desc:`Complete ${t} jobs`,target:t,rewardCash:niceRound(ctx.income*0.4)}}},
+  {key:'combo',icon:'🔗',make:(rng,ctx)=>{const t=Math.min(12,[5,6,8][Math.floor(rng()*3)]+Math.floor((S.prestigeLevel||0)/2));
+    return{desc:`Hit a ${t}x combo chain`,target:t,rewardCash:niceRound(ctx.income*0.35)}}},
+  {key:'cash',icon:'💵',make:(rng,ctx)=>{const t=niceRound(ctx.income*[0.5,0.7,0.9][Math.floor(rng()*3)]);
+    return{desc:`Earn $${t.toLocaleString()} in payouts`,target:t,rewardCash:niceRound(ctx.income*0.4)}}},
+  {key:'nb',icon:'📍',make:(rng,ctx)=>{const nb=ctx.unlockedNBs[Math.floor(rng()*ctx.unlockedNBs.length)];
+    const t=3+Math.floor((S.prestigeLevel||0)/3);
+    return{desc:`Complete ${t} jobs in ${NEIGHBORHOODS[nb].name}`,target:t,rewardCash:niceRound(ctx.income*0.45),nb}}},
+  {key:'auto',icon:'🚛',make:(rng,ctx)=>{const t=[3,5][Math.floor(rng()*2)]+Math.floor((S.prestigeLevel||0)/2);
+    return{desc:`Auto-dispatch ${t} jobs`,target:t,rewardCash:niceRound(ctx.income*0.35)}}},
+];
+function sanitizeDC(raw){
+  const d={date:'',contracts:[],claimedAll:false,streak:0,bestStreak:0,lastCreditDate:'',rainDays:2,playDays:0,lastRegenAt:0,streakRewarded:[]};
+  if(!raw||typeof raw!=='object')return d;
+  d.date=(typeof raw.date==='string')?raw.date.slice(0,10):'';
+  d.claimedAll=!!raw.claimedAll;
+  d.streak=Math.max(0,Math.min(99999,Number(raw.streak)|0));
+  d.bestStreak=Math.max(0,Math.min(99999,Number(raw.bestStreak)|0));
+  d.lastCreditDate=(typeof raw.lastCreditDate==='string')?raw.lastCreditDate.slice(0,10):'';
+  d.rainDays=Math.max(0,Math.min(2,Number(raw.rainDays)|0));
+  d.playDays=Math.max(0,Math.min(9999999,Number(raw.playDays)|0));
+  d.lastRegenAt=Math.max(0,Math.min(9999999,Number(raw.lastRegenAt)|0));
+  d.streakRewarded=Array.isArray(raw.streakRewarded)?raw.streakRewarded.filter(x=>typeof x==='number').slice(0,10):[];
+  if(Array.isArray(raw.contracts)){
+    d.contracts=raw.contracts.slice(0,3).filter(c=>c&&typeof c==='object').map(c=>({
+      key:cleanName(c.key,12),icon:cleanName(c.icon,4),desc:cleanName(c.desc,80),
+      target:Math.max(1,Number(c.target)|0),progress:Math.max(0,Number(c.progress)||0),
+      completed:!!c.completed,claimed:!!c.claimed,rewardCash:Math.max(0,Number(c.rewardCash)|0),
+      nb:(c.nb==null)?null:Math.max(0,Number(c.nb)|0)}));
+  }
+  return d;
+}
+function dcIncomeEstimate(){
+  // ~5–10 min of active play. Grows with earning power but stays bounded.
+  return Math.max(500,Math.round(Math.max(S.bestDay||0,(S.dayEarnings||0)*1.2,calcValuation()*0.02)));
+}
+function initDailyContracts(){
+  const key=todayKey();
+  if(!S.dc||typeof S.dc!=='object')S.dc=sanitizeDC(null);
+  const dc=S.dc;
+  if(dc.date===key&&Array.isArray(dc.contracts)&&dc.contracts.length===3){dcRefreshUI();return}
+  // ── New local day (or first ever). Count a play-day + regen Rain Days ──
+  const isFirst=!dc.date;
+  if(!isFirst){
+    dc.playDays=(dc.playDays|0)+Math.max(1,dcDaysBetween(dc.date,key));
+    // Regenerate 1 Rain Day per 7 play-days, capped at 2
+    while(dc.rainDays<2&&dc.playDays-dc.lastRegenAt>=7){dc.rainDays++;dc.lastRegenAt+=7}
+    if(dc.lastRegenAt>dc.playDays)dc.lastRegenAt=dc.playDays;
+  }else{dc.playDays=Math.max(dc.playDays,1);dc.lastRegenAt=0}
+  // Generate today's 3 contracts, seeded by the date (identical across a player's devices)
+  const rng=mulberry32(hashStr('dc'+key));
+  const unlockedNBs=NEIGHBORHOODS.map((nb,i)=>i).filter(i=>S.rep>=NEIGHBORHOODS[i].minRep);
+  if(!unlockedNBs.length)unlockedNBs.push(0);
+  const ctx={pScale:Math.min(3,1+(S.prestigeLevel||0)*0.35),income:dcIncomeEstimate(),unlockedNBs};
+  const pool=DC_TEMPLATES.slice();const picks=[];
+  for(let i=0;i<3&&pool.length;i++){const idx=Math.floor(rng()*pool.length);picks.push(pool.splice(idx,1)[0])}
+  dc.contracts=picks.map(t=>{const m=t.make(rng,ctx);return{key:t.key,icon:t.icon,desc:m.desc,target:m.target,progress:0,completed:false,claimed:false,rewardCash:m.rewardCash,nb:(m.nb==null?null:m.nb)}});
+  dc.date=key;dc.claimedAll=false;
+  dcRefreshUI();autoSave();
+}
+function dcDaysBetween(aKey,bKey){
+  // Whole local days between two YYYY-MM-DD keys (DST-safe: parse as local noon)
+  const pa=aKey.split('-').map(Number),pb=bKey.split('-').map(Number);
+  if(pa.length!==3||pb.length!==3)return 1;
+  const a=new Date(pa[0],pa[1]-1,pa[2],12,0,0),b=new Date(pb[0],pb[1]-1,pb[2],12,0,0);
+  return Math.round((b-a)/86400000);
+}
+function dcTrack(key,value,mode){
+  if(!S.dc||S.dc.date!==todayKey())initDailyContracts();
+  const dc=S.dc;let changed=false;
+  dc.contracts.forEach(c=>{
+    if(c.completed||c.key!==key)return;
+    if(mode==='max')c.progress=Math.max(c.progress,value);else c.progress+=value;
+    if(c.progress>=c.target){c.progress=c.target;c.completed=true;SFX.level();
+      pushToast(`📋 Contract ready to claim: <span class="hl">${esc(c.desc)}</span>`,'good',2600,true)}
+    changed=true;
+  });
+  if(changed){dcRefreshUI();saveDaily2()}
+}
+function dcTrackNB(nbIdx){
+  if(!S.dc||S.dc.date!==todayKey())initDailyContracts();
+  const dc=S.dc;let changed=false;
+  dc.contracts.forEach(c=>{if(c.completed||c.key!=='nb'||c.nb!==nbIdx)return;
+    c.progress++;if(c.progress>=c.target){c.progress=c.target;c.completed=true;SFX.level();
+      pushToast(`📋 Contract ready to claim: <span class="hl">${esc(c.desc)}</span>`,'good',2600,true)}changed=true});
+  if(changed){dcRefreshUI();saveDaily2()}
+}
+function saveDaily2(){autoSave()}
+function claimDailyContract(i){
+  SFX.click();const dc=S.dc;const c=dc&&dc.contracts&&dc.contracts[i];
+  if(!c||!c.completed||c.claimed)return;
+  c.claimed=true;
+  S.money+=c.rewardCash;S.totalEarnings+=c.rewardCash;
+  SFX.cash();fxCenter('confetti',{n:24});
+  showToast(`📋 Contract claimed! +$${c.rewardCash.toLocaleString()}`);
+  addLog(`📋 Daily contract: <span class="hl">${esc(c.desc)}</span> +$${c.rewardCash.toLocaleString()}`);
+  dcCreditStreak();
+  // All 3 claimed → Golden Voucher bonus
+  if(!dc.claimedAll&&dc.contracts.every(x=>x.claimed)){
+    dc.claimedAll=true;
+    setTimeout(()=>{fxCenter('confetti',{n:40});SFX.milestone();grantVouchers(1,'all 3 daily contracts');
+      showToast('🎟️ All 3 contracts done — +1 Golden Voucher!')},700);
+  }
+  updateUI();dcRefreshUI();autoSave();
+}
+function dcCreditStreak(){
+  const dc=S.dc;const key=todayKey();
+  if(dc.lastCreditDate===key)return; // already advanced today
+  if(!dc.lastCreditDate){dc.streak=1;dc.streakRewarded=[]}
+  else{
+    const gap=dcDaysBetween(dc.lastCreditDate,key);
+    if(gap<=1){dc.streak++;} // consecutive
+    else{
+      const missed=gap-1;
+      if(dc.rainDays>=missed){dc.rainDays-=missed;dc.streak++; // grace absorbs the gap
+        showToast(`☔ Rain Day used — streak safe at ${dc.streak} 🔥`);}
+      else{ // out of grace → forgiving reset (never guilt)
+        dc.rainDays=0;const best=dc.bestStreak;dc.streak=1;dc.streakRewarded=[];
+        showToast(`🌱 Fresh start — your best is still ${best} 🔥`);
+      }
+    }
+  }
+  dc.lastCreditDate=key;
+  if(dc.streak>dc.bestStreak)dc.bestStreak=dc.streak;
+  // Streak-tier rewards (once per streak-life)
+  DC_STREAK_TIERS.forEach(t=>{
+    if(dc.streak>=t.days&&!dc.streakRewarded.includes(t.days)){
+      dc.streakRewarded.push(t.days);
+      S.money+=t.cash;S.totalEarnings+=t.cash;grantVouchers(t.vouchers,`${t.days}-day streak`);
+      SFX.prestige();fxCenter('prestige_glow',{});
+      setTimeout(()=>showToast(`🔥 ${t.days}-day streak! +$${t.cash.toLocaleString()} +${t.vouchers}🎟️`),400);
+      if(t.days>=30)earnTitle('streak30');
+    }
+  });
+  updateStreakFlame();updateVoucherUI();
+}
+function updateStreakFlame(){
+  const el=$('streak-flame');if(!el)return;
+  const s=(S.dc&&S.dc.streak)|0;
+  if(s>=3){el.style.display='';el.textContent=`🔥${s}`;el.title=`${s}-day daily streak · best ${S.dc.bestStreak}`;}
+  else{el.style.display='none';}
+}
+function dcRefreshUI(){
+  updateStreakFlame();updateVoucherUI();
+  const badge=$('daily2-hdr-count');
+  if(badge&&S.dc){const ready=S.dc.contracts.filter(c=>c.completed&&!c.claimed).length;
+    if(ready>0){badge.style.display='';badge.textContent=ready}else{badge.style.display='none'}}
+  if(S.activeTab==='daily2')renderDailyContracts();
+}
+function renderDailyContracts(){
+  const el=$('tab-daily2');if(!el)return;
+  if(!S.dc||S.dc.date!==todayKey())initDailyContracts();
+  const dc=S.dc;
+  const rainIcons='☔'.repeat(dc.rainDays)+'▫️'.repeat(2-dc.rainDays);
+  const untilRegen=Math.max(0,7-((dc.playDays-dc.lastRegenAt)%7||0));
+  let html=`<div class="dc-head">
+    <div class="dc-streak">${dc.streak>=1?`🔥 <strong>${dc.streak}</strong>-day streak`:'Start your streak today!'}</div>
+    <div class="dc-best">Best: <strong>${dc.bestStreak}</strong> 🔥 · 🎟️ <strong>${S.vouchers|0}</strong></div>
+  </div>
+  <div class="dc-rain">Rain Days: <span title="Missing a day spends a Rain Day instead of resetting your streak">${rainIcons}</span> ${dc.rainDays<2?`<span class="dc-dim">(+1 in ~${untilRegen} play-day${untilRegen!==1?'s':''})</span>`:'<span class="dc-dim">(full)</span>'}</div>
+  <div class="dc-list">`;
+  dc.contracts.forEach((c,i)=>{
+    const pct=Math.min(100,Math.round((c.progress/c.target)*100));
+    const state=c.claimed?'claimed':c.completed?'ready':'active';
+    const prog=c.key==='cash'?`$${Math.round(c.progress).toLocaleString()} / $${c.target.toLocaleString()}`:`${Math.round(c.progress)} / ${c.target}`;
+    html+=`<div class="dc-card ${state}">
+      <div class="dc-row"><span class="dc-ico">${esc(c.icon)}</span><span class="dc-desc">${esc(c.desc)}</span></div>
+      <div class="dc-bar"><div class="dc-fill" style="width:${pct}%"></div></div>
+      <div class="dc-foot"><span class="dc-prog">${prog}</span>
+        ${c.claimed?'<span class="dc-done">✅ Claimed</span>':c.completed?`<button class="dc-claim" onclick="claimDailyContract(${i})">Claim +$${c.rewardCash.toLocaleString()} 🎉</button>`:`<span class="dc-reward">Reward: $${c.rewardCash.toLocaleString()}</span>`}</div>
+    </div>`;
+  });
+  html+='</div>';
+  const allClaimed=dc.contracts.every(c=>c.claimed);
+  html+=`<div class="dc-bonus ${dc.claimedAll?'got':''}">${dc.claimedAll?'🎟️ All 3 done — +1 Golden Voucher earned today!':allClaimed?'🎟️ Voucher incoming…':'🎟️ Claim all 3 for a Golden Voucher'}</div>`;
+  html+=`<div class="dc-tiers"><div class="dc-tiers-lbl">Streak rewards</div>`;
+  DC_STREAK_TIERS.forEach(t=>{const hit=dc.streak>=t.days;
+    html+=`<span class="dc-tier ${hit?'hit':''}">${t.days}d → $${(t.cash/1000)}k +${t.vouchers}🎟️</span>`});
+  html+='</div>';
+  el.innerHTML=html;
+}
+
 // ═══ SAVE / LOAD SYSTEM ═══
 const SAVE_KEY='lawn_legend_save';
 const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','trucks','equipDurability','equipRepairs','curNB',
@@ -3431,7 +3727,10 @@ const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','truc
   // v11: seasonal events + special contracts + New Game+ perk
   'seasonalEventsCompleted','specialContract','specialOffer','comboEdge',
   // v11 prestige 2.0 + auto-dispatch; v12 cloud/leaderboard identity
-  'legacy','runStartMs','fastest100kSeconds','lbOptIn','lbName','bestComboEver'];
+  'legacy','runStartMs','fastest100kSeconds','lbOptIn','lbName','bestComboEver',
+  // ═══ RETENTION PACK (v13–v17): vouchers, daily contracts, goal ladder, pro shop ═══
+  'vouchers','dc','lifetimeGolden','goalLadderIdx','goalLadderDone','earnedTitles',
+  'skinsOwned','skinEquipped','trophiesOwned','trophiesPlaced','titleEquipped'];
 // v9 numeric stat fields — sanitized on load; missing in pre-v9 saves → default 0
 const V9_NUM_FIELDS=['maxComboCount','bestComboEarnings','comboChainEarnings','fullDayCount','consecutiveProfitDays','totalSpent','titleClicks',
   'lifetimeJobs','lifetimeTips','lifetimeExpenses','lifetimeContracts','lifetimeRepairs','bestDay','longestStreak',
@@ -3443,7 +3742,7 @@ function getSaveData(){
   data.achievementsUnlocked=[...S.achievementsUnlocked];
   data.weathersWorkedIn=[...S.weathersWorkedIn];
   data.jobTypesCompleted=[...S.jobTypesCompleted];
-  data._version=12;data._savedAt=new Date().toISOString();return data;
+  data._version=17;data._savedAt=new Date().toISOString();return data;
 }
 function saveGame(){
   try{localStorage.setItem(SAVE_KEY,JSON.stringify(getSaveData()));cloudPush();return true}catch(e){console.error('Save failed:',e);return false}
@@ -3502,6 +3801,21 @@ function applySaveData(data){
   S.lbOptIn=!!data.lbOptIn;S.lbName=cleanName(data.lbName,20);S.bestComboEver=Math.max(0,Number(data.bestComboEver)|0);
   S.specialContract=sanitizeSpecial(data.specialContract);
   S.specialOffer=sanitizeSpecial(data.specialOffer);
+  // ═══ RETENTION PACK sanitization (v13–v17) — default gracefully for older saves ═══
+  S.vouchers=Math.max(0,Math.min(9999999,Number(data.vouchers)|0));
+  S.lifetimeGolden=Math.max(0,Number(data.lifetimeGolden)|0);
+  S.dc=sanitizeDC(data.dc);
+  S.goalLadderIdx=Math.max(0,Number(data.goalLadderIdx)|0);
+  S.goalLadderDone=Array.isArray(data.goalLadderDone)?data.goalLadderDone.filter(x=>typeof x==='string').slice(0,200):[];
+  S.earnedTitles=Array.isArray(data.earnedTitles)?data.earnedTitles.filter(x=>typeof x==='string').slice(0,80):[];
+  S.sessionWarmup=null; // regenerated each session, never persisted meaningfully
+  // Pro Shop collection (validated against catalogs once they load; ids are our own, but clamp shape)
+  S.skinsOwned=Array.isArray(data.skinsOwned)?data.skinsOwned.filter(x=>typeof x==='string').slice(0,40):['rusty'];
+  if(!S.skinsOwned.includes('rusty'))S.skinsOwned.unshift('rusty');
+  S.skinEquipped=(typeof data.skinEquipped==='string'&&S.skinsOwned.includes(data.skinEquipped))?data.skinEquipped:'rusty';
+  S.trophiesOwned=Array.isArray(data.trophiesOwned)?data.trophiesOwned.filter(x=>typeof x==='string').slice(0,40):[];
+  S.trophiesPlaced=Array.isArray(data.trophiesPlaced)?data.trophiesPlaced.filter(x=>typeof x==='string'&&S.trophiesOwned.includes(x)).slice(0,3):[];
+  S.titleEquipped=typeof data.titleEquipped==='string'?cleanName(data.titleEquipped,40):'';
   // Reset runtime state
   S.activeDispatches=[];S.nbJobs={};S.bidOffers=data.bidOffers||[];
   S.weather=WEATHER_TYPES[0];S.season=SEASONS[0];
@@ -3581,7 +3895,7 @@ function loadAndStart(){
 let _loopStarted=false;
 function initGameUI(){
   $('player-name-display').textContent='— '+S.playerName;
-  initDailyChallenges();refreshSeasonalEvent();
+  initDailyChallenges();initDailyContracts();refreshSeasonalEvent();
   updateSeason();rollWeather();generateAllDayJobs();updateUI();renderTrophies();renderBids();renderRankings();renderCompanyTier();updatePrestigeUI();
   checkAchievements();
   $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;

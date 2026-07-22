@@ -149,6 +149,38 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .gr-back{background:linear-gradient(135deg,#1e3a2a,#0f2419);transform:rotateY(180deg);gap:8px}
 .gr-pay{font-size:1.8rem;font-weight:800;color:#ffd54f;text-shadow:0 0 12px rgba(255,213,79,0.6)}
 .gr-bonus{font-size:0.8rem;color:#b7e4c7;font-weight:600;text-align:center;padding:0 12px}
+/* Goal ladder banner */
+.goal-banner{display:flex;align-items:center;gap:9px;padding:6px 12px;background:linear-gradient(90deg,rgba(64,145,108,0.18),rgba(27,58,42,0.6));border-bottom:1px solid rgba(82,183,136,0.3);cursor:pointer}
+.goal-banner.warmup{background:linear-gradient(90deg,rgba(82,183,136,0.22),rgba(27,58,42,0.5))}
+.goal-banner.done{background:linear-gradient(90deg,rgba(255,213,79,0.2),rgba(27,58,42,0.5))}
+.gb-ico{font-size:1.15rem;flex-shrink:0}
+.gb-mid{flex:1;min-width:0}
+.gb-name{font-size:0.66rem;color:#e8f5ee;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gb-num{color:#9db;font-weight:400}
+.gb-bar{height:5px;background:rgba(0,0,0,0.3);border-radius:4px;overflow:hidden;margin-top:3px}
+.gb-fill{height:100%;background:linear-gradient(90deg,#40916c,#52b788);border-radius:4px;transition:width .5s ease}
+.gb-reward{font-size:0.62rem;color:#ffd54f;font-weight:700;flex-shrink:0;white-space:nowrap}
+.goal-sweep{position:fixed;top:0;left:0;right:0;height:100%;pointer-events:none;z-index:110;opacity:0}
+.goal-sweep.go{animation:gsweep 0.9s ease-out}
+@keyframes gsweep{0%{opacity:0;background:linear-gradient(90deg,transparent,rgba(255,213,79,0.35),transparent);transform:translateX(-100%)}40%{opacity:1}100%{opacity:0;transform:translateX(100%)}}
+/* Goals tab */
+.gl-head{font-size:0.75rem;font-weight:700;color:#b7e4c7;margin-bottom:6px}
+.gl-list{display:flex;flex-direction:column;gap:4px}
+.gl-item{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)}
+.gl-item.done{opacity:0.5}
+.gl-item.done .gl-name{text-decoration:line-through;color:#8fb3a0}
+.gl-item.current{flex-direction:column;align-items:stretch;gap:5px;border-color:#52b788;background:rgba(82,183,136,0.1);box-shadow:0 0 12px rgba(82,183,136,0.15)}
+.gl-item.next{opacity:0.75}
+.gl-item.mystery{opacity:0.4}
+.gl-ico{font-size:0.95rem;flex-shrink:0}
+.gl-name{font-size:0.68rem;color:#e8f5ee;flex:1}
+.gl-lock{font-size:0.6rem;opacity:0.6}
+.gl-row{display:flex;align-items:center;gap:7px}
+.gl-bar{height:7px;background:rgba(0,0,0,0.3);border-radius:5px;overflow:hidden}
+.gl-fill{height:100%;background:linear-gradient(90deg,#40916c,#52b788);border-radius:5px;transition:width .5s ease}
+.gl-foot{display:flex;justify-content:space-between;font-size:0.58rem;color:#9db}
+.gl-rw{color:#ffd54f}
+.gl-titles{margin-top:10px;font-size:0.62rem;color:#ffd54f;padding:7px;border:1px dashed rgba(255,213,79,0.3);border-radius:8px}
 .perk-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:6px 8px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
 .perk-card.owned{border-color:rgba(82,183,136,0.3);background:rgba(82,183,136,0.05)}
 .perk-info{flex:1}.perk-name{font-weight:600;font-size:0.72rem}.perk-desc{font-size:0.62rem;color:#888;margin-top:1px}.perk-cost{font-size:0.62rem;color:#ffd54f;margin-top:1px}
@@ -572,6 +604,8 @@ body.cb-active #toast-stack{top:106px}
   <div class="combo-mult" id="combo-text">1.0x</div>
   <div class="combo-label">COMBO</div>
 </div>
+<div id="goal-banner" class="goal-banner" style="display:none" onclick="switchTab('goals')"></div>
+<div id="goal-sweep" class="goal-sweep"></div>
 <div id="buff-chips" class="buff-chips"></div>
 <div id="golden-reveal" class="golden-reveal" onclick="dismissGoldenReveal()">
   <div class="gr-card"><div class="gr-inner" id="gr-inner">
@@ -603,6 +637,7 @@ body.cb-active #toast-stack{top:106px}
       <div class="tab-row">
         <div class="tab-btn active" data-tab="upgrades" onclick="switchTab('upgrades')">🛒 Shop</div>
         <div class="tab-btn" data-tab="daily2" onclick="switchTab('daily2')">📋 Daily<span class="tab-dot" id="daily2-hdr-count" style="display:none"></span></div>
+        <div class="tab-btn" data-tab="goals" onclick="switchTab('goals')">🎯 Goals</div>
         <div class="tab-btn" data-tab="crew" onclick="switchTab('crew')">👷 Crew</div>
         <div class="tab-btn" data-tab="perks" onclick="switchTab('perks')">🧠 Perks</div>
         <div class="tab-btn" data-tab="contracts" onclick="switchTab('contracts')">📝 Bids</div>
@@ -614,6 +649,7 @@ body.cb-active #toast-stack{top:106px}
       </div>
       <div id="tab-upgrades"><div id="upgrade-list"></div></div>
       <div id="tab-daily2" style="display:none"></div>
+      <div id="tab-goals" style="display:none"></div>
       <div id="tab-crew" style="display:none">
         <div id="fleet-display"></div>
         <div id="crew-list"></div>
@@ -2933,6 +2969,7 @@ function updateUI(){
   if(S.activeTab==='rankings')renderRankings();if(S.activeTab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}
   if(S.activeTab==='stats')renderStats();
   updateVoucherUI();updateStreakFlame();
+  if(typeof checkGoalLadder==='function')checkGoalLadder(false);
   if(S.activeTab==='daily2')renderDailyContracts();
   if(S.activeTab==='goals'&&typeof renderGoalLadder==='function')renderGoalLadder();
   if(S.activeTab==='proshop'&&typeof renderProShop==='function')renderProShop();
@@ -3118,6 +3155,7 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   // U7 daily contracts: manual job → jobs + cash + neighborhood progress
   dcTrack('jobs',1);dcTrack('cash',comboPay);dcTrackNB(nbIdx);
   maybeMicroEvent(prop.pay); // U8 ambient micro-events (~1 per 6–10 jobs)
+  warmupJob(); // U9 session warm-up
   const _nbProps=getAllProps(nbIdx);
   if(_nbProps.length>0&&_nbProps.every(p=>p.done))updateDailyProgress('clear_nb',1);
   if(S.jobsDone%8===0){S.skillPoints++;showToast('🧠 +1 Skill Point!')}
@@ -3162,6 +3200,7 @@ function completeAutoDispatch(prop,propIdx,nbIdx,truckIdx){
   updateDailyProgress('jobs_today',1);updateDailyProgress('earnings_today',pay);updateDailyProgress('rep_today',repGain);
   // U7 daily contracts: auto job → jobs + cash + auto-dispatch + neighborhood progress
   dcTrack('jobs',1);dcTrack('cash',pay);dcTrack('auto',1);dcTrackNB(nbIdx);
+  warmupJob(); // U9 session warm-up
   if(S.jobsDone%8===0){S.skillPoints++}
   SFX.cash();
   if(nbIdx===S.curNB){const hc=prop.houseConfig;spawnCash(propX(propIdx)+hc.w+15+hc.yardCols*YARD_TILE/2,PROP_Y+20+hc.yardRows*YARD_TILE/2,pay,false)}
@@ -3671,6 +3710,7 @@ function claimDailyContract(i){
   SFX.cash();fxCenter('confetti',{n:24});
   showToast(`📋 Contract claimed! +$${c.rewardCash.toLocaleString()}`);
   addLog(`📋 Daily contract: <span class="hl">${esc(c.desc)}</span> +$${c.rewardCash.toLocaleString()}`);
+  const _stop=(typeof stoppingPointLine==='function')?stoppingPointLine():'';if(_stop)addLog(`<span style="color:#7bc97b">${_stop}</span>`);
   dcCreditStreak();
   // All 3 claimed → Golden Voucher bonus
   if(!dc.claimedAll&&dc.contracts.every(x=>x.claimed)){
@@ -3909,6 +3949,201 @@ function maybeMicroEvent(refPay){
   fxCenter('combo_spark',{color:'#b7e4c7',n:6});
 }
 
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  SHARED — cosmetic Title catalog (milestone/streak/shop titles)    ║
+// ╚══════════════════════════════════════════════════════════════════╝
+// Extended by the Pro Shop (U10). id → display label.
+const TITLE_CATALOG={
+  streak30:'30-Day Devotee 🔥',
+  title_verified:'Verified Mower ✅',
+  title_hero:'Neighborhood Hero 🦸',
+  title_founder:'Franchise Founder 🏢',
+  title_legend:'Lawn Legend 🌟',
+};
+function titleLabel(id){return TITLE_CATALOG[id]||id}
+function equippedTitleLabel(){return (S.titleEquipped&&S.earnedTitles&&S.earnedTitles.includes(S.titleEquipped))?titleLabel(S.titleEquipped):''}
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  UPGRADE 9 — THE GOAL LADDER (always a next thing)                 ║
+// ╚══════════════════════════════════════════════════════════════════╝
+function lifetimeEarned(){return Math.round((S.lifetimePrestigeEarnings||0)+(S.totalEarnings||0))}
+function nbUnlockedCount(){return NEIGHBORHOODS.filter(nb=>S.rep>=nb.minRep).length}
+function legacyPerkLevels(){return S.legacy&&S.legacy.perks?Object.values(S.legacy.perks).reduce((s,v)=>s+(v|0),0):0}
+function foremanCount(){return Array.isArray(S.trucks)?S.trucks.filter(t=>t&&t.foreman).length:0}
+// Ordered chain. Each: {id,icon,name,cur:()=>n,target,reward:{cash,vouchers,title}}
+const GOAL_LADDER=[
+  {id:'m_money500', icon:'💵',name:'First $500 in the bank',       cur:()=>S.money,target:500,             reward:{cash:200}},
+  {id:'m_jobs5',    icon:'🌱',name:'Complete 5 jobs',              cur:()=>S.jobsDone,target:5,            reward:{cash:300}},
+  {id:'m_hire1',    icon:'🤝',name:'Hire your first crew member', cur:()=>S.crew.length,target:2,         reward:{cash:400}},
+  {id:'m_jobs10',   icon:'🔟',name:'Complete 10 jobs',            cur:()=>S.jobsDone,target:10,           reward:{cash:500}},
+  {id:'m_rep50',    icon:'⭐',name:'Earn 50 reputation',          cur:()=>S.rep,target:50,                reward:{cash:600}},
+  {id:'m_truck1',   icon:'🚚',name:'Buy your first truck',        cur:()=>S.trucks.length,target:1,       reward:{cash:800}},
+  {id:'m_jobs25',   icon:'💪',name:'Complete 25 jobs',            cur:()=>S.jobsDone,target:25,           reward:{cash:1000,title:'title_verified'}},
+  {id:'m_combo5',   icon:'🔗',name:'Hit a 5x combo chain',        cur:()=>S.bestComboEver,target:5,       reward:{cash:1000}},
+  {id:'m_val10k',   icon:'📈',name:'Reach a $10k valuation',      cur:()=>calcValuation(),target:10000,   reward:{cash:1200,vouchers:1}},
+  {id:'m_nb2',      icon:'🏘️',name:'Unlock a 2nd neighborhood',   cur:()=>nbUnlockedCount(),target:2,     reward:{cash:1500}},
+  {id:'m_money5k',  icon:'💰',name:'Hold $5,000 cash',            cur:()=>S.money,target:5000,            reward:{cash:1000}},
+  {id:'m_crew3',    icon:'👥',name:'Field a crew of 3',           cur:()=>S.crew.length,target:3,         reward:{cash:1500}},
+  {id:'m_jobs50',   icon:'🏆',name:'Complete 50 jobs',            cur:()=>S.jobsDone,target:50,           reward:{cash:2000,vouchers:1}},
+  {id:'m_foreman1', icon:'🧑‍🔧',name:'Promote your first foreman', cur:()=>foremanCount(),target:1,        reward:{cash:2000}},
+  {id:'m_combo8',   icon:'⚡',name:'Hit an 8x combo chain',       cur:()=>S.bestComboEver,target:8,       reward:{cash:2500}},
+  {id:'m_truck2',   icon:'🚛',name:'Run a 2-truck fleet',         cur:()=>S.trucks.length,target:2,       reward:{cash:2500}},
+  {id:'m_golden1',  icon:'✨',name:'Catch a Golden Client',       cur:()=>S.lifetimeGolden,target:1,      reward:{cash:2500,vouchers:1}},
+  {id:'m_val50k',   icon:'💎',name:'Reach a $50k valuation',      cur:()=>calcValuation(),target:50000,   reward:{cash:3000}},
+  {id:'m_jobs100',  icon:'👑',name:'Complete 100 jobs',           cur:()=>S.jobsDone,target:100,          reward:{cash:4000,vouchers:1}},
+  {id:'m_life100k', icon:'🏦',name:'$100k lifetime earnings',     cur:()=>lifetimeEarned(),target:100000, reward:{cash:4000}},
+  {id:'m_combo10',  icon:'🔥',name:'Hit a 10x combo chain',       cur:()=>S.bestComboEver,target:10,      reward:{cash:5000,vouchers:1}},
+  {id:'m_nb3',      icon:'🗺️',name:'Unlock a 3rd neighborhood',   cur:()=>nbUnlockedCount(),target:3,     reward:{cash:5000,title:'title_hero'}},
+  {id:'m_crew5',    icon:'🧑‍🤝‍🧑',name:'Field a crew of 5',       cur:()=>S.crew.length,target:5,         reward:{cash:6000}},
+  {id:'m_prestige1',icon:'💼',name:'Prestige for the first time', cur:()=>S.prestigeLevel,target:1,       reward:{cash:8000,vouchers:2,title:'title_founder'}},
+  {id:'m_legacy1',  icon:'🌳',name:'Buy your first Legacy Perk',  cur:()=>legacyPerkLevels(),target:1,    reward:{cash:6000}},
+  {id:'m_val100k',  icon:'🏙️',name:'Reach a $100k valuation',    cur:()=>calcValuation(),target:100000,  reward:{cash:8000,vouchers:1}},
+  {id:'m_jobs200',  icon:'🎖️',name:'Complete 200 jobs',          cur:()=>S.jobsDone,target:200,          reward:{cash:10000,vouchers:1}},
+  {id:'m_legacy3',  icon:'🌲',name:'Own 3 Legacy Perk levels',    cur:()=>legacyPerkLevels(),target:3,    reward:{cash:10000,vouchers:1}},
+  {id:'m_life500k', icon:'💵',name:'$500k lifetime earnings',     cur:()=>lifetimeEarned(),target:500000, reward:{cash:12000,vouchers:2}},
+  {id:'m_golden5',  icon:'🌟',name:'Catch 5 Golden Clients',      cur:()=>S.lifetimeGolden,target:5,      reward:{cash:12000,vouchers:2}},
+  {id:'m_prestige2',icon:'🏅',name:'Reach Prestige 2',            cur:()=>S.prestigeLevel,target:2,       reward:{cash:15000,vouchers:2}},
+  {id:'m_combo12',  icon:'⛓️',name:'Hit a 12x combo chain',       cur:()=>S.bestComboEver,target:12,      reward:{cash:15000,vouchers:1}},
+  {id:'m_truck4',   icon:'🚐',name:'Run a 4-truck fleet',         cur:()=>S.trucks.length,target:4,       reward:{cash:18000,vouchers:1}},
+  {id:'m_life1m',   icon:'🤑',name:'$1M lifetime earnings',       cur:()=>lifetimeEarned(),target:1000000,reward:{cash:25000,vouchers:3}},
+  {id:'m_val500k',  icon:'🏛️',name:'Reach a $500k valuation',    cur:()=>calcValuation(),target:500000,  reward:{cash:25000,vouchers:2}},
+  {id:'m_nball',    icon:'🌎',name:'Unlock every neighborhood',   cur:()=>nbUnlockedCount(),target:NEIGHBORHOODS.length,reward:{cash:30000,vouchers:3}},
+  {id:'m_jobs500',  icon:'🏆',name:'Complete 500 jobs',           cur:()=>S.jobsDone,target:500,          reward:{cash:40000,vouchers:3}},
+  {id:'m_prestige3',icon:'👑',name:'Reach Prestige 3',            cur:()=>S.prestigeLevel,target:3,       reward:{cash:50000,vouchers:4}},
+  {id:'m_life5m',   icon:'💰',name:'$5M lifetime earnings',       cur:()=>lifetimeEarned(),target:5000000,reward:{cash:75000,vouchers:5}},
+  {id:'m_val1m',    icon:'🌟',name:'Reach a $1M valuation',       cur:()=>calcValuation(),target:1000000, reward:{cash:100000,vouchers:5,title:'title_legend'}},
+];
+function ladderPct(m){return Math.max(0,Math.min(100,Math.round((m.cur()/m.target)*100)))}
+function grantLadderReward(r){
+  let parts=[];
+  if(r.cash){S.money+=r.cash;S.totalEarnings+=r.cash;parts.push(`$${r.cash.toLocaleString()}`)}
+  if(r.vouchers){grantVouchers(r.vouchers,'milestone');parts.push(`${r.vouchers}🎟️`)}
+  if(r.title){if(earnTitle(r.title))parts.push(`title “${titleLabel(r.title)}”`)}
+  return parts.join(' + ');
+}
+// silent=true → migration path (no per-item celebration, one summary at the end)
+function checkGoalLadder(silent){
+  if(!Array.isArray(S.goalLadderDone))S.goalLadderDone=[];
+  let idx=Math.max(0,Math.min(GOAL_LADDER.length,S.goalLadderIdx|0));
+  const completed=[];let totalCash=0;
+  while(idx<GOAL_LADDER.length){
+    const m=GOAL_LADDER[idx];
+    if(m.cur()>=m.target){
+      if(!S.goalLadderDone.includes(m.id)){
+        const summary=grantLadderReward(m.reward||{});
+        S.goalLadderDone.push(m.id);totalCash+=(m.reward&&m.reward.cash)||0;
+        completed.push({m,summary});
+      }
+      idx++;
+    }else break;
+  }
+  S.goalLadderIdx=idx;
+  if(!completed.length){if(!silent)updateGoalBanner();return 0}
+  if(silent){
+    // one summary modal, no popups spam — deferred so it won't clobber the offline modal
+    const cnt=completed.length,cash=totalCash;
+    setTimeout(()=>{if(!$('mo').classList.contains('show'))goalMigrationModal(cnt,cash)},1000);
+  }else if(completed.length===1){
+    celebrateMilestone(completed[0].m,completed[0].summary);
+  }else{
+    fxCenter('confetti',{n:44});SFX.prestige();
+    showToast(`🎯 ${completed.length} milestones cleared! +$${totalCash.toLocaleString()}`);
+  }
+  updateGoalBanner();updateVoucherUI();autoSave();
+  return completed.length;
+}
+function celebrateMilestone(m,summary){
+  SFX.milestone();fxCenter('confetti',{n:38});goalSweep();
+  const stop=stoppingPointLine();
+  addLog(`🎯 Milestone: <span class="hl">${esc(m.name)}</span> — ${summary}`);
+  if(!$('mo').classList.contains('show')){
+    $('me').textContent=m.icon;$('mt').textContent='Milestone!';
+    $('mx').innerHTML=`<strong>${esc(m.name)}</strong><br>Reward: ${summary}${stop?`<br><span style="color:#7bc97b;font-size:0.85em">${stop}</span>`:''}`;
+    $('modal-extra').innerHTML='';
+    $('modal-buttons').innerHTML='<button onclick="closeModal()">Onward →</button>';
+    $('mo').classList.add('show');
+  }else{
+    showToast(`🎯 ${m.name} — ${summary}`);
+  }
+}
+function goalMigrationModal(count,cash){
+  $('me').textContent='🎯';$('mt').textContent='Welcome back!';
+  $('mx').innerHTML=`<strong>${count} milestone${count>1?'s':''} honored</strong> from your progress so far.<br>Bonus rewards: <span class="hl">+$${cash.toLocaleString()}</span>${S.vouchers>0?` · 🎟️ ${S.vouchers}`:''}`;
+  $('modal-extra').innerHTML='';
+  $('modal-buttons').innerHTML='<button onclick="closeModal()">Let’s go 🌱</button>';
+  $('mo').classList.add('show');
+}
+function goalSweep(){const sw=$('goal-sweep');if(!sw)return;sw.classList.remove('go');void sw.offsetWidth;sw.classList.add('go')}
+function updateGoalBanner(){
+  const b=$('goal-banner');if(!b)return;
+  // Session warm-up takes the banner first, then the milestone ladder
+  if(S.sessionWarmup&&!S.sessionWarmup.done){
+    const w=S.sessionWarmup;const pct=Math.min(100,Math.round((w.progress/w.target)*100));
+    b.style.display='';b.className='goal-banner warmup';
+    b.innerHTML=`<span class="gb-ico">🌱</span><div class="gb-mid"><div class="gb-name">Today’s warm-up · complete ${w.target} jobs</div>
+      <div class="gb-bar"><div class="gb-fill" style="width:${pct}%"></div></div></div>
+      <span class="gb-reward">${w.progress}/${w.target}</span>`;
+    return;
+  }
+  const idx=S.goalLadderIdx|0;
+  if(idx>=GOAL_LADDER.length){
+    b.style.display='';b.className='goal-banner done';
+    b.innerHTML=`<span class="gb-ico">🏆</span><div class="gb-mid"><div class="gb-name">Every milestone complete — you are a Lawn Legend!</div></div>`;
+    return;
+  }
+  const m=GOAL_LADDER[idx];const pct=ladderPct(m);
+  const cur=m.cur();const curTxt=m.target>=1000?`$${Math.min(cur,m.target).toLocaleString()}`:`${Math.min(cur,m.target)}`;
+  const tgtTxt=m.target>=1000?`$${m.target.toLocaleString()}`:`${m.target}`;
+  const rw=[];if(m.reward.cash)rw.push(`$${m.reward.cash.toLocaleString()}`);if(m.reward.vouchers)rw.push(`${m.reward.vouchers}🎟️`);if(m.reward.title)rw.push('🏷️');
+  b.style.display='';b.className='goal-banner';
+  b.innerHTML=`<span class="gb-ico">${m.icon}</span><div class="gb-mid">
+    <div class="gb-name">${esc(m.name)} <span class="gb-num">${curTxt}/${tgtTxt}</span></div>
+    <div class="gb-bar"><div class="gb-fill" style="width:${pct}%"></div></div></div>
+    <span class="gb-reward" title="Reward">🎁 ${rw.join(' ')}</span>`;
+}
+function renderGoalLadder(){
+  const el=$('tab-goals');if(!el)return;
+  const idx=S.goalLadderIdx|0;
+  let html='<div class="gl-head">🎯 Company Milestones</div><div class="gl-list">';
+  GOAL_LADDER.forEach((m,i)=>{
+    if(i<idx){ // completed
+      html+=`<div class="gl-item done"><span class="gl-ico">✅</span><span class="gl-name">${esc(m.name)}</span></div>`;
+    }else if(i===idx){ // current
+      const pct=ladderPct(m);const cur=Math.min(m.cur(),m.target);
+      const curTxt=m.target>=1000?`$${cur.toLocaleString()}`:`${cur}`;const tgtTxt=m.target>=1000?`$${m.target.toLocaleString()}`:`${m.target}`;
+      const rw=[];if(m.reward.cash)rw.push(`$${m.reward.cash.toLocaleString()}`);if(m.reward.vouchers)rw.push(`${m.reward.vouchers}🎟️`);if(m.reward.title)rw.push(`🏷️ ${titleLabel(m.reward.title)}`);
+      html+=`<div class="gl-item current"><div class="gl-row"><span class="gl-ico">${m.icon}</span><span class="gl-name">${esc(m.name)}</span></div>
+        <div class="gl-bar"><div class="gl-fill" style="width:${pct}%"></div></div>
+        <div class="gl-foot"><span>${curTxt} / ${tgtTxt}</span><span class="gl-rw">🎁 ${rw.join(' · ')}</span></div></div>`;
+    }else if(i<=idx+3){ // next 3 upcoming — visible
+      html+=`<div class="gl-item next"><span class="gl-ico">${m.icon}</span><span class="gl-name">${esc(m.name)}</span><span class="gl-lock">🔒</span></div>`;
+    }else{ // mystery
+      html+=`<div class="gl-item mystery"><span class="gl-ico">❓</span><span class="gl-name">???</span></div>`;
+    }
+  });
+  html+='</div>';
+  const titles=(S.earnedTitles||[]).filter(t=>TITLE_CATALOG[t]);
+  if(titles.length)html+=`<div class="gl-titles">🏷️ Titles earned: ${titles.map(t=>esc(titleLabel(t))).join(' · ')}</div>`;
+  el.innerHTML=html;
+}
+// ── Session warm-up (instant early win each session) ──
+function startSessionWarmup(){
+  S.sessionWarmup={target:3,progress:0,done:false};
+  setTimeout(()=>{if(S.sessionWarmup&&!S.sessionWarmup.done)pushToast('🌱 Warm-up: complete 3 jobs for a quick bonus!','good',3200,true)},1200);
+}
+function warmupJob(){
+  const w=S.sessionWarmup;if(!w||w.done)return;
+  w.progress++;
+  if(w.progress>=w.target){w.done=true;const bonus=Math.max(200,niceRound(dcIncomeEstimate()*0.3));
+    S.money+=bonus;S.totalEarnings+=bonus;SFX.cash();fxCenter('confetti',{n:20});
+    showToast(`🌱 Warm-up done! +$${bonus.toLocaleString()} — you’re rolling.`);
+    addLog(`🌱 Session warm-up complete — <span class="hl">+$${bonus.toLocaleString()}</span>`);}
+  updateGoalBanner();
+}
+function stoppingPointLine(){
+  return (S.sessionWarmup&&S.sessionWarmup.done)?'Good stopping point 🌱 — your crews will keep working.':'';
+}
+
 // ═══ SAVE / LOAD SYSTEM ═══
 const SAVE_KEY='lawn_legend_save';
 const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','trucks','equipDurability','equipRepairs','curNB',
@@ -4092,7 +4327,8 @@ function loadAndStart(){
 let _loopStarted=false;
 function initGameUI(){
   $('player-name-display').textContent='— '+S.playerName;
-  initDailyChallenges();initDailyContracts();refreshSeasonalEvent();
+  initDailyChallenges();initDailyContracts();startSessionWarmup();refreshSeasonalEvent();
+  checkGoalLadder(true); // U9: silently honor already-satisfied milestones (one summary, no popup spam) BEFORE first updateUI
   updateSeason();rollWeather();generateAllDayJobs();updateUI();renderTrophies();renderBids();renderRankings();renderCompanyTier();updatePrestigeUI();
   checkAchievements();
   $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;

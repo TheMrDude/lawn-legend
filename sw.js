@@ -1,6 +1,6 @@
 // Lawn Legend service worker — offline play + clean updates.
 // Bump CACHE_VERSION on every deploy that changes index.html.
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 const CACHE_NAME = 'lawn-legend-' + CACHE_VERSION;
 
 const PRECACHE = [

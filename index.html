@@ -213,6 +213,25 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .ps-curator.done{border-style:solid;color:#52b788;border-color:rgba(82,183,136,0.4)}
 .lb-skin{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:middle;border:1px solid rgba(255,255,255,0.3)}
 .lb-title{display:block;font-size:0.5rem;color:#ffd54f;opacity:0.85;line-height:1.1}
+/* Weekly challenge */
+.challenge-banner{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 12px;background:linear-gradient(90deg,rgba(255,183,3,0.22),rgba(45,106,79,0.5));border-bottom:1px solid rgba(255,183,3,0.4)}
+.cb-mod{font-size:0.66rem;font-weight:800;color:#ffe9a8}
+.cb-day{font-size:0.62rem;color:#b7e4c7;font-weight:700}
+.cb-score{font-size:0.62rem;color:#ffd54f;font-weight:700;flex:1}
+.cb-abandon{background:rgba(231,76,60,0.15);border:1px solid #e74c3c;color:#ff9c8f;border-radius:6px;padding:3px 9px;font-size:0.56rem;font-weight:700;cursor:pointer}
+.wk-card{background:linear-gradient(135deg,rgba(255,183,3,0.14),rgba(27,58,42,0.6));border:1.5px solid rgba(255,183,3,0.45);border-radius:12px;padding:12px;text-align:center;margin-bottom:10px}
+.wk-emoji{font-size:2.4rem;line-height:1}
+.wk-mod{font-size:0.95rem;font-weight:800;color:#ffe9a8;margin:4px 0}
+.wk-desc{font-size:0.66rem;color:#e8f5ee;margin-bottom:8px}
+.wk-score-rule{font-size:0.66rem;color:#b7e4c7;margin-bottom:8px}
+.wk-meta{display:flex;justify-content:space-between;font-size:0.6rem;color:#9db;margin-bottom:10px;flex-wrap:wrap;gap:4px}
+.wk-meta strong{color:#ffd54f}
+.wk-start{width:100%;background:linear-gradient(135deg,#ffb703,#ff8c42);color:#1b1b1b;border:none;border-radius:9px;padding:10px;font-size:0.8rem;font-weight:800;cursor:pointer;animation:dcpulse 1.6s ease-in-out infinite}
+.wk-start:hover{filter:brightness(1.1)}
+.wk-inrun{font-size:0.7rem;color:#ffd54f;font-weight:700;padding:8px}
+.wk-note{font-size:0.55rem;color:#888;margin-top:7px}
+.wk-lb-head{font-size:0.72rem;font-weight:700;color:#42a5f5;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
+.wk-loading{font-size:0.6rem;color:#888;text-align:center;padding:8px}
 .perk-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:6px 8px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
 .perk-card.owned{border-color:rgba(82,183,136,0.3);background:rgba(82,183,136,0.05)}
 .perk-info{flex:1}.perk-name{font-weight:600;font-size:0.72rem}.perk-desc{font-size:0.62rem;color:#888;margin-top:1px}.perk-cost{font-size:0.62rem;color:#ffd54f;margin-top:1px}
@@ -637,6 +656,7 @@ body.cb-active #toast-stack{top:106px}
   <div class="combo-label">COMBO</div>
 </div>
 <div id="goal-banner" class="goal-banner" style="display:none" onclick="switchTab('goals')"></div>
+<div id="challenge-banner" class="challenge-banner" style="display:none"></div>
 <div id="goal-sweep" class="goal-sweep"></div>
 <div id="buff-chips" class="buff-chips"></div>
 <div id="golden-reveal" class="golden-reveal" onclick="dismissGoldenReveal()">
@@ -671,6 +691,7 @@ body.cb-active #toast-stack{top:106px}
         <div class="tab-btn" data-tab="daily2" onclick="switchTab('daily2')">📋 Daily<span class="tab-dot" id="daily2-hdr-count" style="display:none"></span></div>
         <div class="tab-btn" data-tab="goals" onclick="switchTab('goals')">🎯 Goals</div>
         <div class="tab-btn" data-tab="proshop" onclick="switchTab('proshop')">🏪 Shop+</div>
+        <div class="tab-btn" data-tab="weekly" onclick="switchTab('weekly')">⚔️ Weekly</div>
         <div class="tab-btn" data-tab="crew" onclick="switchTab('crew')">👷 Crew</div>
         <div class="tab-btn" data-tab="perks" onclick="switchTab('perks')">🧠 Perks</div>
         <div class="tab-btn" data-tab="contracts" onclick="switchTab('contracts')">📝 Bids</div>
@@ -684,6 +705,7 @@ body.cb-active #toast-stack{top:106px}
       <div id="tab-daily2" style="display:none"></div>
       <div id="tab-goals" style="display:none"></div>
       <div id="tab-proshop" style="display:none"></div>
+      <div id="tab-weekly" style="display:none"></div>
       <div id="tab-crew" style="display:none">
         <div id="fleet-display"></div>
         <div id="crew-list"></div>
@@ -1187,7 +1209,7 @@ function generateShareCard(w,h){
 }
 function shareCard(type){
   const isVert=type==='vertical';const w=isVert?1000:1080,h=isVert?1500:1080;
-  const c=generateShareCard(w,h);
+  const c=(type==='weekly'&&typeof generateWeeklyCard==='function'&&_lastWeeklyShare)?generateWeeklyCard(1080,1080,_lastWeeklyShare):generateShareCard(w,h);
   c.toBlob(async blob=>{
     if(!blob){showToast('❌ Card failed');return}
     const safeName=String(S.playerName||'player').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,20)||'player';
@@ -1264,6 +1286,7 @@ function setSyncDot(state){const d=$('sync-dot');if(!d)return;
   d.className='sync-dot '+state;
   d.title=state==='synced'?'☁️ Synced':state==='syncing'?'☁️ Syncing…':'☁️ Offline (playing locally)';}
 async function cloudPushNow(){
+  if(typeof _inChallenge!=='undefined'&&_inChallenge)return; // U11: never push challenge state to the cloud
   if(_cloudBusy)return;_cloudBusy=true;setSyncDot('syncing');
   const body=[{player_id:PLAYER_ID,save_data:getSaveData(),saved_at:new Date().toISOString()}];
   const r=await sbFetch('ll_saves?on_conflict=player_id',{method:'POST',
@@ -2797,9 +2820,11 @@ function addCombo(){S.combo++;if(S.combo>S.maxCombo)S.maxCombo=S.combo;if(S.comb
   updateDailyProgress('combo_reach',S.combo);
   dcTrack('combo',S.combo,'max'); // U7 daily contract: highest combo reached
   clearTimeout(S.comboTimer);
-  S.comboTimer=setTimeout(()=>{S.combo=0;S.comboChainEarnings=0;SFX.comboBreak();updateComboDisplay()},Math.round((S.comboEdge?20000:15000)*legacyComboTimerMult()));updateComboDisplay(true);
+  S.comboTimer=setTimeout(()=>{S.combo=0;S.comboChainEarnings=0;SFX.comboBreak();updateComboDisplay()},Math.round((S.comboEdge?20000:15000)*legacyComboTimerMult()*chComboTimerMult()));updateComboDisplay(true);
   if(S.combo>1){SFX.combo();const m=getComboMult();const col=m>=2?'#ff6b35':m>=1.5?'#ffd54f':'#52b788';fxAtEl('combo-display','combo_spark',{color:col,n:8+Math.min(4,S.combo)})}}
-function getComboMult(){if(S.combo<=1)return 1;const rate=S.perks.has('combo_master')?0.18:0.12;return Math.min(3,1+((S.combo-1)*rate))}
+function getComboMult(){if(S.combo<=1)return 1;const rate=S.perks.has('combo_master')?0.18:0.12;
+  const rush=chMod()==='rush';const cap=rush?5:3; // U11 Rush Week: combo bonuses doubled, higher cap
+  return Math.min(cap,1+((S.combo-1)*rate*(rush?2:1)))}
 function updateComboDisplay(bump){const cd=$('combo-display'),el=$('combo-text');if(S.combo<=1){cd.style.display='none';el.classList.remove('maxed');return}
   cd.style.display='block';const m=getComboMult();el.textContent=m.toFixed(1)+'x';
   el.style.color=m>=2?'#ff6b35':m>=1.5?'#ffd54f':'#b7e4c7';
@@ -2825,7 +2850,8 @@ function updateDayTimer(){
 // ═══ GENERATE JOBS ═══
 function generateNBJobs(nbIdx){
   const nb=NEIGHBORHOODS[nbIdx];const props=[];const seasonJobs=S.season.jobs;
-  const totalHouses=nb.houses+getNBExtraJobs(nbIdx)+(ACTIVE_EVENT&&ACTIVE_EVENT.extraJobs?ACTIVE_EVENT.extraJobs:0);
+  let totalHouses=nb.houses+getNBExtraJobs(nbIdx)+(ACTIVE_EVENT&&ACTIVE_EVENT.extraJobs?ACTIVE_EVENT.extraJobs:0);
+  if(chMod()==='drought')totalHouses=Math.max(1,Math.round(totalHouses*0.6)); // U11 Drought Week: 40% fewer jobs
   for(let i=0;i<totalHouses;i++){
     const ht=nb.houseTypes[i%nb.houseTypes.length];const hc=HOUSE_CONFIGS[ht];
     const available=JOB_TYPES.filter(j=>{
@@ -2836,7 +2862,7 @@ function generateNBJobs(nbIdx){
       if(!j.stormOnly&&!seasonJobs.includes(j.type))return false;return true});
     if(available.length===0)continue;
     const job=available[R(0,available.length-1)];const cust=rollCustomer(nbIdx);
-    let basePay=Math.round((20+job.diff*30+R(0,20))*nb.payMult*(S.weather.payMult||1)*S.season.payMult*cust.payMod*seasonalPayMult());
+    let basePay=Math.round((20+job.diff*30+R(0,20))*nb.payMult*(S.weather.payMult||1)*S.season.payMult*cust.payMod*seasonalPayMult()*chPayMult());
     if(S.perks.has('haggler'))basePay=Math.round(basePay*1.12);
     basePay=Math.round(basePay*(1+getStreakBonus())*getCrewPayBonus()*getNBPayBonus(nbIdx));
     props.push({houseType:ht,houseConfig:hc,job:{...job},pay:basePay,customer:cust,
@@ -3056,6 +3082,7 @@ function updateUI(){
   if(S.activeTab==='goals'&&typeof renderGoalLadder==='function')renderGoalLadder();
   if(S.activeTab==='proshop'&&typeof renderProShop==='function')renderProShop();
   if(typeof updateGoalBanner==='function')updateGoalBanner();
+  if(_inChallenge&&typeof updateChallengeBanner==='function')updateChallengeBanner();
 }
 function getSpeed(j){
   let m=1;if(['mow','full','sod'].includes(j.type))m*=(1+S.equipment.mower*0.25);
@@ -3765,6 +3792,7 @@ function dcDaysBetween(aKey,bKey){
   return Math.round((b-a)/86400000);
 }
 function dcTrack(key,value,mode){
+  if(_inChallenge)return; // U11: challenge runs never touch main-game dailies
   if(!S.dc||S.dc.date!==todayKey())initDailyContracts();
   const dc=S.dc;let changed=false;
   dc.contracts.forEach(c=>{
@@ -3777,6 +3805,7 @@ function dcTrack(key,value,mode){
   if(changed){dcRefreshUI();saveDaily2()}
 }
 function dcTrackNB(nbIdx){
+  if(_inChallenge)return;
   if(!S.dc||S.dc.date!==todayKey())initDailyContracts();
   const dc=S.dc;let changed=false;
   dc.contracts.forEach(c=>{if(c.completed||c.key!=='nb'||c.nb!==nbIdx)return;
@@ -3953,6 +3982,7 @@ function spawnGoldenClient(){
 }
 function goldenTick(){
   // Called ~1/sec. Only accrues time & rolls while actively playing.
+  if(S.activeTab==='weekly'&&!_inChallenge){const cd=$('wk-countdown');if(cd)cd.textContent=fmtCountdown(nextWeeklyResetMs()-Date.now())}
   if(goldenClient&&Date.now()>goldenClient.expiresAt){expireGoldenClient()}
   if(!isActivelyPlaying())return;
   tickBuffs(1000);
@@ -3960,7 +3990,7 @@ function goldenTick(){
   if(!goldenClient){
     goldenNextRoll--;
     if(S.goldenPity>=900){spawnGoldenClient();goldenNextRoll=rollGoldenInterval();} // pity: guaranteed by 15 min
-    else if(goldenNextRoll<=0){goldenNextRoll=rollGoldenInterval();if(Math.random()<0.12)spawnGoldenClient();}
+    else if(goldenNextRoll<=0){goldenNextRoll=rollGoldenInterval();if(Math.random()<(chMod()==='windfall'?0.36:0.12))spawnGoldenClient();} // U11 Windfall Week: 3x
   }
 }
 function expireGoldenClient(){
@@ -4023,6 +4053,7 @@ const MICRO_EVENTS=[
 ];
 let microCountdown=R(6,10);
 function maybeMicroEvent(refPay){
+  if(_inChallenge)return; // keep challenge scoring pure (no random cash events)
   microCountdown--;
   if(microCountdown>0)return;
   microCountdown=R(6,10);
@@ -4107,6 +4138,7 @@ function grantLadderReward(r){
 }
 // silent=true → migration path (no per-item celebration, one summary at the end)
 function checkGoalLadder(silent){
+  if(_inChallenge&&!silent)return 0; // U11: sandbox — no main-game milestones during a challenge run
   if(!Array.isArray(S.goalLadderDone))S.goalLadderDone=[];
   let idx=Math.max(0,Math.min(GOAL_LADDER.length,S.goalLadderIdx|0));
   const completed=[];let totalCash=0;
@@ -4160,6 +4192,7 @@ function goalMigrationModal(count,cash){
 function goalSweep(){const sw=$('goal-sweep');if(!sw)return;sw.classList.remove('go');void sw.offsetWidth;sw.classList.add('go')}
 function updateGoalBanner(){
   const b=$('goal-banner');if(!b)return;
+  if(_inChallenge){b.style.display='none';return} // U11: challenge banner takes over during a run
   // Session warm-up takes the banner first, then the milestone ladder
   if(S.sessionWarmup&&!S.sessionWarmup.done){
     const w=S.sessionWarmup;const pct=Math.min(100,Math.round((w.progress/w.target)*100));
@@ -4216,6 +4249,7 @@ function startSessionWarmup(){
   setTimeout(()=>{if(S.sessionWarmup&&!S.sessionWarmup.done)pushToast('🌱 Warm-up: complete 3 jobs for a quick bonus!','good',3200,true)},1200);
 }
 function warmupJob(){
+  if(_inChallenge)return;
   const w=S.sessionWarmup;if(!w||w.done)return;
   w.progress++;
   if(w.progress>=w.target){w.done=true;const bonus=Math.max(200,niceRound(dcIncomeEstimate()*0.3));
@@ -4391,6 +4425,200 @@ function drawTrophies(){
   ctx.restore();
 }
 
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  UPGRADE 11 — WEEKLY CHALLENGE RUNS (competition that resets)      ║
+// ╚══════════════════════════════════════════════════════════════════╝
+const CHALLENGE_DAYS=10; // a run lasts 10 in-game days
+const CH_MODIFIERS=[
+  {id:'drought', emoji:'🌵',name:'Drought Week', desc:'Jobs pay 2× — but appear 40% less often. Every job counts.'},
+  {id:'rush',    emoji:'⚡',name:'Rush Week',    desc:'Combo timer is halved, but combo bonuses are doubled (cap 5×).'},
+  {id:'rookie',  emoji:'🌱',name:'Rookie Week',  desc:'Pure manual play — a clean, standardized loadout for everyone.'},
+  {id:'windfall',emoji:'💰',name:'Windfall Week',desc:'Golden Clients spawn 3× as often. Chase the shimmer!'},
+];
+const CH_SCORING=[
+  {id:'jobs', emoji:'✅',name:'Most Jobs',      field:'jobs',fmt:v=>v.toLocaleString()+' jobs'},
+  {id:'combo',emoji:'🔗',name:'Highest Combo',  field:'combo',fmt:v=>v+'× combo'},
+  {id:'cash', emoji:'💵',name:'Most Cash Earned',field:'cash',fmt:v=>'$'+v.toLocaleString()},
+];
+// ── ISO week (UTC) — deterministic, zero server logic ──
+function isoWeekParts(d){
+  const date=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));
+  const dayNum=(date.getUTCDay()+6)%7;date.setUTCDate(date.getUTCDate()-dayNum+3);
+  const firstThu=new Date(Date.UTC(date.getUTCFullYear(),0,4));
+  const fDay=(firstThu.getUTCDay()+6)%7;firstThu.setUTCDate(firstThu.getUTCDate()-fDay+3);
+  const week=1+Math.round((date-firstThu)/(7*86400000));
+  return {year:date.getUTCFullYear(),week};
+}
+function isoWeekId(d){const p=isoWeekParts(d||new Date());return p.year+'-W'+String(p.week).padStart(2,'0')}
+function nextWeeklyResetMs(){const now=new Date();const day=(now.getUTCDay()+6)%7;
+  return Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()-day+7,0,0,0)}
+function getWeeklyChallenge(weekId){
+  const w=weekId||isoWeekId();const seed=hashStr('wk'+w);
+  const modifier=CH_MODIFIERS[seed%CH_MODIFIERS.length];
+  const scoring=CH_SCORING[(seed>>>4)%CH_SCORING.length];
+  return {week:w,modifier,scoring};
+}
+// ── Weekly local state (separate key — main save is never touched) ──
+function loadWState(){try{const r=JSON.parse(localStorage.getItem('ll_weekly_state'));if(r&&typeof r==='object')return{best:r.best||{},lastSeenWeek:r.lastSeenWeek||'',rewarded:r.rewarded||{}}}catch(e){}return{best:{},lastSeenWeek:'',rewarded:{}}}
+function saveWState(w){try{localStorage.setItem('ll_weekly_state',JSON.stringify(w))}catch(e){}}
+function weeklyBest(week){const w=loadWState();return (w.best&&w.best[week])|0}
+
+// ── Challenge run mode (sandboxed via snapshot/restore of S) ──
+let _inChallenge=false, _chBackup=null, CH_ACTIVE=null;
+function chMod(){return _inChallenge&&CH_ACTIVE?CH_ACTIVE.modifier.id:null}
+function chPayMult(){return chMod()==='drought'?2:1}
+function chComboTimerMult(){return chMod()==='rush'?0.5:1}
+function inChallenge(){return _inChallenge}
+function currentChallengeScore(){if(!CH_ACTIVE)return 0;const f=CH_ACTIVE.scoring.field;
+  return f==='jobs'?(S.jobsDone|0):f==='cash'?Math.round(S.totalEarnings):(S.maxCombo|0)}
+function startChallengeRun(){
+  if(_inChallenge)return;SFX.click();
+  if(S.activeDispatches.some(d=>d&&!d.auto)){showToast('Wait for your crews to finish first!');return}
+  CH_ACTIVE=getWeeklyChallenge();
+  _chBackup=JSON.parse(JSON.stringify(getSaveData())); // deep, detached snapshot of the real game
+  _inChallenge=true;
+  // ── Standardized fresh loadout (no legacy perks, no crews, fixed cash) ──
+  S.money=800;S.rep=0;S.jobsDone=0;S.day=1;S.totalEarnings=0;S.maxCombo=0;S.combo=0;S.comboChainEarnings=0;
+  S.equipment={mower:1,trimmer:1,blower:1,signage:0};
+  S.equipDurability={mower:100,trimmer:100,blower:100};S.equipRepairs={mower:0,trimmer:0,blower:0};
+  S.trucks=[];S.crew=[{name:S.playerName||'You',level:1,xp:0,specialty:'general',training:false,available:true}];
+  S.activeDispatches=[];S.contracts=[];S.bidOffers=[];S.nbJobs={};S.nbUpgrades={};S.curNB=0;
+  S.perks=new Set();S.skillPoints=0;S.legacy={points:0,perks:{}};S.prestigeLevel=0;S.prestigeBonuses=[];
+  S.weeklyGoal=null;S.specialContract=null;S.specialOffer=null;S.comboEdge=false;S.streak=0;
+  S.trophiesOwned=[];S.trophiesPlaced=[]; // fresh loadout — no trophy bonuses in a skill run
+  S.dayHoursTotal=8;S.dayHoursLeft=8;S.dayPhase=0;S.dayJobsDone=0;S.dayEarnings=0;S.dayTips=0;S.dayExpenses=0;S.dayRepairs=0;
+  clearTimeout(S.comboTimer);S.comboTimer=null;goldenClient=null;ACTIVE_BUFFS=[];S.goldenPity=0;
+  // Modifier indicator reuses the buff-chip UI (persistent chip)
+  addBuff('chmod',{persistent:true,icon:CH_ACTIVE.modifier.emoji,label:CH_ACTIVE.modifier.name,color:'#ffb703'});
+  updateSeason();rollWeather();generateAllDayJobs();updateComboDisplay();renderGoldenClient();
+  showChallengeBanner();switchTab('upgrades');updateUI();updateNameHeader();renderJobs();renderNBSel();
+  addLog(`⚔️ <span class="hl">Challenge run started</span> — ${esc(CH_ACTIVE.modifier.name)} · ${esc(CH_ACTIVE.scoring.name)}`);
+  showToast(`⚔️ ${CH_ACTIVE.modifier.emoji} ${CH_ACTIVE.modifier.name} — ${CHALLENGE_DAYS} days. Best score counts!`);
+}
+function abandonChallengeRun(){if(_inChallenge)finishChallengeRun(true)}
+function finishChallengeRun(abandoned){
+  if(!_inChallenge)return;
+  const ch=CH_ACTIVE;const score=currentChallengeScore();
+  _inChallenge=false;removeBuff('chmod');goldenClient=null;ACTIVE_BUFFS=[];hideChallengeBanner();
+  // ── Restore the real game from the detached snapshot ──
+  if(_chBackup)applySaveData(_chBackup);_chBackup=null;
+  S.nbJobs={};updateSeason();rollWeather();generateAllDayJobs();
+  renderGoldenClient();renderBuffChips();updateComboDisplay();updateUI();updateNameHeader();renderJobs();renderNBSel();
+  saveGame(); // main save is unchanged on disk, but refresh cloud/local cleanly
+  if(!abandoned){
+    const ws=loadWState();const prev=(ws.best[ch.week]|0);const isBest=score>prev;
+    if(isBest){ws.best[ch.week]=score;saveWState(ws);weeklyUpsert(ch.week,score);}
+    const placement=null;
+    _lastWeeklyShare={modifier:ch.modifier,scoring:ch.scoring,score,week:ch.week};
+    showChallengeResult(ch,score,isBest,prev);
+  }else{
+    showToast('Run abandoned — no worries, try again anytime!');
+    switchTab('weekly');renderWeeklyTab();
+  }
+}
+function showChallengeResult(ch,score,isBest,prev){
+  if(isBest){SFX.prestige();fxCenter('prestige_glow',{})}else{SFX.level()}
+  $('me').textContent=ch.modifier.emoji;$('mt').textContent='Run Complete!';
+  $('mx').innerHTML=`<div style="font-size:0.9em"><strong>${esc(ch.modifier.name)}</strong> · ${esc(ch.scoring.name)}</div>
+    <div style="font-size:1.6em;color:#ffd54f;font-weight:800;margin:8px 0">${ch.scoring.fmt(score)}</div>
+    ${isBest?'<div style="color:#52b788">🏆 New personal best this week!</div>':`<div style="color:#888">Your week best: ${ch.scoring.fmt(prev)}</div>`}
+    <div style="font-size:0.8em;color:#9db;margin-top:6px">Unlimited attempts — only your best counts.</div>`;
+  $('modal-extra').innerHTML='';
+  $('modal-buttons').innerHTML='<button class="share" onclick="shareCard(\'weekly\')">📸 Share</button><button onclick="closeModal();switchTab(\'weekly\');renderWeeklyTab()">Weekly Board →</button>';
+  $('mo').classList.add('show');
+}
+// ── Weekly leaderboard (ll_weekly) ──
+let _weeklyRows=null,_weeklyRowsWeek='';
+function weeklyUpsert(week,score){
+  if(!S.lbOptIn||!S.lbName)return;
+  const body=[{player_id:PLAYER_ID,week:week,display_name:String(S.lbName).slice(0,20),score:Math.max(0,Math.round(score)),
+    title:(typeof equippedTitleLabel==='function'&&equippedTitleLabel())?equippedTitleLabel().slice(0,40):null,updated_at:new Date().toISOString()}];
+  sbFetch('ll_weekly?on_conflict=player_id,week',{method:'POST',
+    headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});
+}
+async function fetchWeekly(week){
+  const r=await sbFetch('ll_weekly?week=eq.'+encodeURIComponent(week)+'&select=player_id,display_name,score,title&order=score.desc&limit=25');
+  if(r){_weeklyRows=r;_weeklyRowsWeek=week;setSyncDot('synced')}return r;
+}
+async function checkWeeklyRollover(){
+  const ws=loadWState();const cur=isoWeekId();
+  if(ws.lastSeenWeek&&ws.lastSeenWeek!==cur){
+    const prev=ws.lastSeenWeek;
+    if(ws.best&&ws.best[prev]!=null&&!(ws.rewarded&&ws.rewarded[prev])){
+      const rows=await fetchWeekly(prev);
+      let vouchers=1,rankTxt='Participated';
+      if(rows&&rows.length){const idx=rows.findIndex(r=>r.player_id===PLAYER_ID);const n=rows.length;
+        if(idx>=0){const pct=(idx+1)/n;vouchers=pct<=0.25?3:pct<=0.5?2:1;rankTxt=`#${idx+1} of ${n}`+(pct<=0.25?' · Top 25%':pct<=0.5?' · Top 50%':'');}}
+      grantVouchers(vouchers,`Weekly Challenge (${prev})`);
+      ws.rewarded=ws.rewarded||{};ws.rewarded[prev]=true;
+      setTimeout(()=>{if(!$('mo').classList.contains('show')){
+        $('me').textContent='⚔️';$('mt').textContent='Last Week’s Results';
+        $('mx').innerHTML=`Challenge week <strong>${esc(prev)}</strong><br>Your placement: <span class="hl">${esc(rankTxt)}</span><br>Reward: <span class="hl">+${vouchers}🎟️</span>`;
+        $('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button onclick="closeModal();switchTab(\'weekly\')">This Week →</button>';
+        $('mo').classList.add('show');}},1600);
+    }
+  }
+  ws.lastSeenWeek=cur;saveWState(ws);
+}
+// ── Weekly tab UI ──
+function fmtCountdown(ms){ms=Math.max(0,ms);const d=Math.floor(ms/86400000),h=Math.floor(ms/3600000)%24,m=Math.floor(ms/60000)%60;
+  return d>0?`${d}d ${h}h`:h>0?`${h}h ${m}m`:`${m}m`}
+async function renderWeeklyTab(){
+  const el=$('tab-weekly');if(!el)return;
+  const ch=getWeeklyChallenge();const best=weeklyBest(ch.week);
+  const inRun=_inChallenge;
+  let html=`<div class="wk-card">
+    <div class="wk-emoji">${ch.modifier.emoji}</div>
+    <div class="wk-mod">${esc(ch.modifier.name)}</div>
+    <div class="wk-desc">${esc(ch.modifier.desc)}</div>
+    <div class="wk-score-rule">🏅 Scoring: <strong>${esc(ch.scoring.name)}</strong></div>
+    <div class="wk-meta"><span>⏳ Resets in <strong id="wk-countdown">${fmtCountdown(nextWeeklyResetMs()-Date.now())}</strong></span>
+      <span>🏆 Your best: <strong>${best>0?esc(ch.scoring.fmt(best)):'—'}</strong></span></div>
+    ${inRun?'<div class="wk-inrun">Run in progress…</div>':`<button class="wk-start" onclick="startChallengeRun()">⚔️ Start ${CHALLENGE_DAYS}-Day Run</button>`}
+    <div class="wk-note">Fresh standardized loadout · no perks/crews · unlimited attempts, best score counts.</div>
+  </div>
+  <div class="wk-lb-head">🌍 This Week’s Top 25 <button class="bb" style="font-size:0.55rem;padding:2px 7px" onclick="renderWeeklyTab()">🔄</button></div>
+  <div id="wk-lb"><div class="wk-loading">Loading…</div></div>`;
+  el.innerHTML=html;
+  const rows=(_weeklyRowsWeek===ch.week&&_weeklyRows)?_weeklyRows:await fetchWeekly(ch.week);
+  const lb=$('wk-lb');if(!lb)return;
+  if(rows===null){lb.innerHTML='<div class="wk-loading">☁️ Offline — weekly board unavailable</div>';return}
+  if(!rows.length){lb.innerHTML='<div class="wk-loading">No runs yet — be the first this week!</div>';return}
+  const medals=['🥇','🥈','🥉'];
+  lb.innerHTML=rows.map((r,i)=>{const me=r.player_id===PLAYER_ID;const rank=medals[i]||('#'+(i+1));
+    const title=r.title?`<span class="lb-title">${esc(String(r.title).slice(0,40))}</span>`:'';
+    return `<div class="lb-row ${me?'me':''}"><span class="lb-rank">${rank}</span><span class="lb-name">${esc(r.display_name||'Anon')}${title}</span><span class="lb-val">${esc(ch.scoring.fmt(r.score|0))}</span></div>`}).join('');
+}
+// ── Challenge-mode banner (Day X/10 + live score + abandon) ──
+function showChallengeBanner(){const b=$('challenge-banner');if(!b)return;b.style.display='';updateChallengeBanner()}
+function hideChallengeBanner(){const b=$('challenge-banner');if(b)b.style.display='none'}
+function updateChallengeBanner(){
+  const b=$('challenge-banner');if(!b||!_inChallenge||!CH_ACTIVE)return;
+  b.innerHTML=`<span class="cb-mod">${CH_ACTIVE.modifier.emoji} ${esc(CH_ACTIVE.modifier.name)}</span>
+    <span class="cb-day">Day ${Math.min(S.day,CHALLENGE_DAYS)}/${CHALLENGE_DAYS}</span>
+    <span class="cb-score">${CH_ACTIVE.scoring.emoji} ${esc(CH_ACTIVE.scoring.fmt(currentChallengeScore()))}</span>
+    <button class="cb-abandon" onclick="abandonChallengeRun()">Abandon</button>`;
+}
+// ── Weekly share card variant ──
+let _lastWeeklyShare=null;
+function generateWeeklyCard(w,h,data){
+  const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
+  const grad=g.createLinearGradient(0,0,w,h);grad.addColorStop(0,'#3a2c0a');grad.addColorStop(0.5,'#2d6a4f');grad.addColorStop(1,'#0d1b2a');
+  g.fillStyle=grad;g.fillRect(0,0,w,h);
+  for(let i=0;i<100;i++){g.fillStyle=`rgba(255,213,79,${0.03+Math.random()*0.07})`;g.beginPath();g.arc(Math.random()*w,Math.random()*h,1+Math.random()*4,0,Math.PI*2);g.fill()}
+  const cx=w/2;g.textAlign='center';g.textBaseline='middle';
+  g.fillStyle='#ffd54f';g.font=`900 ${Math.round(w*0.06)}px system-ui,sans-serif`;g.fillText('⚔️ WEEKLY CHALLENGE',cx,h*0.13);
+  g.fillStyle='#b7e4c7';g.font=`600 ${Math.round(w*0.03)}px system-ui,sans-serif`;g.fillText(esc(data.week),cx,h*0.2);
+  g.font=`${Math.round(w*0.16)}px system-ui,sans-serif`;g.fillText(data.modifier.emoji,cx,h*0.36);
+  g.fillStyle='#fff';g.font=`bold ${Math.round(w*0.055)}px system-ui,sans-serif`;g.fillText(data.modifier.name,cx,h*0.5);
+  g.fillStyle='#888';g.font=`600 ${Math.round(w*0.028)}px system-ui,sans-serif`;g.fillText(data.scoring.name.toUpperCase(),cx,h*0.6);
+  g.fillStyle='#ffd54f';g.font=`900 ${Math.round(w*0.11)}px system-ui,sans-serif`;g.fillText(data.scoring.fmt(data.score),cx,h*0.68);
+  g.fillStyle='#b7e4c7';g.font=`bold ${Math.round(w*0.04)}px system-ui,sans-serif`;g.fillText((S.playerName||'Player').slice(0,18),cx,h*0.8);
+  g.fillStyle='#52b788';g.font=`900 ${Math.round(w*0.038)}px system-ui,sans-serif`;g.fillText('🌿 LAWN LEGEND',cx,h*0.9);
+  g.fillStyle='#888';g.font=`600 ${Math.round(w*0.024)}px system-ui,sans-serif`;g.fillText('lawn-legend.vercel.app',cx,h*0.95);
+  return c;
+}
+
 // ═══ SAVE / LOAD SYSTEM ═══
 const SAVE_KEY='lawn_legend_save';
 const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','trucks','equipDurability','equipRepairs','curNB',
@@ -4423,6 +4651,7 @@ function getSaveData(){
   data._version=17;data._savedAt=new Date().toISOString();return data;
 }
 function saveGame(){
+  if(typeof _inChallenge!=='undefined'&&_inChallenge)return false; // U11: challenge runs are sandboxed — never touch the main save
   try{localStorage.setItem(SAVE_KEY,JSON.stringify(getSaveData()));cloudPush();return true}catch(e){console.error('Save failed:',e);return false}
 }
 function loadSaveData(){
@@ -4577,6 +4806,7 @@ function initGameUI(){
   initDailyChallenges();initDailyContracts();startSessionWarmup();refreshSeasonalEvent();
   checkGoalLadder(true); // U9: silently honor already-satisfied milestones (one summary, no popup spam) BEFORE first updateUI
   checkSecretSkin(); // U10: grant secret skin if a 30-day best streak already exists
+  if(!_inChallenge)checkWeeklyRollover(); // U11: end-of-week placement + voucher rewards (fire-and-forget)
   updateSeason();rollWeather();generateAllDayJobs();updateUI();renderTrophies();renderBids();renderRankings();renderCompanyTier();updatePrestigeUI();
   checkAchievements();
   $('nb-name-label').textContent=NEIGHBORHOODS[S.curNB].name;
@@ -4594,7 +4824,8 @@ let _autoTimer=null,_goldenTimer=null;
 
 // ═══ AUTO-SAVE HOOKS ═══
 const _origAdvanceDay=advanceDay;
-advanceDay=function(){_origAdvanceDay();autoSave()};
+advanceDay=function(){_origAdvanceDay();autoSave();
+  if(_inChallenge){if(S.day>CHALLENGE_DAYS){finishChallengeRun(false);return}updateChallengeBanner()}};
 const _origCompleteDispatch=completeDispatch;
 completeDispatch=function(a,b,c){_origCompleteDispatch(a,b,c);autoSave()};
 const _origBuyUpgrade=buyUpgrade;

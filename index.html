@@ -117,6 +117,38 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .dc-tiers-lbl{font-size:0.58rem;color:#888;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
 .dc-tier{display:inline-block;font-size:0.56rem;color:#888;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 6px;margin:0 3px 3px 0}
 .dc-tier.hit{color:#1b3a2a;background:#ffd54f;border-color:#ffd54f;font-weight:700}
+/* Buff chips */
+.buff-chips{position:fixed;top:54px;right:8px;z-index:60;display:flex;flex-direction:column;gap:5px;pointer-events:none}
+.buff-chip{display:flex;align-items:center;gap:5px;background:rgba(20,40,30,0.9);border:1px solid rgba(255,213,79,0.35);border-radius:20px;padding:3px 9px 3px 3px;box-shadow:0 2px 8px rgba(0,0,0,0.4)}
+.bc-ring{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.bc-ring::after{content:'';position:absolute;inset:3px;border-radius:50%;background:#14281e}
+.bc-ico{position:relative;z-index:1;font-size:0.7rem}
+.bc-lbl{font-size:0.58rem;color:#ffe9a8;font-weight:700;white-space:nowrap}
+.bc-time{color:#b7e4c7;margin-left:3px;font-weight:600}
+/* Golden Client card */
+.golden-card{display:flex;align-items:center;gap:9px;padding:8px 10px;margin-bottom:6px;border-radius:11px;cursor:pointer;
+  background:linear-gradient(135deg,rgba(255,213,79,0.22),rgba(255,140,66,0.14));border:1.5px solid #ffd54f;
+  box-shadow:0 0 18px rgba(255,213,79,0.28);animation:goldpulse 1.3s ease-in-out infinite}
+@keyframes goldpulse{0%,100%{box-shadow:0 0 14px rgba(255,213,79,0.25)}50%{box-shadow:0 0 26px rgba(255,213,79,0.5)}}
+.gc-ring{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative}
+.gc-ring::after{content:'';position:absolute;inset:4px;border-radius:50%;background:#243b2b}
+.gc-ring span{position:relative;z-index:1}
+.gc-body{flex:1;min-width:0}
+.gc-title{font-size:0.72rem;font-weight:800;color:#ffe9a8;letter-spacing:0.3px}
+.gc-sub{font-size:0.58rem;color:#e8f5ee}
+.gc-pay{font-size:0.9rem;font-weight:800;color:#ffd54f;text-shadow:0 0 8px rgba(255,213,79,0.5)}
+/* Golden reveal (card flip) */
+.golden-reveal{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px)}
+.golden-reveal.show{display:flex}
+.gr-card{perspective:900px}
+.gr-inner{width:200px;height:150px;position:relative;transform-style:preserve-3d;transition:transform 0.55s cubic-bezier(.4,1.4,.5,1)}
+.gr-inner.flipped{transform:rotateY(180deg)}
+.gr-front,.gr-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #ffd54f}
+.gr-front{background:linear-gradient(135deg,#ffd54f,#ff8c42);font-size:3rem}
+.gr-sparkle{position:absolute;top:8px;right:14px;font-size:1.2rem;animation:goldpulse 1s infinite}
+.gr-back{background:linear-gradient(135deg,#1e3a2a,#0f2419);transform:rotateY(180deg);gap:8px}
+.gr-pay{font-size:1.8rem;font-weight:800;color:#ffd54f;text-shadow:0 0 12px rgba(255,213,79,0.6)}
+.gr-bonus{font-size:0.8rem;color:#b7e4c7;font-weight:600;text-align:center;padding:0 12px}
 .perk-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:6px 8px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
 .perk-card.owned{border-color:rgba(82,183,136,0.3);background:rgba(82,183,136,0.05)}
 .perk-info{flex:1}.perk-name{font-weight:600;font-size:0.72rem}.perk-desc{font-size:0.62rem;color:#888;margin-top:1px}.perk-cost{font-size:0.62rem;color:#ffd54f;margin-top:1px}
@@ -540,6 +572,13 @@ body.cb-active #toast-stack{top:106px}
   <div class="combo-mult" id="combo-text">1.0x</div>
   <div class="combo-label">COMBO</div>
 </div>
+<div id="buff-chips" class="buff-chips"></div>
+<div id="golden-reveal" class="golden-reveal" onclick="dismissGoldenReveal()">
+  <div class="gr-card"><div class="gr-inner" id="gr-inner">
+    <div class="gr-front">🏡<span class="gr-sparkle">✨</span></div>
+    <div class="gr-back" id="gr-back"></div>
+  </div></div>
+</div>
 <div class="game-wrap">
   <div class="sidebar">
     <div class="panel">
@@ -556,6 +595,7 @@ body.cb-active #toast-stack{top:106px}
       <div class="nb-bar" id="nb-sel"></div>
       <div id="weather-display"></div>
       <h2 style="margin-top:3px">📋 Jobs at <span id="nb-name-label">Starter Street</span> <span style="font-size:0.6rem;color:#888;font-weight:400" id="day-time"></span></h2>
+      <div id="golden-slot"></div>
       <div id="job-list"></div>
       <button class="bb" id="ndb" style="width:100%;margin-top:4px">🌅 End Day</button>
     </div>
@@ -812,6 +852,7 @@ const SFX={
   milestone(){if(this.set.muted)return;this.level();[523,659,784].forEach((f,i)=>this._tone(f,0.14,'sine',0.08,0.3+i*0.09))}, // + C-E-G arp
   prestige(){if(this.set.muted)return;[523,659,784,1047,1319].forEach((f,i)=>{this._tone(f,0.3,'triangle',0.12,i*0.13);this._tone(f/2,0.3,'sine',0.06,i*0.13)})},
   rush(){if(this.set.muted)return;for(let i=0;i<3;i++)this._tone(900,0.1,'square',0.1,i*0.18)},
+  goldenChime(){if(this.set.muted)return;[784,988,1319,1568].forEach((f,i)=>{this._tone(f,0.22,'triangle',0.1,i*0.1);this._tone(f*2,0.16,'sine',0.05,i*0.1+0.02)})}, // unique 4-note golden client chime (G-B-E-G shimmer)
   mow(){}, // legacy per-step tick retired in favor of the looping engine hum below
   // ── looping mower engine (brown noise → lowpass w/ LFO wobble) ──
   startMower(){if(this.set.muted||!this.ctx||this._mower)return;const ctx=this.ctx;
@@ -1675,6 +1716,8 @@ const S={
     lastRegenAt:0,            // playDays value when a Rain Day was last granted
     streakRewarded:[],        // streak milestones (3/7/14/30) already paid this streak-life
   },
+  // ═══ U8: Golden Client pity timer (active-play seconds since last spawn) ═══
+  goldenPity:0,
   // ═══ U9: lifetime counters for the Goal Ladder (added where missing) ═══
   lifetimeGolden:0,           // Golden Clients caught (U8)
   goalLadderIdx:0,            // current pinned milestone index
@@ -3034,7 +3077,7 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   const comboMult=baseCombo>1?1+((baseCombo-1)*prestigeComboMult()):baseCombo;
   const specBonus=getCrewSpecialtyBonus(prop.job.type);
   const prestigePayMult=prestigeEarningsMult(); // P1/P6+ stacking earnings bonus
-  const payMult=comboMult*(1+specBonus.pay)*prestigePayMult*legacyPayMult();const comboPay=Math.round(prop.pay*payMult);
+  const payMult=comboMult*(1+specBonus.pay)*prestigePayMult*legacyPayMult()*getPayoutBuffMult();const comboPay=Math.round(prop.pay*payMult);
   S.money+=comboPay;S.totalEarnings+=comboPay;S.dayEarnings+=comboPay;S.dayJobsDone++;SFX.cash();
   updateGoalProgress('jobs',1);updateGoalProgress('earnings',comboPay);degradeEquipment(prop.job.type);
 
@@ -3074,6 +3117,7 @@ function completeDispatch(nbIdx,propIdx,truckIdx){
   dailyTrackNB(nbIdx);
   // U7 daily contracts: manual job → jobs + cash + neighborhood progress
   dcTrack('jobs',1);dcTrack('cash',comboPay);dcTrackNB(nbIdx);
+  maybeMicroEvent(prop.pay); // U8 ambient micro-events (~1 per 6–10 jobs)
   const _nbProps=getAllProps(nbIdx);
   if(_nbProps.length>0&&_nbProps.every(p=>p.done))updateDailyProgress('clear_nb',1);
   if(S.jobsDone%8===0){S.skillPoints++;showToast('🧠 +1 Skill Point!')}
@@ -3105,7 +3149,7 @@ function completeAutoDispatch(prop,propIdx,nbIdx,truckIdx){
   const hrs=getJobHours(prop.job);S.dayHoursLeft=Math.max(0,S.dayHoursLeft-hrs);
   S.dayPhase=Math.min(0.95,1-(S.dayHoursLeft/S.dayHoursTotal));
   const specBonus=getCrewSpecialtyBonus(prop.job.type);
-  const pay=Math.round(prop.pay*0.75*(1+specBonus.pay)*prestigeEarningsMult()*legacyPayMult());
+  const pay=Math.round(prop.pay*0.75*(1+specBonus.pay)*prestigeEarningsMult()*legacyPayMult()*getPayoutBuffMult());
   S.money+=pay;S.totalEarnings+=pay;S.dayEarnings+=pay;S.dayJobsDone++;
   updateGoalProgress('jobs',1);updateGoalProgress('earnings',pay);degradeEquipment(prop.job.type);
   const repGain=Math.round(prop.job.diff*(1+(S.equipment.signage*0.25)+getNBRepBonus(nbIdx))*legacyRepMult());S.rep+=repGain;
@@ -3483,7 +3527,7 @@ function checkMilestones(){MILESTONES.forEach(m=>{if(!S.milestonesHit.has(m.id)&
 function loop(){animFrame++;
   // Animate garden growth across all visible props
   const props=getProps();props.forEach(p=>{p.tiles.forEach(row=>row.forEach(t=>{if(t.type==='garden_bed'&&t.done&&t.fg<1)t.fg=Math.min(1,t.fg+0.01)}))});
-  draw();FX.update();FX.draw();requestAnimationFrame(loop)}
+  draw();FX.update();FX.draw();updateGoldenRing();requestAnimationFrame(loop)}
 
 let isDragging=false,dragStartX=0,scrollStartX=0;
 canvas.addEventListener('mousedown',e=>{isDragging=true;dragStartX=e.clientX;scrollStartX=S.targetScrollX});
@@ -3713,6 +3757,158 @@ function renderDailyContracts(){
   el.innerHTML=html;
 }
 
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  UPGRADE 8 — RARE EVENTS, GOLDEN CLIENT & REUSABLE BUFF CHIPS      ║
+// ╚══════════════════════════════════════════════════════════════════╝
+// ── Reusable buff chip system (icon + countdown ring). Reused by U11. ──
+// Buffs tick only during active play; they're transient (not persisted).
+let ACTIVE_BUFFS=[]; // {id,icon,label,color,remainMs,totalMs,onEnd}
+function addBuff(id,opt){
+  opt=opt||{};ACTIVE_BUFFS=ACTIVE_BUFFS.filter(b=>b.id!==id); // one per id
+  ACTIVE_BUFFS.push({id,icon:opt.icon||'✨',label:opt.label||id,color:opt.color||'#ffd54f',
+    remainMs:opt.ms||60000,totalMs:opt.ms||60000,onEnd:opt.onEnd||null,persistent:!!opt.persistent});
+  renderBuffChips();
+}
+function removeBuff(id){const b=ACTIVE_BUFFS.find(x=>x.id===id);ACTIVE_BUFFS=ACTIVE_BUFFS.filter(x=>x.id!==id);
+  if(b&&b.onEnd)try{b.onEnd()}catch(e){}renderBuffChips()}
+function hasBuff(id){return ACTIVE_BUFFS.some(b=>b.id===id)}
+function tickBuffs(ms){
+  if(!ACTIVE_BUFFS.length)return;let changed=false;
+  ACTIVE_BUFFS.forEach(b=>{if(b.persistent)return;b.remainMs-=ms;if(b.remainMs<=0){b.remainMs=0;b._dead=true}});
+  const dead=ACTIVE_BUFFS.filter(b=>b._dead);
+  if(dead.length){dead.forEach(b=>{if(b.onEnd)try{b.onEnd()}catch(e){}});ACTIVE_BUFFS=ACTIVE_BUFFS.filter(b=>!b._dead);changed=true}
+  renderBuffChips(changed);
+}
+function renderBuffChips(){
+  const c=$('buff-chips');if(!c)return;
+  if(!ACTIVE_BUFFS.length){if(c.childElementCount)c.innerHTML='';return}
+  c.innerHTML=ACTIVE_BUFFS.map(b=>{
+    const pct=b.persistent?100:Math.max(0,Math.min(100,(b.remainMs/b.totalMs)*100));
+    const secs=b.persistent?'':`<span class="bc-time">${Math.ceil(b.remainMs/1000)}s</span>`;
+    const ring=b.persistent?`${b.color}`:`conic-gradient(${b.color} ${pct*3.6}deg, rgba(255,255,255,0.1) ${pct*3.6}deg)`;
+    return `<div class="buff-chip" title="${esc(b.label)}">
+      <div class="bc-ring" style="background:${b.persistent?'rgba(255,255,255,0.08)':ring}"><span class="bc-ico">${esc(b.icon)}</span></div>
+      <div class="bc-lbl">${esc(b.label)}${secs}</div></div>`;
+  }).join('');
+}
+function getPayoutBuffMult(){return hasBuff('pay2x')?2:1}
+
+// ── Active-play tracking (visible tab + interaction within 60s) ──
+let LAST_INTERACT=Date.now();
+['click','keydown','touchstart','mousemove'].forEach(ev=>document.addEventListener(ev,()=>{LAST_INTERACT=Date.now()},{passive:true}));
+function isActivelyPlaying(){return !document.hidden && (Date.now()-LAST_INTERACT)<60000 && !!S.playerName}
+
+// ── Golden Client (rare variable-reward spawn) ──
+const GOLDEN_BONUSES=[ // weighted reward table (edit weights here to rebalance)
+  {w:60,type:'cash',   icon:'💰',label:'Cash jackpot'},
+  {w:20,type:'xp',     icon:'📈',label:'Crew XP surge'},
+  {w:15,type:'voucher',icon:'🎟️',label:'Golden Voucher'},
+  {w:5, type:'buff2x', icon:'⚡',label:'2× payout · 60s'},
+];
+let goldenClient=null;         // {expiresAt, payout, bonus} runtime only
+let goldenNextRoll=rollGoldenInterval();
+function rollGoldenInterval(){return 45+Math.floor(Math.random()*46)} // 45–90 active seconds
+function goldenRefPay(){
+  const props=getProps().filter(p=>!p.done);
+  if(props.length){const avg=props.reduce((s,p)=>s+p.pay,0)/props.length;return Math.max(40,Math.round(avg))}
+  return Math.max(40,Math.round(dcIncomeEstimate()/10));
+}
+function pickGoldenBonus(){
+  const tot=GOLDEN_BONUSES.reduce((s,b)=>s+b.w,0);let r=Math.random()*tot;
+  for(const b of GOLDEN_BONUSES){r-=b.w;if(r<=0)return b}return GOLDEN_BONUSES[0];
+}
+function spawnGoldenClient(){
+  if(goldenClient)return;
+  const payout=Math.round(goldenRefPay()*(5+Math.random()*3)); // 5–8×
+  goldenClient={expiresAt:Date.now()+20000,payout,bonus:pickGoldenBonus()};
+  S.goldenPity=0;
+  SFX.goldenChime();
+  renderGoldenClient();
+  const el=$('golden-slot');
+  if(el){const r=el.getBoundingClientRect();if(r.width)FX.spawn('combo_spark',r.left+r.width/2,r.top+20,{color:'#ffd54f',n:14})}
+}
+function goldenTick(){
+  // Called ~1/sec. Only accrues time & rolls while actively playing.
+  if(goldenClient&&Date.now()>goldenClient.expiresAt){expireGoldenClient()}
+  if(!isActivelyPlaying())return;
+  tickBuffs(1000);
+  S.goldenPity=(S.goldenPity|0)+1;
+  if(!goldenClient){
+    goldenNextRoll--;
+    if(S.goldenPity>=900){spawnGoldenClient();goldenNextRoll=rollGoldenInterval();} // pity: guaranteed by 15 min
+    else if(goldenNextRoll<=0){goldenNextRoll=rollGoldenInterval();if(Math.random()<0.12)spawnGoldenClient();}
+  }
+}
+function expireGoldenClient(){
+  goldenClient=null;renderGoldenClient();
+  showToast('✨ The golden client drove off — no worries, catch the next one!');
+}
+function renderGoldenClient(){
+  const slot=$('golden-slot');if(!slot)return;
+  if(!goldenClient){slot.innerHTML='';return}
+  const left=Math.max(0,goldenClient.expiresAt-Date.now());
+  const pct=Math.max(0,Math.min(100,(left/20000)*100));
+  slot.innerHTML=`<div class="golden-card" onclick="catchGoldenClient()">
+    <div class="gc-ring" style="background:conic-gradient(#fff6c2 ${pct*3.6}deg, rgba(0,0,0,0.25) ${pct*3.6}deg)"><span>✨</span></div>
+    <div class="gc-body"><div class="gc-title">✨ GOLDEN CLIENT!</div>
+      <div class="gc-sub">Premium job · <strong>catch it!</strong> · ${Math.ceil(left/1000)}s</div></div>
+    <div class="gc-pay">$${goldenClient.payout.toLocaleString()}+</div></div>`;
+}
+function updateGoldenRing(){
+  if(!goldenClient)return;
+  if(Date.now()>goldenClient.expiresAt){expireGoldenClient();return}
+  const card=document.querySelector('.golden-card .gc-ring');
+  if(card){const left=Math.max(0,goldenClient.expiresAt-Date.now());const pct=Math.max(0,Math.min(100,(left/20000)*100));
+    card.style.background=`conic-gradient(#fff6c2 ${pct*3.6}deg, rgba(0,0,0,0.25) ${pct*3.6}deg)`;
+    const sub=document.querySelector('.golden-card .gc-sub');if(sub)sub.innerHTML=`Premium job · <strong>catch it!</strong> · ${Math.ceil(left/1000)}s`}
+}
+function catchGoldenClient(){
+  if(!goldenClient)return;
+  const{payout,bonus}=goldenClient;goldenClient=null;renderGoldenClient();
+  S.lifetimeGolden=(S.lifetimeGolden|0)+1;
+  // Base payout always lands as cash
+  let bonusText='';
+  if(bonus.type==='cash'){const jack=Math.round(payout*0.5);S.money+=jack;S.totalEarnings+=jack;bonusText=`+$${jack.toLocaleString()} jackpot`;}
+  else if(bonus.type==='xp'){getAvailableCrew().forEach(c=>{c.xp+=8});bonusText='Crew XP surge!';}
+  else if(bonus.type==='voucher'){grantVouchers(1,'Golden Client');bonusText='+1 🎟️ Voucher';}
+  else if(bonus.type==='buff2x'){addBuff('pay2x',{icon:'⚡',label:'2× Payout',color:'#ffd54f',ms:60000,onEnd:()=>showToast('⚡ 2× payout ended')});bonusText='⚡ 2× payout for 60s!';}
+  S.money+=payout;S.totalEarnings+=payout;S.dayEarnings+=payout;
+  SFX.cash();
+  showGoldenReveal(payout,bonus,bonusText);
+  dcTrack('cash',payout);
+  if(typeof checkGoalLadder==='function')checkGoalLadder();
+  updateUI();autoSave();
+}
+function showGoldenReveal(payout,bonus,bonusText){
+  const ov=$('golden-reveal'),inner=$('gr-inner'),back=$('gr-back');if(!ov)return;
+  back.innerHTML=`<div class="gr-pay">$${payout.toLocaleString()}</div><div class="gr-bonus">${esc(bonus.icon)} ${esc(bonusText)}</div>`;
+  inner.classList.remove('flipped');ov.classList.add('show');
+  fxCenter('confetti',{n:34});
+  setTimeout(()=>inner.classList.add('flipped'),450);
+  clearTimeout(showGoldenReveal._t);showGoldenReveal._t=setTimeout(dismissGoldenReveal,2600);
+}
+function dismissGoldenReveal(){const ov=$('golden-reveal');if(ov)ov.classList.remove('show')}
+
+// ── Micro-events (common, ambient; net-positive only) ──
+const MICRO_EVENTS=[
+  {w:26,icon:'💵',run:(ref)=>{const c=R(15,30);S.money+=c;S.totalEarnings+=c;return `Found $${c} in the grass!`}},
+  {w:24,icon:'😊',run:(ref)=>{const t=Math.max(5,Math.round(ref*0.15));S.money+=t;S.totalEarnings+=t;S.dayTips+=t;return `Customer tipped extra — +$${t}!`}},
+  {w:22,icon:'🐕',run:(ref)=>{const r=R(1,2);S.rep+=r;return `A dog buried a bone in the yard — +${r}⭐ rep`}},
+  {w:16,icon:'🌟',run:(ref)=>{const r=R(2,3);S.rep+=r;return `Neighbor loved the work — +${r}⭐ rep`}},
+  {w:12,icon:'🔧',run:(ref)=>{getAvailableCrew().forEach(c=>{c.xp+=3});return `Mower sputtered… crew fixed it on the fly — +crew XP`}}, // rare "setback" that's still a win
+];
+let microCountdown=R(6,10);
+function maybeMicroEvent(refPay){
+  microCountdown--;
+  if(microCountdown>0)return;
+  microCountdown=R(6,10);
+  const tot=MICRO_EVENTS.reduce((s,e)=>s+e.w,0);let r=Math.random()*tot;let ev=MICRO_EVENTS[0];
+  for(const e of MICRO_EVENTS){r-=e.w;if(r<=0){ev=e;break}}
+  const msg=ev.run(refPay||goldenRefPay());
+  pushToast(`${ev.icon} ${esc(msg)}`,'good',2400,true);
+  fxCenter('combo_spark',{color:'#b7e4c7',n:6});
+}
+
 // ═══ SAVE / LOAD SYSTEM ═══
 const SAVE_KEY='lawn_legend_save';
 const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','trucks','equipDurability','equipRepairs','curNB',
@@ -3729,7 +3925,7 @@ const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','truc
   // v11 prestige 2.0 + auto-dispatch; v12 cloud/leaderboard identity
   'legacy','runStartMs','fastest100kSeconds','lbOptIn','lbName','bestComboEver',
   // ═══ RETENTION PACK (v13–v17): vouchers, daily contracts, goal ladder, pro shop ═══
-  'vouchers','dc','lifetimeGolden','goalLadderIdx','goalLadderDone','earnedTitles',
+  'vouchers','dc','goldenPity','lifetimeGolden','goalLadderIdx','goalLadderDone','earnedTitles',
   'skinsOwned','skinEquipped','trophiesOwned','trophiesPlaced','titleEquipped'];
 // v9 numeric stat fields — sanitized on load; missing in pre-v9 saves → default 0
 const V9_NUM_FIELDS=['maxComboCount','bestComboEarnings','comboChainEarnings','fullDayCount','consecutiveProfitDays','totalSpent','titleClicks',
@@ -3803,6 +3999,7 @@ function applySaveData(data){
   S.specialOffer=sanitizeSpecial(data.specialOffer);
   // ═══ RETENTION PACK sanitization (v13–v17) — default gracefully for older saves ═══
   S.vouchers=Math.max(0,Math.min(9999999,Number(data.vouchers)|0));
+  S.goldenPity=Math.max(0,Math.min(100000,Number(data.goldenPity)|0));
   S.lifetimeGolden=Math.max(0,Number(data.lifetimeGolden)|0);
   S.dc=sanitizeDC(data.dc);
   S.goalLadderIdx=Math.max(0,Number(data.goalLadderIdx)|0);
@@ -3905,9 +4102,11 @@ function initGameUI(){
   if(CHALLENGE){showChallengeBanner();addLog(`🎯 Challenge: beat <span class="hl">${esc(CHALLENGE.name)}</span>'s $${CHALLENGE.val.toLocaleString()} by Day ${CHALLENGE.day}`)}
   if(!_loopStarted){_loopStarted=true;loop()}
   if(!_autoTimer)_autoTimer=setInterval(autoDispatchTick,3000); // crew auto-dispatch cadence
+  if(!_goldenTimer)_goldenTimer=setInterval(goldenTick,1000); // U8 golden-client / buff cadence
+  renderGoldenClient();renderBuffChips();
   updateNameHeader();if(SFX.ctx)SFX.updateAmbient();
 }
-let _autoTimer=null;
+let _autoTimer=null,_goldenTimer=null;
 
 // ═══ AUTO-SAVE HOOKS ═══
 const _origAdvanceDay=advanceDay;

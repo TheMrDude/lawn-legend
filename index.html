@@ -86,6 +86,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#111;color:#e0e0e0;m
 .tab-btn{flex:1;padding:3px;text-align:center;font-size:0.6rem;font-weight:600;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);border-radius:5px;cursor:pointer;color:#888;min-width:40px}
 .tab-btn.active{background:rgba(64,145,108,0.15);border-color:#52b788;color:#b7e4c7}
 .tab-dot{display:inline-block;min-width:13px;height:13px;line-height:13px;font-size:0.5rem;background:#ffd54f;color:#1b3a2a;border-radius:7px;margin-left:2px;font-weight:800;padding:0 2px}
+.tab-btn.tab-unlock-pop{animation:tabpop 1.1s ease-out}
+@keyframes tabpop{0%{transform:scale(0.7);box-shadow:0 0 0 rgba(255,213,79,0)}30%{transform:scale(1.12);box-shadow:0 0 14px rgba(255,213,79,0.7);border-color:#ffd54f;color:#ffe9a8}100%{transform:scale(1);box-shadow:0 0 0 rgba(255,213,79,0)}}
 /* ═══ RETENTION PACK UI ═══ */
 .streak-flame{font-size:0.62rem;font-weight:700;color:#ff8c42;margin-left:5px;vertical-align:middle;text-shadow:0 0 6px rgba(255,140,66,0.5)}
 #voucher-stat .v{color:#ffd54f}
@@ -617,8 +619,6 @@ body.cb-active #toast-stack{top:106px}
     <div class="ns-title">🌿 Lawn Legend</div>
     <div class="ns-sub">Landscaping Tycoon</div>
     <input type="text" id="player-name-input" placeholder="Enter your name..." maxlength="20" autocomplete="off">
-    <input type="email" id="ns-email-input" placeholder="email (optional — weekly challenges)" maxlength="254" autocomplete="email" style="width:100%;padding:10px 14px;border-radius:8px;border:2px solid rgba(82,183,136,0.3);background:rgba(255,255,255,0.08);color:#fff;font-size:0.85rem;text-align:center;outline:none;margin-bottom:10px;transition:border-color 0.2s">
-    <label style="display:flex;align-items:center;gap:6px;justify-content:center;font-size:0.72rem;color:#b7e4c7;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="ns-email-optin" checked style="cursor:pointer"> Get weekly challenges + pro tips</label>
     <div id="starter-packs" class="starter-packs" style="display:none"></div>
     <button class="ns-start" id="ns-start-btn" disabled onclick="startNewGame()">🚀 Start New Game</button>
     <button class="ns-continue" id="ns-continue-btn" style="display:none" onclick="loadAndStart()">📂 Continue as <span id="ns-saved-name"></span></button>
@@ -637,7 +637,6 @@ body.cb-active #toast-stack{top:106px}
     <div class="stat" id="season-stat">🌱 <span class="v" id="season-label">Spring</span></div>
     <div class="stat" id="voucher-stat" style="display:none" title="Golden Vouchers — earned through play, spent in the Pro Shop">🎟️ <span class="v" id="voucher-count">0</span></div>
     <button class="mute-toggle hdr-badge-btn" id="ach-btn" onclick="openAchievements()" title="Achievements">🏅<span class="hdr-count" id="ach-hdr-count" style="display:none"></span></button>
-    <button class="mute-toggle hdr-badge-btn" id="daily-btn" onclick="openDailyPanel()" title="Daily Challenges">📅<span class="hdr-count" id="daily-hdr-count" style="display:none"></span></button>
     <button class="mute-toggle" id="mute-btn" onclick="toggleMute()" title="Toggle sound (muted by default)">🔇</button>
     <div class="audio-wrap">
       <button class="mute-toggle" id="audio-gear" onclick="toggleAudioPopover()" title="Sound settings">⚙️</button>
@@ -808,14 +807,7 @@ body.cb-active #toast-stack{top:106px}
   <div style="text-align:center;margin-top:8px"><button onclick="closeAchievements()">Close</button></div>
 </div></div>
 
-<!-- ═══ DAILY CHALLENGES MODAL (v9) ═══ -->
-<div class="modal-overlay" id="daily-overlay"><div class="modal wide">
-  <h2 style="text-align:center">📅 Daily Challenges</h2>
-  <p style="text-align:center">3 new challenges every real-world day. Complete all 3 for a streak bonus!</p>
-  <div id="daily-list"></div>
-  <div class="daily-streak" id="daily-streak-bar"></div>
-  <div style="text-align:center;margin-top:8px"><button onclick="closeDailyPanel()">Close</button></div>
-</div></div>
+<!-- ═══ v9 Daily Challenges modal retired in U12 — U7 📋 Daily Contracts is the single daily loop ═══ -->
 
 <!-- ═══ CHALLENGE BANNER ═══ -->
 <div id="challenge-banner" class="challenge-banner" style="display:none">
@@ -1515,8 +1507,8 @@ function checkEmailTriggers(){
     showEmailModal('day3','Get Weekly Challenges + Pro Tips','You made it 3 days — nice run! Join the list for weekly challenges and pro tips from the community.','📬');
     return;
   }
-  // Trigger B: first big milestone ($1K earned OR first truck)
-  if(!emailFlag('milestone_shown')&&!emailFlag('milestone_dismissed')&&!emailFlag('milestone_submitted')){
+  // Trigger B: first big milestone ($1K earned OR first truck) — gated to day 3+ so the ask earns a 3-day relationship first (U12)
+  if(S.day>=3&&!emailFlag('milestone_shown')&&!emailFlag('milestone_dismissed')&&!emailFlag('milestone_submitted')){
     if(S.totalEarnings>=1000||S.trucks.length>=1){
       showEmailModal('milestone','Join the $1K Club!','You\'re in business. Unlock exclusive challenges and pro tips as you scale your empire.','💰');
       return;
@@ -1871,6 +1863,8 @@ const S={
   trophiesOwned:[],           // owned yard trophy ids
   trophiesPlaced:[],          // up to 3 placed in the scene
   titleEquipped:'',           // equipped title id ('' = none)
+  // ═══ U12: progressive tab disclosure (persisted; never re-locks, survives prestige) ═══
+  tabsUnlocked:[],            // gated tab ids the player has revealed
 };
 
 function getProps(){return S.nbJobs[S.curNB]||[]}
@@ -2205,127 +2199,26 @@ function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a
 function fmtDateKey(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function todayKey(){return fmtDateKey(new Date())}
 function yesterdayKey(){const d=new Date();d.setDate(d.getDate()-1);return fmtDateKey(d)}
-const DAILY_TEMPLATES=[
-  // Easy
-  {desc:'Complete {n} jobs today',key:'jobs_today',targets:[3,5,8],difficulty:'easy',reward:{type:'money',amount:200}},
-  {desc:'Earn ${n} in tips today',key:'tips_today',targets:[50,100,200],difficulty:'easy',reward:{type:'money',amount:150}},
-  {desc:'Dispatch {n} truck run(s)',key:'dispatches_today',targets:[1,2,3],difficulty:'easy',reward:{type:'rep',amount:3}},
-  {desc:'Complete a job in {n}s or less',key:'fast_job',targets:[30,20,15],difficulty:'easy',reward:{type:'money',amount:100}},
-  {desc:'Complete {n} mowing jobs today',key:'mow_jobs',targets:[2,3,4],difficulty:'easy',reward:{type:'money',amount:150}},
-  {desc:'Earn {n} rep today',key:'rep_today',targets:[3,5,8],difficulty:'easy',reward:{type:'money',amount:150}},
-  {desc:'Get tipped by {n} customers today',key:'tip_count',targets:[1,2,3],difficulty:'easy',reward:{type:'money',amount:150}},
-  // Medium
-  {desc:'Hit a {n}x combo',key:'combo_reach',targets:[3,5,7],difficulty:'medium',reward:{type:'money',amount:500}},
-  {desc:'Earn ${n} total today',key:'earnings_today',targets:[500,1000,2000],difficulty:'medium',reward:{type:'money',amount:400}},
-  {desc:'Get {n} five-star ratings today',key:'stars_today',targets:[2,3,5],difficulty:'medium',reward:{type:'skillPoints',amount:1}},
-  {desc:'Complete jobs in {n} neighborhoods today',key:'nb_diversity',targets:[2,3,4],difficulty:'medium',reward:{type:'rep',amount:5}},
-  {desc:'Complete {n} rush job(s) today',key:'rush_today',targets:[1,1,2],difficulty:'medium',reward:{type:'money',amount:450}},
-  {desc:'Win {n} bid(s) today',key:'bids_today',targets:[1,1,2],difficulty:'medium',reward:{type:'money',amount:400}},
-  {desc:'Complete {n} hard (3-diff) job(s) today',key:'hard_jobs',targets:[1,2,3],difficulty:'medium',reward:{type:'money',amount:400}},
-  // Hard
-  {desc:'Hit 10x combo {n} time(s) today',key:'max_combo_count',targets:[1,2,3],difficulty:'hard',reward:{type:'skillPoints',amount:2}},
-  {desc:'Earn ${n} from a single combo chain',key:'chain_earnings',targets:[500,1000,2000],difficulty:'hard',reward:{type:'money',amount:1000}},
-  {desc:'Clear ALL jobs in a neighborhood',key:'clear_nb',targets:[1,1,1],difficulty:'hard',reward:{type:'rep',amount:8}},
-  {desc:'End a day with 0 hours wasted',key:'full_day',targets:[1,1,1],difficulty:'hard',reward:{type:'skillPoints',amount:2}},
-  {desc:'Complete {n} jobs today',key:'jobs_today',targets:[10,12,15],difficulty:'hard',reward:{type:'money',amount:900}},
-  {desc:'Earn ${n} in tips today',key:'tips_today',targets:[400,600,900],difficulty:'hard',reward:{type:'money',amount:800}},
-  {desc:'Earn ${n} total today',key:'earnings_today',targets:[3000,4000,6000],difficulty:'hard',reward:{type:'money',amount:1200}},
-];
-// How each key accumulates: default 'add'; 'max' keeps the best value; 'min' completes when value <= target
-const DAILY_MODES={combo_reach:'max',chain_earnings:'max',nb_diversity:'max',fast_job:'min'};
+// ═══ U12: v9 Daily Challenges RETIRED — folded into U7 Daily Contracts (single daily loop) ═══
+// Neutralized no-op stubs so the ~20 legacy call sites keep working without a hunt.
 let DAILY={date:'',challenges:[],streak:0,meta:{nbs:[]}};
-function saveDaily(){try{localStorage.setItem('ll_daily_state',JSON.stringify(DAILY))}catch(e){}}
-function initDailyChallenges(){
-  const key=todayKey();
-  if(DAILY.date===key&&DAILY.challenges.length===3){updateDailyBadge();return}
-  let stored=null;
-  try{const raw=localStorage.getItem('ll_daily_state');if(raw)stored=JSON.parse(raw)}catch(e){}
-  if(stored&&typeof stored==='object'&&stored.date===key&&Array.isArray(stored.challenges)&&stored.challenges.length===3){
-    DAILY={date:key,challenges:stored.challenges,streak:Math.max(0,Number(stored.streak)||0),meta:(stored.meta&&typeof stored.meta==='object'&&Array.isArray(stored.meta.nbs))?stored.meta:{nbs:[]}};
-    updateDailyBadge();return;
-  }
-  // New real-world day: archive yesterday's result + carry streak only if all 3 done yesterday
-  let streak=0;
-  if(stored&&typeof stored==='object'&&Array.isArray(stored.challenges)&&stored.challenges.length){
-    const doneAll=stored.challenges.every(c=>c&&c.completed);
-    if(stored.date)try{localStorage.setItem('ll_daily_'+stored.date,doneAll?'all':String(stored.challenges.filter(c=>c&&c.completed).length))}catch(e){}
-    if(doneAll&&stored.date===yesterdayKey())streak=Math.max(0,Number(stored.streak)||0);
-  }
-  const rng=mulberry32(hashStr(key));
-  DAILY={date:key,streak,meta:{nbs:[]},challenges:['easy','medium','hard'].map(df=>{
-    const pool=DAILY_TEMPLATES.filter(t=>t.difficulty===df);
-    const t=pool[Math.floor(rng()*pool.length)];
-    const target=t.targets[Math.floor(rng()*t.targets.length)];
-    return {key:t.key,desc:t.desc.replace('{n}',target.toLocaleString()),target,difficulty:df,reward:t.reward,progress:0,completed:false};
-  })};
-  saveDaily();updateDailyBadge();
+function initDailyChallenges(){/* retired — U7 owns dailies */}
+function updateDailyProgress(){/* retired no-op */}
+function dailyTrackNB(){/* retired no-op */}
+function updateDailyBadge(){/* retired no-op */}
+function openDailyPanel(){/* retired */}
+function closeDailyPanel(){/* retired */}
+function renderDailyChallenges(){/* retired */}
+// One-time: carry the old v9 streak into the U7 forgiving streak, then wipe legacy keys.
+function migrateV9Daily(){
+  try{if(localStorage.getItem('ll_daily_migrated'))return}catch(e){return}
+  try{const raw=localStorage.getItem('ll_daily_state');
+    if(raw){const st=JSON.parse(raw);const oldStreak=Math.max(0,Number(st&&st.streak)||0);
+      if(S.dc&&oldStreak>(S.dc.streak|0)){S.dc.streak=oldStreak;if(S.dc.streak>S.dc.bestStreak)S.dc.bestStreak=S.dc.streak}}
+  }catch(e){}
+  try{const rm=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='ll_daily_state'||/^ll_daily_\d/.test(k))rm.push(k)}rm.forEach(k=>localStorage.removeItem(k))}catch(e){}
+  try{localStorage.setItem('ll_daily_migrated','1')}catch(e){}
 }
-function rewardLabel(r){return r.type==='money'?`$${r.amount.toLocaleString()}`:r.type==='rep'?`${r.amount}⭐`:`${r.amount}🧠`}
-function grantDailyReward(c){
-  const r=c.reward;
-  if(r.type==='money')S.money+=r.amount;
-  else if(r.type==='rep')S.rep+=r.amount;
-  else if(r.type==='skillPoints')S.skillPoints+=r.amount;
-  SFX.cash();showToast(`📅 Daily complete! +${rewardLabel(r)}`);
-  addLog(`📅 Daily challenge done: <span class="hl">${esc(c.desc)}</span> +${rewardLabel(r)}`);
-  if(DAILY.challenges.length===3&&DAILY.challenges.every(x=>x.completed)){
-    DAILY.streak=(DAILY.streak|0)+1;
-    const bonus=Math.min(2500,500*DAILY.streak);
-    S.money+=bonus;SFX.level();
-    setTimeout(()=>showToast(`🔥 All 3 dailies done! Streak ${DAILY.streak} → +$${bonus.toLocaleString()}`),900);
-    addLog(`🔥 <span class="hl">All 3 daily challenges!</span> +$${bonus.toLocaleString()} streak bonus`);
-    try{localStorage.setItem('ll_daily_'+DAILY.date,'all')}catch(e){}
-  }
-  autoSave();
-}
-function updateDailyProgress(key,value){
-  if(!DAILY.date)return;
-  if(DAILY.date!==todayKey())initDailyChallenges();
-  let changed=false;
-  DAILY.challenges.forEach(c=>{
-    if(c.completed||c.key!==key)return;
-    const mode=DAILY_MODES[key]||'add';
-    if(mode==='add')c.progress+=value;
-    else if(mode==='max')c.progress=Math.max(c.progress,value);
-    else if(mode==='min')c.progress=c.progress>0?Math.min(c.progress,value):value;
-    const done=mode==='min'?(c.progress>0&&c.progress<=c.target):(c.progress>=c.target);
-    if(done){c.completed=true;grantDailyReward(c)}
-    changed=true;
-  });
-  if(changed){saveDaily();updateDailyBadge();
-    if($('daily-overlay').classList.contains('show'))renderDailyChallenges()}
-}
-function dailyTrackNB(nbIdx){
-  if(!DAILY.date)return;
-  if(DAILY.date!==todayKey())initDailyChallenges();
-  if(!Array.isArray(DAILY.meta.nbs))DAILY.meta.nbs=[];
-  if(DAILY.meta.nbs.includes(nbIdx))return;
-  DAILY.meta.nbs.push(nbIdx);
-  updateDailyProgress('nb_diversity',DAILY.meta.nbs.length);
-  saveDaily();
-}
-function openDailyPanel(){SFX.click();initDailyChallenges();renderDailyChallenges();$('daily-overlay').classList.add('show')}
-function closeDailyPanel(){SFX.click();$('daily-overlay').classList.remove('show')}
-function renderDailyChallenges(){
-  const l=$('daily-list');if(!l)return;l.innerHTML='';
-  DAILY.challenges.forEach(c=>{
-    const mode=DAILY_MODES[c.key]||'add';
-    let pct,progText;
-    if(mode==='min'){pct=c.completed?100:0;progText=c.progress>0?`Best: ${c.progress}s (need ≤${c.target}s)`:`Finish a job in ≤${c.target}s`}
-    else{pct=Math.min(100,Math.round((c.progress/Math.max(1,c.target))*100));progText=`${Math.min(c.progress,c.target).toLocaleString()}/${c.target.toLocaleString()}`}
-    const d=document.createElement('div');d.className=`daily-card ${c.difficulty}${c.completed?' done':''}`;
-    d.innerHTML=`<div class="dc-head"><span class="dc-diff ${c.difficulty}">${c.difficulty}</span><span class="dc-reward">🎁 ${rewardLabel(c.reward)}</span></div>
-      <div class="dc-desc">${esc(c.desc)}</div>
-      <div class="dc-bar"><div class="dc-fill" style="width:${c.completed?100:pct}%"></div></div>
-      <div class="dc-prog">${c.completed?'Completed ✅':progText}</div>`;
-    l.appendChild(d)});
-  const sb=$('daily-streak-bar');
-  const doneCount=DAILY.challenges.filter(c=>c.completed).length;
-  sb.innerHTML=`🔥 Daily streak: <strong>${DAILY.streak}</strong> day${DAILY.streak!==1?'s':''} · ${doneCount}/3 today${doneCount<3?` · All 3 = +$${Math.min(2500,500*(DAILY.streak+1)).toLocaleString()} bonus`:''}`;
-}
-function updateDailyBadge(){const el=$('daily-hdr-count');if(!el)return;
-  const n=DAILY.date?DAILY.challenges.filter(c=>!c.completed).length:0;
-  if(n>0){el.style.display='flex';el.textContent=n}else el.style.display='none'}
 
 // ═══════════════════════════════════════════════════════
 //  v9 SYSTEM 3: STATISTICS DASHBOARD
@@ -2801,7 +2694,46 @@ function renderStarterPacks(){
     grid.appendChild(c)});
 }
 
-function switchTab(tab){S.activeTab=tab;
+// ═══ U12: progressive tab disclosure — start with 4, unlock the rest ═══
+const TAB_ORDER=['upgrades','daily2','goals','proshop','weekly','crew','perks','contracts','rankings','legacy','nbupgrades','stats','help'];
+const TAB_ALWAYS=['upgrades','crew','daily2','goals']; // visible from the very first screen
+const TAB_LABELS={upgrades:'🛒 Shop',daily2:'📋 Daily',goals:'🎯 Goals',proshop:'🏪 Pro Shop',weekly:'⚔️ Weekly',crew:'👷 Crew',perks:'🧠 Perks',contracts:'📝 Bids',rankings:'🏅 Rank',legacy:'🏆 Legacy',nbupgrades:'🏘️ Area',stats:'📊 Stats',help:'❓ Help'};
+// Each gated tab unlocks when its condition first passes (matches when the system becomes relevant).
+const TAB_UNLOCKS={
+  perks:      ()=>S.skillPoints>0||S.perks.size>0,
+  contracts:  ()=>S.rep>=10||S.equipment.signage>=1,
+  rankings:   ()=>S.day>=2,
+  stats:      ()=>S.day>=2,
+  help:       ()=>S.day>=2,
+  nbupgrades: ()=>(typeof getTierIndex==='function'?getTierIndex():0)>=1,
+  legacy:     ()=>calcValuation()>=50000||(S.prestigeLevel|0)>0,
+  proshop:    ()=>(S.vouchers|0)>0||(S.skinsOwned&&S.skinsOwned.length>1)||(S.trophiesOwned&&S.trophiesOwned.length>0),
+  weekly:     ()=>S.day>=3||(S.prestigeLevel|0)>0,
+};
+function tabVisible(id){return TAB_ALWAYS.includes(id)||(Array.isArray(S.tabsUnlocked)&&S.tabsUnlocked.includes(id))}
+function applyTabVisibility(){
+  document.querySelectorAll('.tab-btn').forEach(btn=>{const id=btn.getAttribute('data-tab');
+    btn.style.display=tabVisible(id)?'':'none'});
+}
+function checkTabUnlocks(){
+  if(_inChallenge)return; // don't fire main-game unlock toasts during a sandboxed run
+  if(!Array.isArray(S.tabsUnlocked))S.tabsUnlocked=[];
+  let any=false;
+  Object.keys(TAB_UNLOCKS).forEach(id=>{
+    if(S.tabsUnlocked.includes(id))return;
+    let pass=false;try{pass=TAB_UNLOCKS[id]()}catch(e){}
+    if(!pass)return;
+    S.tabsUnlocked.push(id);any=true;
+    const btn=document.querySelector(`.tab-btn[data-tab="${id}"]`);
+    if(btn){btn.style.display='';btn.classList.remove('tab-unlock-pop');void btn.offsetWidth;btn.classList.add('tab-unlock-pop')}
+    SFX.level();showToast(`🔓 New tab: ${TAB_LABELS[id]||id}!`);
+  });
+  if(any)autoSave();
+}
+function switchTab(tab){
+  // Guard: never land on a still-locked tab
+  if(!tabVisible(tab))tab='upgrades';
+  S.activeTab=tab;
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     const t=btn.getAttribute('data-tab');btn.classList.toggle('active',t===tab);
     const panel=$('tab-'+t);if(panel)panel.style.display=t===tab?'block':'none';
@@ -3077,6 +3009,7 @@ function updateUI(){
   if(S.activeTab==='rankings')renderRankings();if(S.activeTab==='nbupgrades'){renderNBUpgrades();renderCompanyTier()}
   if(S.activeTab==='stats')renderStats();
   updateVoucherUI();updateStreakFlame();
+  if(typeof checkTabUnlocks==='function')checkTabUnlocks();
   if(typeof checkGoalLadder==='function')checkGoalLadder(false);
   if(S.activeTab==='daily2')renderDailyContracts();
   if(S.activeTab==='goals'&&typeof renderGoalLadder==='function')renderGoalLadder();
@@ -3669,9 +3602,10 @@ function advanceDay(){
 function closeModal(){$('mo').classList.remove('show');$('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button onclick="closeModal()">OK</button>';
   if(S.dayJobsDone>0&&$('mt').textContent.includes('Report')){advanceDay()}}
 
-function checkMilestones(){MILESTONES.forEach(m=>{if(!S.milestonesHit.has(m.id)&&m.ck()){S.milestonesHit.add(m.id);SFX.milestone();fxCenter('confetti',{n:28});
-  if(!$('mo').classList.contains('show')){$('me').textContent=m.e;$('mt').textContent=m.t;$('mx').textContent=m.x;$('modal-extra').innerHTML='';$('modal-buttons').innerHTML='<button class="share" onclick="shareCard(\'square\')">📸 Share</button><button class="share" onclick="shareCard(\'vertical\')">📌 Pin</button><button onclick="closeModal()">OK</button>';$('mo').classList.add('show')}
-  addLog(`🏆 <span class="hl">${m.t}</span>`);renderTrophies()}})}
+// U12: legacy milestones now speak via achievement-style toasts — the Goal Ladder owns milestone modals.
+function checkMilestones(){MILESTONES.forEach(m=>{if(!S.milestonesHit.has(m.id)&&m.ck()){S.milestonesHit.add(m.id);SFX.milestone();fxCenter('confetti',{n:16});
+  pushToast(`${esc(m.e)} <strong>${esc(m.t)}</strong> — ${esc(m.x)}`,'ach',3200,true);
+  addLog(`🏆 <span class="hl">${esc(m.t)}</span>`);renderTrophies()}})}
 
 function loop(){animFrame++;
   // Animate garden growth across all visible props
@@ -4636,7 +4570,7 @@ const SAVE_FIELDS=['playerName','money','rep','jobsDone','day','equipment','truc
   'legacy','runStartMs','fastest100kSeconds','lbOptIn','lbName','bestComboEver',
   // ═══ RETENTION PACK (v13–v17): vouchers, daily contracts, goal ladder, pro shop ═══
   'vouchers','dc','goldenPity','lifetimeGolden','goalLadderIdx','goalLadderDone','earnedTitles',
-  'skinsOwned','skinEquipped','trophiesOwned','trophiesPlaced','titleEquipped'];
+  'skinsOwned','skinEquipped','trophiesOwned','trophiesPlaced','titleEquipped','tabsUnlocked'];
 // v9 numeric stat fields — sanitized on load; missing in pre-v9 saves → default 0
 const V9_NUM_FIELDS=['maxComboCount','bestComboEarnings','comboChainEarnings','fullDayCount','consecutiveProfitDays','totalSpent','titleClicks',
   'lifetimeJobs','lifetimeTips','lifetimeExpenses','lifetimeContracts','lifetimeRepairs','bestDay','longestStreak',
@@ -4648,7 +4582,7 @@ function getSaveData(){
   data.achievementsUnlocked=[...S.achievementsUnlocked];
   data.weathersWorkedIn=[...S.weathersWorkedIn];
   data.jobTypesCompleted=[...S.jobTypesCompleted];
-  data._version=17;data._savedAt=new Date().toISOString();return data;
+  data._version=18;data._savedAt=new Date().toISOString();return data;
 }
 function saveGame(){
   if(typeof _inChallenge!=='undefined'&&_inChallenge)return false; // U11: challenge runs are sandboxed — never touch the main save
@@ -4724,6 +4658,15 @@ function applySaveData(data){
   S.trophiesOwned=Array.isArray(data.trophiesOwned)?data.trophiesOwned.filter(x=>typeof x==='string').slice(0,40):[];
   S.trophiesPlaced=Array.isArray(data.trophiesPlaced)?data.trophiesPlaced.filter(x=>typeof x==='string'&&S.trophiesOwned.includes(x)).slice(0,3):[];
   S.titleEquipped=typeof data.titleEquipped==='string'?cleanName(data.titleEquipped,40):'';
+  // U12: progressive tabs — honor stored unlocks; migrate pre-v18 saves without a toast storm
+  if(Array.isArray(data.tabsUnlocked)){
+    S.tabsUnlocked=data.tabsUnlocked.filter(x=>typeof x==='string'&&TAB_ORDER.includes(x));
+  }else if((S.day|0)>=3||(S.prestigeLevel|0)>0||(S.jobsDone|0)>=25){
+    S.tabsUnlocked=TAB_ORDER.slice(); // established player — reveal everything silently
+  }else{
+    S.tabsUnlocked=[]; // early player — seed with any gated tab whose condition already passes
+    Object.keys(TAB_UNLOCKS).forEach(id=>{try{if(TAB_UNLOCKS[id]())S.tabsUnlocked.push(id)}catch(e){}});
+  }
   // Reset runtime state
   S.activeDispatches=[];S.nbJobs={};S.bidOffers=data.bidOffers||[];
   S.weather=WEATHER_TYPES[0];S.season=SEASONS[0];
@@ -4770,17 +4713,7 @@ function startNewGame(){
   S.crew[0].name=name;
   S.runStartMs=Date.now(); // fastest-to-$100k timer starts now
   SFX.init();SFX.applyMix();SFX.updateAmbient();
-  // Optional name-screen email opt-in
-  try{
-    const optBox=$('ns-email-optin'),emInp=$('ns-email-input');
-    if(optBox&&optBox.checked&&emInp){
-      const email=(emInp.value||'').trim();
-      if(EMAIL_RX.test(email)&&email.length<=254){
-        // Fire-and-forget; don't block game start on network
-        submitEmailPayload(email,'namescreen').then(()=>{setEmailFlag('namescreen_submitted');setEmailFlag('namescreen_shown')}).catch(e=>console.warn('email subscribe failed:',e&&e.message));
-      }
-    }
-  }catch(e){console.warn('optin err:',e)}
+  // U12: name-screen email ask removed — email is asked only after the game earns it (day 3+).
   // v11: New Game+ starter pack (returning prestiged players only)
   if(chosenStarterPack){const p=STARTER_PACKS.find(x=>x.id===chosenStarterPack);if(p){try{p.effect()}catch(e){}
     addLog(`🎁 Starter bonus: <span class="hl">${esc(p.name)}</span>`)}}
@@ -4803,7 +4736,7 @@ function loadAndStart(){
 let _loopStarted=false;
 function initGameUI(){
   $('player-name-display').textContent='— '+S.playerName;
-  initDailyChallenges();initDailyContracts();startSessionWarmup();refreshSeasonalEvent();
+  if(!_inChallenge)migrateV9Daily();initDailyContracts();startSessionWarmup();applyTabVisibility();refreshSeasonalEvent();
   checkGoalLadder(true); // U9: silently honor already-satisfied milestones (one summary, no popup spam) BEFORE first updateUI
   checkSecretSkin(); // U10: grant secret skin if a 30-day best streak already exists
   if(!_inChallenge)checkWeeklyRollover(); // U11: end-of-week placement + voucher rewards (fire-and-forget)

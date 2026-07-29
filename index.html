@@ -4855,5 +4855,19 @@ window.addEventListener('offline',()=>setSyncDot('offline'));
   if(!navigator.onLine)setTimeout(()=>showToast("Offline mode — progress saves locally and syncs when you're back."),2400);
 })();
 </script>
+<script>
+// ═══ PayBox agent tip jar (x402) — https://github.com/TheMrDude/paybox-moonpay ═══
+// Set endpoint to your deployed x402 tip-jar URL to enable; empty = fully off.
+// Web build only: hidden inside the Play Store TWA to stay clear of billing policy.
+const PAYBOX_TIPJAR={endpoint:'',amounts:[2,5,10],name:'the Lawn Legend dev'};
+(function(){
+  if(!PAYBOX_TIPJAR.endpoint)return;
+  try{if(document.referrer.startsWith('android-app://'))sessionStorage.setItem('ll_twa','1');
+    if(sessionStorage.getItem('ll_twa')==='1')return}catch(e){}
+  const s=document.createElement('script');s.src='/paybox-badge.js';
+  s.onload=()=>PayBoxBadge.init({endpoint:PAYBOX_TIPJAR.endpoint,amounts:PAYBOX_TIPJAR.amounts,name:PAYBOX_TIPJAR.name,accent:'#52b788',position:'bottom-right'});
+  document.body.appendChild(s);
+})();
+</script>
 </body>
 </html>
